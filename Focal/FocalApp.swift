@@ -1,10 +1,3 @@
-//
-//  FocalApp.swift
-//  Focal
-//
-//  Created by Timothy Brits on 2026/05/21.
-//
-
 import SwiftUI
 import SwiftData
 

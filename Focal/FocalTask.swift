@@ -1,4 +1,3 @@
-// Focal/FocalTask.swift
 import Foundation
 import SwiftData
 

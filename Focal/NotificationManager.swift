@@ -22,6 +22,7 @@ enum InactivityThreshold: String, CaseIterable, Identifiable {
 final class NotificationManager {
     static let shared = NotificationManager()
     private let center = UNUserNotificationCenter.current()
+    private init() {}
 
     func requestPermission() async -> Bool {
         (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false

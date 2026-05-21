@@ -97,10 +97,24 @@ struct TaskStoreTests {
             Issue.record("Expected a current task")
             return
         }
+        let deletedTitle = current.title
         context.delete(current)
         try context.save()
         store.refreshIfNeeded()
         #expect(store.currentTask != nil)
-        #expect(store.currentTask?.title != current.title)
+        #expect(store.currentTask?.title != deletedTitle)
+    }
+
+    @Test func addTaskWhenNonEmptyPreservesCurrentTask() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "Existing")])
+        let originalID = store.currentTaskID
+        store.addTask(title: "New", note: nil)
+        #expect(store.currentTaskID == originalID)
+    }
+
+    @Test func doneWhenEmptyIsNoOp() throws {
+        let (store, _) = try makeStore()
+        store.done()
+        #expect(store.currentTask == nil)
     }
 }

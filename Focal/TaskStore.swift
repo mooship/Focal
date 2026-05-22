@@ -59,12 +59,13 @@ final class TaskStore {
     }
 
     func deleteTask(_ task: FocalTask) {
+        let id = task.id
         let title = task.title
         let note = task.note
         let completedAt = task.completedAt
         modelContext.delete(task)
         try? modelContext.save()
-        if let i = sessionQueue.firstIndex(of: task.id) { sessionQueue.remove(at: i) }
+        if let i = sessionQueue.firstIndex(of: id) { sessionQueue.remove(at: i) }
         refreshIfNeeded()
 
         undoTask?.cancel()
@@ -95,6 +96,7 @@ final class TaskStore {
     func restoreTask(_ task: FocalTask) {
         task.completedAt = nil
         try? modelContext.save()
+        guard !sessionQueue.contains(task.id) else { return }
         let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
         sessionQueue.insert(task.id, at: insertIndex)
         if currentTaskID == nil { advance() }

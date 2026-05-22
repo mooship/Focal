@@ -29,6 +29,16 @@ jobs:
       - name: Initialize Xcode
         run: sudo xcodebuild -runFirstLaunch
 
+      - name: Boot simulator
+        run: |
+          UDID=$(xcodebuild -scheme "$SCHEME" -showdestinations 2>/dev/null \
+            | awk -F'id:' '/iPhone 17.*iOS Simulator/{print $2}' \
+            | awk -F',' '{print $1}' \
+            | head -1)
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+
       - name: Cache DerivedData
         uses: actions/cache@v4
         with:
@@ -42,7 +52,7 @@ jobs:
         run: |
           xcodebuild test \
             -scheme "$SCHEME" \
-            -destination "platform=iOS Simulator,name=iPhone 17" \
+            -destination "id=$SIM_UDID" \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath TestResults.xcresult
 

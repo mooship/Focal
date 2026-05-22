@@ -25,6 +25,7 @@ final class ConfettiUIView: UIView {
         super.layoutSubviews()
         guard !fired, bounds.size != .zero else { return }
         fired = true
+        emitter.frame = bounds
         emitter.emitterPosition = CGPoint(x: bounds.midX, y: bounds.height * 0.3)
         emitter.emitterSize = CGSize(width: bounds.width, height: 1)
         emitter.birthRate = 1

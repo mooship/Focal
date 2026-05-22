@@ -46,14 +46,6 @@ jobs:
             ${{ runner.os }}-deriveddata-${{ hashFiles('Focal.xcodeproj/project.pbxproj') }}-
             ${{ runner.os }}-deriveddata-
 
-      - name: Build
-        run: |
-          xcodebuild build \
-            -scheme "$SCHEME" \
-            -destination "id=$SIM_UDID" \
-            CODE_SIGNING_ALLOWED=NO \
-            -quiet
-
       - name: Test
         run: |
           xcodebuild test \

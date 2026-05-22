@@ -43,6 +43,7 @@ struct AllTasksView: View {
             }
             .navigationTitle("All Tasks")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }

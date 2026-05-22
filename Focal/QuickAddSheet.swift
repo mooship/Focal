@@ -34,6 +34,7 @@ struct QuickAddSheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+        .presentationBackground(.regularMaterial)
         .onAppear { titleFocused = true }
     }
 }

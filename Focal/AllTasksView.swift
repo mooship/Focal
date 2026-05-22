@@ -21,24 +21,37 @@ struct AllTasksView: View {
         )
     }
 
+    private let rowInsets = EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16)
+
     var body: some View {
         let groups = taskGroups
         NavigationStack {
             List {
                 Section {
                     ForEach(groups.incomplete) { task in
-                        Button(task.title) { editingTask = task }
-                            .foregroundStyle(.primary)
-                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                Button {
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    store.prioritizeTask(task)
-                                    dismiss()
-                                } label: {
-                                    Label("Focus now", systemImage: "arrow.up.to.line")
-                                }
-                                .tint(.blue)
+                        Button {
+                            editingTask = task
+                        } label: {
+                            Text(task.title)
+                                .foregroundStyle(.primary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(rowInsets)
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                store.prioritizeTask(task)
+                                dismiss()
+                            } label: {
+                                Label("Focus now", systemImage: "arrow.up.to.line")
                             }
+                            .tint(.blue)
+                        }
                     }
                     .onDelete { offsets in
                         for index in offsets { store.deleteTask(groups.incomplete[index]) }
@@ -50,6 +63,13 @@ struct AllTasksView: View {
                         ForEach(groups.completed) { task in
                             Text(task.title)
                                 .foregroundStyle(.secondary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(rowInsets)
                                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                     Button {
                                         UINotificationFeedbackGenerator().notificationOccurred(.success)
@@ -66,10 +86,12 @@ struct AllTasksView: View {
                     }
                 }
             }
+            .listStyle(.plain)
             .frame(maxWidth: isRegularWidth ? 600 : .infinity)
             .navigationTitle("All Tasks")
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
+            .presentationBackground(.regularMaterial)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }

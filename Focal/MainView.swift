@@ -142,7 +142,7 @@ struct MainView: View {
 
     private func undoBanner(_ undo: TaskStore.PendingUndo) -> some View {
         HStack {
-            Text("Deleted "\(undo.title)"")
+            Text("Deleted \"\(undo.title)\"")
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer()

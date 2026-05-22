@@ -92,7 +92,7 @@ struct MainView: View {
 
             VStack(spacing: 8) {
                 let count = incompleteTasks.count
-                Text(count == 1 ? "Last one" : "\(count) tasks")
+                Text("\(count) tasks")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
 

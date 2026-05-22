@@ -3,12 +3,14 @@ import SwiftUI
 struct MainView: View {
     @Environment(TaskStore.self) private var store
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
+    private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     var body: some View {
         NavigationStack {
@@ -102,6 +104,7 @@ struct MainView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
+        .frame(maxWidth: isRegularWidth ? 600 : .infinity)
     }
 
     private var emptyStateView: some View {

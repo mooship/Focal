@@ -1,0 +1,436 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld tasks" : {
+      "localizations" : {
+        "af" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Laaste een"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld take"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Last one"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld tasks"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "2 hours" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 uur"
+          }
+        }
+      }
+    },
+    "4 hours" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4 uur"
+          }
+        }
+      }
+    },
+    "8 hours" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 uur"
+          }
+        }
+      }
+    },
+    "Add" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg By"
+          }
+        }
+      }
+    },
+    "Add something when you’re ready." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg iets by wanneer jy gereed is."
+          }
+        }
+      }
+    },
+    "All Tasks" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Take"
+          }
+        }
+      }
+    },
+    "Animations" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animasies"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorkoms"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kanselleer"
+          }
+        }
+      }
+    },
+    "Completed" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voltooi"
+          }
+        }
+      }
+    },
+    "Dark" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Donker"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vee Uit"
+          }
+        }
+      }
+    },
+    "Delete Task" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vee Taak Uit"
+          }
+        }
+      }
+    },
+    "Delete this task?" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vee hierdie taak uit?"
+          }
+        }
+      }
+    },
+    "Deleted “%@”" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” uitgevee"
+          }
+        }
+      }
+    },
+    "Discard" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weggooi"
+          }
+        }
+      }
+    },
+    "Discard changes?" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veranderinge weggooi?"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klaar"
+          }
+        }
+      }
+    },
+    "Edit Task" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysig Taak"
+          }
+        }
+      }
+    },
+    "Focal" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focal"
+          }
+        }
+      }
+    },
+    "Focus now" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fokus nou"
+          }
+        }
+      }
+    },
+    "Inactivity reminder" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onaktiwiteitsherinnering"
+          }
+        }
+      }
+    },
+    "Keep Editing" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hou Aan Wysig"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lig"
+          }
+        }
+      }
+    },
+    "New Task" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuwe Taak"
+          }
+        }
+      }
+    },
+    "Nice, nothing left." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mooi, niks oor nie."
+          }
+        }
+      }
+    },
+    "Not now" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie nou nie"
+          }
+        }
+      }
+    },
+    "Note (optional)" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota (opsioneel)"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Af"
+          }
+        }
+      }
+    },
+    "One gentle nudge if no task is completed within the chosen period." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'n Sagte herinnering as geen taak binne die gekose tydperk voltooi is nie."
+          }
+        }
+      }
+    },
+    "Pick up a task whenever you’re ready." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neem 'n taak op wanneer jy gereed is."
+          }
+        }
+      }
+    },
+    "Remind after" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herinner na"
+          }
+        }
+      }
+    },
+    "Restore" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herstel"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoor"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellings"
+          }
+        }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stelsel"
+          }
+        }
+      }
+    },
+    "Task" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taak"
+          }
+        }
+      }
+    },
+    "Time to focus" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tyd om te fokus"
+          }
+        }
+      }
+    },
+    "Undo" : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontdoen"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

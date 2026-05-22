@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LimitedTextField: View {
-    let label: String
+    let label: LocalizedStringKey
     @Binding var text: String
     let limit: Int
 

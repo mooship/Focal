@@ -7,7 +7,7 @@ enum TaskLimit {
 }
 
 @Model
-final class FocalTask {
+final class TidelTask {
     var id: UUID
     var title: String
     var note: String?

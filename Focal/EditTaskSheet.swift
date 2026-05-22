@@ -6,7 +6,7 @@ struct EditTaskSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(TaskStore.self) private var store
-    let task: TidelTask
+    let task: FocalTask
     @State private var title: String
     @State private var note: String
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -19,7 +19,7 @@ struct EditTaskSheet: View {
         title.trimmed != task.title || note.nilIfEmpty != task.note
     }
 
-    init(task: TidelTask) {
+    init(task: FocalTask) {
         self.task = task
         _title = State(initialValue: task.title)
         _note = State(initialValue: task.note ?? "")

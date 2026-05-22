@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct TidelApp: App {
+struct FocalApp: App {
     let modelContainer: ModelContainer
     let taskStore: TaskStore
     @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = NotificationManager.Key.colorSchemeSystem
@@ -17,7 +17,7 @@ struct TidelApp: App {
 
     init() {
         do {
-            let schema = Schema([TidelTask.self])
+            let schema = Schema([FocalTask.self])
             let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
             let container = try ModelContainer(for: schema, configurations: [config])
             modelContainer = container

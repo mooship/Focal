@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: macos-15
+    runs-on: macos-latest
 
     env:
       SCHEME: Focal
@@ -29,9 +29,6 @@ jobs:
 
       - name: Initialize Xcode
         run: sudo xcodebuild -runFirstLaunch
-
-      - name: Install iOS simulator runtime
-        run: xcrun simctl runtime scan-and-mount
 
       - name: Boot simulator
         run: |

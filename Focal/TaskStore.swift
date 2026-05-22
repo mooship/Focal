@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import Observation
 
 @Observable
 final class TaskStore {
@@ -25,19 +24,17 @@ final class TaskStore {
         task.completedAt = Date()
         try? modelContext.save()
         if let i = sessionQueue.firstIndex(of: id) { sessionQueue.remove(at: i) }
-        advance(using: incomplete.filter { $0.id != id })
+        advance(with: incomplete.filter { $0.id != id })
         NotificationManager.shared.reschedule()
     }
 
     func notNow() {
         let incomplete = fetchIncomplete()
         guard let id = currentTaskID,
-              let task = incomplete.first(where: { $0.id == id }) else { return }
-        task.lastSkippedAt = Date()
-        try? modelContext.save()
+              incomplete.contains(where: { $0.id == id }) else { return }
         if let i = sessionQueue.firstIndex(of: id) { sessionQueue.remove(at: i) }
         sessionQueue.append(id)
-        advance(using: incomplete)
+        advance(with: incomplete)
         NotificationManager.shared.reschedule()
     }
 
@@ -65,8 +62,8 @@ final class TaskStore {
         }
     }
 
-    private func advance(using incomplete: [FocalTask]? = nil) {
-        let incomplete = incomplete ?? fetchIncomplete()
+    private func advance(with preloaded: [FocalTask]? = nil) {
+        let incomplete = preloaded ?? fetchIncomplete()
         let incompleteIDs = Set(incomplete.map(\.id))
         sessionQueue = sessionQueue.filter { incompleteIDs.contains($0) }
         if sessionQueue.isEmpty {

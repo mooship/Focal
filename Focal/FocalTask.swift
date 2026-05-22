@@ -13,7 +13,6 @@ final class FocalTask {
     var note: String?
     var createdAt: Date
     var completedAt: Date?
-    var lastSkippedAt: Date?
 
     init(title: String, note: String? = nil) {
         self.id = UUID()

@@ -12,11 +12,10 @@ permissions:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: macos-15
+    runs-on: macos-26-arm64
 
     env:
       SCHEME: Focal
-      DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
 
     steps:
       - name: Checkout
@@ -25,44 +24,37 @@ jobs:
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: '~26'
 
       - name: Initialize Xcode
         run: sudo xcodebuild -runFirstLaunch
 
-      - name: Cache iOS simulator runtime
-        id: cache-runtime
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Developer/CoreSimulator/Volumes
-          key: ${{ runner.os }}-ios-runtime-${{ env.MD_APPLE_SDK_ROOT }}
-
-      - name: Install iOS simulator runtime
-        if: steps.cache-runtime.outputs.cache-hit != 'true'
-        run: xcodebuild -downloadPlatform iOS
+      - name: Boot simulator
+        run: |
+          UDID=$(xcrun simctl list devices available | grep "iPhone 17 (" | head -1 | grep -oE '[0-9A-Fa-f-]{36}')
+          if [ -z "$UDID" ]; then
+            echo "No iPhone 17 simulator found" >&2
+            xcrun simctl list devices available
+            exit 1
+          fi
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
 
       - name: Cache DerivedData
         uses: actions/cache@v4
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-deriveddata-${{ hashFiles('Focal.xcodeproj/project.pbxproj') }}-${{ hashFiles('Focal/**/*.swift', 'FocalTests/**/*.swift') }}
+          key: ${{ runner.os }}-deriveddata-${{ env.MD_APPLE_SDK_ROOT }}-${{ hashFiles('Focal.xcodeproj/project.pbxproj') }}-${{ hashFiles('Focal/**/*.swift', 'FocalTests/**/*.swift') }}
           restore-keys: |
-            ${{ runner.os }}-deriveddata-${{ hashFiles('Focal.xcodeproj/project.pbxproj') }}-
-            ${{ runner.os }}-deriveddata-
-
-      - name: Build
-        run: |
-          xcodebuild build \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            CODE_SIGNING_ALLOWED=NO \
-            -quiet
+            ${{ runner.os }}-deriveddata-${{ env.MD_APPLE_SDK_ROOT }}-${{ hashFiles('Focal.xcodeproj/project.pbxproj') }}-
+            ${{ runner.os }}-deriveddata-${{ env.MD_APPLE_SDK_ROOT }}-
 
       - name: Test
         run: |
           xcodebuild test \
             -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
+            -destination "id=$SIM_UDID" \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath TestResults.xcresult
 

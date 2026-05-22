@@ -10,10 +10,13 @@ struct AllTasksView: View {
     @State private var editingTask: FocalTask?
 
     private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {
-        allTasks.reduce(into: ([FocalTask](), [FocalTask]())) { acc, task in
-            if task.completedAt == nil { acc.0.append(task) }
-            else { acc.1.append(task) }
+        var incomplete = [FocalTask]()
+        var completed = [FocalTask]()
+        for task in allTasks {
+            if task.completedAt == nil { incomplete.append(task) }
+            else { completed.append(task) }
         }
+        return (incomplete, completed)
     }
 
     var body: some View {

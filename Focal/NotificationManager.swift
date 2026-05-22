@@ -25,6 +25,9 @@ final class NotificationManager {
         static let inactivityThreshold = "inactivityThreshold"
         static let animationsEnabled = "animationsEnabled"
         static let colorScheme = "colorScheme"
+        static let colorSchemeLight = "light"
+        static let colorSchemeDark = "dark"
+        static let colorSchemeSystem = "system"
     }
 
     static let shared = NotificationManager()
@@ -40,8 +43,8 @@ final class NotificationManager {
         let raw = UserDefaults.standard.string(forKey: Key.inactivityThreshold)
             ?? InactivityThreshold.twoHours.rawValue
         let threshold = InactivityThreshold(rawValue: raw) ?? .twoHours
-        guard threshold != .off else { cancelAll(); return }
         cancelAll()
+        guard threshold != .off else { return }
         let content = UNMutableNotificationContent()
         content.title = "Time to focus"
         content.body = "Pick up a task whenever you're ready."

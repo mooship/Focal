@@ -9,8 +9,8 @@ struct FocalApp: App {
 
     var preferredScheme: ColorScheme? {
         switch colorSchemeRaw {
-        case "light": return .light
-        case "dark": return .dark
+        case NotificationManager.Key.colorSchemeLight: return .light
+        case NotificationManager.Key.colorSchemeDark: return .dark
         default: return nil
         }
     }

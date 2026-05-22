@@ -16,7 +16,6 @@ jobs:
 
     env:
       SCHEME: Focal
-      DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
 
     steps:
       - name: Checkout
@@ -32,7 +31,7 @@ jobs:
 
       - name: Boot simulator
         run: |
-          UDID=$(xcrun simctl list devices available | grep "iPhone 16 (" | head -1 | grep -oE '[0-9A-Fa-f-]{36}')
+          UDID=$(xcrun simctl list devices available | grep "Apple Vision Pro (" | tail -1 | grep -oE '[0-9A-Fa-f-]{36}')
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
           echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"

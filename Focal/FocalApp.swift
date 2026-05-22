@@ -3,23 +3,26 @@ import SwiftData
 
 @main
 struct FocalApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            FocalTask.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    let modelContainer: ModelContainer
+    let taskStore: TaskStore
 
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let schema = Schema([FocalTask.self])
+            let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+            let container = try ModelContainer(for: schema, configurations: [config])
+            modelContainer = container
+            taskStore = TaskStore(modelContext: container.mainContext)
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
+                .environment(taskStore)
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(modelContainer)
     }
 }

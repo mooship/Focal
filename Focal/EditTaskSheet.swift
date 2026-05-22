@@ -58,5 +58,6 @@ struct EditTaskSheet: View {
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 }

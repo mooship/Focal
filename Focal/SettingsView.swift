@@ -59,5 +59,6 @@ struct SettingsView: View {
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 }

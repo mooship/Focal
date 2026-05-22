@@ -12,37 +12,37 @@
 			containerPortal = 4148C5E32FBF447D006B0609 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 4148C5EA2FBF447D006B0609;
-			remoteInfo = Focal;
+			remoteInfo = Tidel;
 		};
 		4148C6052FBF447E006B0609 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4148C5E32FBF447D006B0609 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 4148C5EA2FBF447D006B0609;
-			remoteInfo = Focal;
+			remoteInfo = Tidel;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4148C5EB2FBF447D006B0609 /* Focal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Focal.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4148C5FA2FBF447E006B0609 /* FocalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4148C6042FBF447E006B0609 /* FocalUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocalUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4148C5EB2FBF447D006B0609 /* Tidel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tidel.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4148C5FA2FBF447E006B0609 /* TidelTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TidelTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4148C6042FBF447E006B0609 /* TidelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TidelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		4148C5ED2FBF447D006B0609 /* Focal */ = {
+		4148C5ED2FBF447D006B0609 /* Tidel */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Focal;
+			path = Tidel;
 			sourceTree = "<group>";
 		};
-		4148C5FD2FBF447E006B0609 /* FocalTests */ = {
+		4148C5FD2FBF447E006B0609 /* TidelTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FocalTests;
+			path = TidelTests;
 			sourceTree = "<group>";
 		};
-		4148C6072FBF447E006B0609 /* FocalUITests */ = {
+		4148C6072FBF447E006B0609 /* TidelUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FocalUITests;
+			path = TidelUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		4148C5E22FBF447D006B0609 = {
 			isa = PBXGroup;
 			children = (
-				4148C5ED2FBF447D006B0609 /* Focal */,
-				4148C5FD2FBF447E006B0609 /* FocalTests */,
-				4148C6072FBF447E006B0609 /* FocalUITests */,
+				4148C5ED2FBF447D006B0609 /* Tidel */,
+				4148C5FD2FBF447E006B0609 /* TidelTests */,
+				4148C6072FBF447E006B0609 /* TidelUITests */,
 				4148C5EC2FBF447D006B0609 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		4148C5EC2FBF447D006B0609 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4148C5EB2FBF447D006B0609 /* Focal.app */,
-				4148C5FA2FBF447E006B0609 /* FocalTests.xctest */,
-				4148C6042FBF447E006B0609 /* FocalUITests.xctest */,
+				4148C5EB2FBF447D006B0609 /* Tidel.app */,
+				4148C5FA2FBF447E006B0609 /* TidelTests.xctest */,
+				4148C6042FBF447E006B0609 /* TidelUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4148C5EA2FBF447D006B0609 /* Focal */ = {
+		4148C5EA2FBF447D006B0609 /* Tidel */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4148C60E2FBF447E006B0609 /* Build configuration list for PBXNativeTarget "Focal" */;
+			buildConfigurationList = 4148C60E2FBF447E006B0609 /* Build configuration list for PBXNativeTarget "Tidel" */;
 			buildPhases = (
 				4148C5E72FBF447D006B0609 /* Sources */,
 				4148C5E82FBF447D006B0609 /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				4148C5ED2FBF447D006B0609 /* Focal */,
+				4148C5ED2FBF447D006B0609 /* Tidel */,
 			);
-			name = Focal;
+			name = Tidel;
 			packageProductDependencies = (
 			);
-			productName = Focal;
-			productReference = 4148C5EB2FBF447D006B0609 /* Focal.app */;
+			productName = Tidel;
+			productReference = 4148C5EB2FBF447D006B0609 /* Tidel.app */;
 			productType = "com.apple.product-type.application";
 		};
-		4148C5F92FBF447E006B0609 /* FocalTests */ = {
+		4148C5F92FBF447E006B0609 /* TidelTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4148C6112FBF447E006B0609 /* Build configuration list for PBXNativeTarget "FocalTests" */;
+			buildConfigurationList = 4148C6112FBF447E006B0609 /* Build configuration list for PBXNativeTarget "TidelTests" */;
 			buildPhases = (
 				4148C5F62FBF447E006B0609 /* Sources */,
 				4148C5F72FBF447E006B0609 /* Frameworks */,
@@ -131,18 +131,18 @@
 				4148C5FC2FBF447E006B0609 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				4148C5FD2FBF447E006B0609 /* FocalTests */,
+				4148C5FD2FBF447E006B0609 /* TidelTests */,
 			);
-			name = FocalTests;
+			name = TidelTests;
 			packageProductDependencies = (
 			);
-			productName = FocalTests;
-			productReference = 4148C5FA2FBF447E006B0609 /* FocalTests.xctest */;
+			productName = TidelTests;
+			productReference = 4148C5FA2FBF447E006B0609 /* TidelTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		4148C6032FBF447E006B0609 /* FocalUITests */ = {
+		4148C6032FBF447E006B0609 /* TidelUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4148C6142FBF447E006B0609 /* Build configuration list for PBXNativeTarget "FocalUITests" */;
+			buildConfigurationList = 4148C6142FBF447E006B0609 /* Build configuration list for PBXNativeTarget "TidelUITests" */;
 			buildPhases = (
 				4148C6002FBF447E006B0609 /* Sources */,
 				4148C6012FBF447E006B0609 /* Frameworks */,
@@ -154,13 +154,13 @@
 				4148C6062FBF447E006B0609 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				4148C6072FBF447E006B0609 /* FocalUITests */,
+				4148C6072FBF447E006B0609 /* TidelUITests */,
 			);
-			name = FocalUITests;
+			name = TidelUITests;
 			packageProductDependencies = (
 			);
-			productName = FocalUITests;
-			productReference = 4148C6042FBF447E006B0609 /* FocalUITests.xctest */;
+			productName = TidelUITests;
+			productReference = 4148C6042FBF447E006B0609 /* TidelUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4148C5E62FBF447D006B0609 /* Build configuration list for PBXProject "Focal" */;
+			buildConfigurationList = 4148C5E62FBF447D006B0609 /* Build configuration list for PBXProject "Tidel" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4148C5EA2FBF447D006B0609 /* Focal */,
-				4148C5F92FBF447E006B0609 /* FocalTests */,
-				4148C6032FBF447E006B0609 /* FocalUITests */,
+				4148C5EA2FBF447D006B0609 /* Tidel */,
+				4148C5F92FBF447E006B0609 /* TidelTests */,
+				4148C6032FBF447E006B0609 /* TidelUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		4148C5FC2FBF447E006B0609 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4148C5EA2FBF447D006B0609 /* Focal */;
+			target = 4148C5EA2FBF447D006B0609 /* Tidel */;
 			targetProxy = 4148C5FB2FBF447E006B0609 /* PBXContainerItemProxy */;
 		};
 		4148C6062FBF447E006B0609 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4148C5EA2FBF447D006B0609 /* Focal */;
+			target = 4148C5EA2FBF447D006B0609 /* Tidel */;
 			targetProxy = 4148C6052FBF447E006B0609 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -397,7 +397,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Focal;
+				INFOPLIST_KEY_CFBundleDisplayName = Tidel;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -409,7 +409,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = timothybrits.co.za.Focal;
+				PRODUCT_BUNDLE_IDENTIFIER = app.tidel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -430,7 +430,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Focal;
+				INFOPLIST_KEY_CFBundleDisplayName = Tidel;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -442,7 +442,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = timothybrits.co.za.Focal;
+				PRODUCT_BUNDLE_IDENTIFIER = app.tidel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -463,7 +463,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = timothybrits.co.za.FocalTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.tidel.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -471,7 +471,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Focal.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Focal";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tidel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tidel";
 			};
 			name = Debug;
 		};
@@ -484,7 +484,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = timothybrits.co.za.FocalTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.tidel.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -492,7 +492,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Focal.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Focal";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tidel.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tidel";
 			};
 			name = Release;
 		};
@@ -503,7 +503,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = timothybrits.co.za.FocalUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.tidel.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -511,7 +511,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Focal;
+				TEST_TARGET_NAME = Tidel;
 			};
 			name = Debug;
 		};
@@ -522,7 +522,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = timothybrits.co.za.FocalUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.tidel.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -530,14 +530,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Focal;
+				TEST_TARGET_NAME = Tidel;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4148C5E62FBF447D006B0609 /* Build configuration list for PBXProject "Focal" */ = {
+		4148C5E62FBF447D006B0609 /* Build configuration list for PBXProject "Tidel" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4148C60C2FBF447E006B0609 /* Debug */,
@@ -546,7 +546,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4148C60E2FBF447E006B0609 /* Build configuration list for PBXNativeTarget "Focal" */ = {
+		4148C60E2FBF447E006B0609 /* Build configuration list for PBXNativeTarget "Tidel" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4148C60F2FBF447E006B0609 /* Debug */,
@@ -555,7 +555,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4148C6112FBF447E006B0609 /* Build configuration list for PBXNativeTarget "FocalTests" */ = {
+		4148C6112FBF447E006B0609 /* Build configuration list for PBXNativeTarget "TidelTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4148C6122FBF447E006B0609 /* Debug */,
@@ -564,7 +564,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4148C6142FBF447E006B0609 /* Build configuration list for PBXNativeTarget "FocalUITests" */ = {
+		4148C6142FBF447E006B0609 /* Build configuration list for PBXNativeTarget "TidelUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4148C6152FBF447E006B0609 /* Debug */,

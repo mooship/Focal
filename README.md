@@ -1,6 +1,6 @@
-# Focal
+# Tidel
 
-A focused task manager for iOS and iPadOS designed to reduce ADHD decision paralysis. Focal shows you **one task at a time** — tap **Done** to complete it, or **Not now** to shuffle it to the back of the queue and see something else.
+A focused task manager for iOS and iPadOS designed to reduce ADHD decision paralysis. Tidel shows you **one task at a time** — tap **Done** to complete it, or **Not now** to shuffle it to the back of the queue and see something else.
 
 No lists. No prioritising. Just the next thing.
 
@@ -20,11 +20,11 @@ No lists. No prioritising. Just the next thing.
 
 ## Building
 
-Open `Focal.xcodeproj` in Xcode and run on a simulator or device, or via the command line:
+Open `Tidel.xcodeproj` in Xcode and run on a simulator or device, or via the command line:
 
 ```bash
 xcodebuild build \
-  -scheme Focal \
+  -scheme Tidel \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
   CODE_SIGNING_ALLOWED=NO
 ```
@@ -33,7 +33,7 @@ xcodebuild build \
 
 ```bash
 xcodebuild test \
-  -scheme Focal \
+  -scheme Tidel \
   -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 

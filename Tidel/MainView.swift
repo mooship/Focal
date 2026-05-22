@@ -9,8 +9,8 @@ struct MainView: View {
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
-    @State private var editingTask: FocalTask?
-    @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
+    @State private var editingTask: TidelTask?
+    @Query(filter: #Predicate<TidelTask> { $0.completedAt == nil }) private var incompleteTasks: [TidelTask]
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
@@ -31,7 +31,7 @@ struct MainView: View {
                 }
             }
             .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.currentTaskID)
-            .navigationTitle("Focal")
+            .navigationTitle("Tidel")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -65,7 +65,7 @@ struct MainView: View {
     }
 
     @ViewBuilder
-    private func taskView(_ task: FocalTask) -> some View {
+    private func taskView(_ task: TidelTask) -> some View {
         VStack(spacing: 0) {
             Spacer()
 

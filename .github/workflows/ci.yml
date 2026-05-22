@@ -46,6 +46,7 @@ jobs:
           UDID=$(xcrun simctl list devices available | grep "iPhone 16 (" | head -1 | grep -oE '[0-9A-Fa-f-]{36}')
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
 
       - name: Cache DerivedData
         uses: actions/cache@v4
@@ -60,7 +61,7 @@ jobs:
         run: |
           xcodebuild build \
             -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
+            -destination "id=$SIM_UDID" \
             CODE_SIGNING_ALLOWED=NO \
             -quiet
 
@@ -68,7 +69,7 @@ jobs:
         run: |
           xcodebuild test \
             -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
+            -destination "id=$SIM_UDID" \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath TestResults.xcresult
 

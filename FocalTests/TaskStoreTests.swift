@@ -8,7 +8,9 @@ struct TaskStoreTests {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: FocalTask.self, configurations: config)
         let context = ModelContext(container)
-        for task in tasks { context.insert(task) }
+        for task in tasks {
+            context.insert(task)
+        }
         try context.save()
         return (TaskStore(modelContext: context), context)
     }
@@ -115,5 +117,134 @@ struct TaskStoreTests {
         let firstID = store.currentTaskID
         store.notNow()
         #expect(store.currentTaskID != firstID)
+    }
+
+    @Test func deleteTaskSetsPendingUndo() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "Buy milk")])
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
+        store.deleteTask(task)
+        #expect(store.pendingUndo?.title == "Buy milk")
+    }
+
+    @Test func deleteTaskPendingUndoPreservesNote() throws {
+        let task = FocalTask(title: "Read book", note: "Chapter 3")
+        let (store, _) = try makeStore(tasks: [task])
+        store.deleteTask(task)
+        #expect(store.pendingUndo?.note == "Chapter 3")
+    }
+
+    @Test func undoDeleteRestoresIncompleteTask() throws {
+        let (store, context) = try makeStore(tasks: [FocalTask(title: "Walk dog")])
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
+        store.deleteTask(task)
+        store.undoDelete()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.contains { $0.title == "Walk dog" })
+        #expect(store.currentTask?.title == "Walk dog")
+    }
+
+    @Test func undoDeleteRestoredTaskIsIncomplete() throws {
+        let (store, context) = try makeStore(tasks: [FocalTask(title: "Call mum")])
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
+        store.deleteTask(task)
+        store.undoDelete()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.first { $0.title == "Call mum" }?.completedAt == nil)
+    }
+
+    @Test func undoDeleteCompletedTaskPreservesCompletedAt() throws {
+        let task = FocalTask(title: "Done task")
+        let completedDate = Date(timeIntervalSinceReferenceDate: 1_000_000)
+        task.completedAt = completedDate
+        let (store, context) = try makeStore(tasks: [task])
+        store.deleteTask(task)
+        store.undoDelete()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.first { $0.title == "Done task" }?.completedAt == completedDate)
+    }
+
+    @Test func undoDeleteWhenNoPendingUndoIsNoOp() throws {
+        let (store, context) = try makeStore(tasks: [FocalTask(title: "Existing")])
+        store.undoDelete()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.count == 1)
+    }
+
+    @Test func undoDeleteClearsPendingUndo() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "Gym")])
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
+        store.deleteTask(task)
+        store.undoDelete()
+        #expect(store.pendingUndo == nil)
+    }
+
+    @Test func restoreTaskMakesItIncomplete() throws {
+        let task = FocalTask(title: "Old task")
+        task.completedAt = Date()
+        let (store, _) = try makeStore(tasks: [task])
+        store.restoreTask(task)
+        #expect(task.completedAt == nil)
+    }
+
+    @Test func restoreTaskBecomesCurrentWhenStoreWasEmpty() throws {
+        let task = FocalTask(title: "Revived")
+        task.completedAt = Date()
+        let (store, _) = try makeStore(tasks: [task])
+        #expect(store.currentTask == nil)
+        store.restoreTask(task)
+        #expect(store.currentTask?.title == "Revived")
+    }
+
+    @Test func restoreTaskDoesNotChangeCurrentWhenQueueActive() throws {
+        let active = FocalTask(title: "Active")
+        let completed = FocalTask(title: "Completed")
+        completed.completedAt = Date()
+        let (store, _) = try makeStore(tasks: [active, completed])
+        let originalID = store.currentTaskID
+        store.restoreTask(completed)
+        #expect(store.currentTaskID == originalID)
+    }
+
+    @Test func prioritizeTaskBecomesCurrentImmediately() throws {
+        let t1 = FocalTask(title: "A")
+        let t2 = FocalTask(title: "B")
+        let (store, _) = try makeStore(tasks: [t1, t2])
+        let nonCurrent = store.currentTaskID == t1.id ? t2 : t1
+        store.prioritizeTask(nonCurrent)
+        #expect(store.currentTaskID == nonCurrent.id)
+    }
+
+    @Test func prioritizeTaskAlreadyCurrentIsNoOp() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "Only")])
+        let id = store.currentTaskID
+        guard let current = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
+        store.prioritizeTask(current)
+        #expect(store.currentTaskID == id)
+    }
+
+    @Test func prioritizeTaskThenNotNowCyclesCorrectly() throws {
+        let t1 = FocalTask(title: "A")
+        let t2 = FocalTask(title: "B")
+        let t3 = FocalTask(title: "C")
+        let (store, _) = try makeStore(tasks: [t1, t2, t3])
+        store.prioritizeTask(t3)
+        #expect(store.currentTaskID == t3.id)
+        store.notNow()
+        #expect(store.currentTaskID != t3.id)
     }
 }

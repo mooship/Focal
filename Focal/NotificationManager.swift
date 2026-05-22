@@ -39,12 +39,16 @@ final class NotificationManager {
     }
 
     func reschedule() {
-        guard UserDefaults.standard.bool(forKey: Key.notificationsEnabled) else { return }
+        guard UserDefaults.standard.bool(forKey: Key.notificationsEnabled) else {
+            return
+        }
         let raw = UserDefaults.standard.string(forKey: Key.inactivityThreshold)
             ?? InactivityThreshold.twoHours.rawValue
         let threshold = InactivityThreshold(rawValue: raw) ?? .twoHours
         cancelAll()
-        guard threshold != .off else { return }
+        guard threshold != .off else {
+            return
+        }
         let content = UNMutableNotificationContent()
         content.title = "Time to focus"
         content.body = "Pick up a task whenever you're ready."

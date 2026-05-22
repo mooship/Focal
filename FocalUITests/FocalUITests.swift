@@ -1,6 +1,6 @@
 import XCTest
 
-final class TidelUITests: XCTestCase {
+final class FocalUITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false

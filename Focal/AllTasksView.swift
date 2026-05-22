@@ -5,16 +5,16 @@ import UIKit
 struct AllTasksView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(TaskStore.self) private var store
-    @Query(sort: \TidelTask.createdAt) private var allTasks: [TidelTask]
+    @Query(sort: \FocalTask.createdAt) private var allTasks: [FocalTask]
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @State private var showingSettings = false
-    @State private var editingTask: TidelTask?
+    @State private var editingTask: FocalTask?
 
     private var shouldAnimate: Bool { animationsEnabled }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
-    private var taskGroups: (incomplete: [TidelTask], completed: [TidelTask]) {
+    private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {
         (
             incomplete: allTasks.filter { $0.completedAt == nil },
             completed: allTasks.filter { $0.completedAt != nil }

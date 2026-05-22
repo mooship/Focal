@@ -57,7 +57,7 @@ final class TaskStore {
     }
 
     func addTask(title: String, note: String?) {
-        let task = FocalTask(title: title, note: note?.nilIfEmpty)
+        let task = FocalTask(title: title, note: note.flatMap { $0.nilIfEmpty })
         modelContext.insert(task)
         try? modelContext.save()
         if currentTaskID == nil {
@@ -98,13 +98,14 @@ final class TaskStore {
         }
         pendingUndo = nil
         if let completedAt = undo.completedAt {
-            let task = FocalTask(title: undo.title, note: undo.note?.nilIfEmpty)
+            let task = FocalTask(title: undo.title, note: undo.note.flatMap { $0.nilIfEmpty })
             task.completedAt = completedAt
             modelContext.insert(task)
             try? modelContext.save()
         } else {
             addTask(title: undo.title, note: undo.note)
         }
+        NotificationManager.shared.reschedule()
     }
 
     func restoreTask(_ task: FocalTask) {
@@ -122,6 +123,7 @@ final class TaskStore {
     }
 
     func prioritizeTask(_ task: FocalTask) {
+        guard task.completedAt == nil else { return }
         if let i = sessionQueue.firstIndex(of: task.id) {
             sessionQueue.remove(at: i)
         }

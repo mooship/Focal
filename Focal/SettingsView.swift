@@ -7,6 +7,9 @@ struct SettingsView: View {
         InactivityThreshold.twoHours.rawValue
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = NotificationManager.Key.colorSchemeSystem
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     var body: some View {
         NavigationStack {
@@ -51,6 +54,7 @@ struct SettingsView: View {
                     Toggle("Animations", isOn: $animationsEnabled)
                 }
             }
+            .frame(maxWidth: isRegularWidth ? 600 : .infinity)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

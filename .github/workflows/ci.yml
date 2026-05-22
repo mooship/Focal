@@ -31,11 +31,7 @@ jobs:
         run: sudo xcodebuild -runFirstLaunch
 
       - name: Install iOS simulator runtime
-        run: |
-          RUNTIME=$(find "$(xcode-select -p)" \
-            \( -name "iOS*.simruntime" -type d -o -name "iOS*.dmg" \) \
-            2>/dev/null | head -1)
-          xcrun simctl runtime add "$RUNTIME"
+        run: xcrun simctl runtime scan-and-mount
 
       - name: Boot simulator
         run: |

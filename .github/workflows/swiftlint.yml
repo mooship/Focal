@@ -1,0 +1,20 @@
+name: SwiftLint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        run: |
+          curl -Lo swiftlint.zip https://github.com/realm/SwiftLint/releases/download/0.57.0/swiftlint_linux.zip
+          unzip -q swiftlint.zip swiftlint
+          sudo install swiftlint /usr/local/bin/swiftlint
+
+      - name: Lint
+        run: swiftlint lint --strict --reporter github-actions-logging

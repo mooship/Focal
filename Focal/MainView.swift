@@ -10,6 +10,7 @@ struct MainView: View {
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
+    @State private var showingConfetti = false
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
@@ -62,6 +63,15 @@ struct MainView: View {
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }
+        .overlay {
+            if showingConfetti {
+                ConfettiView()
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.4), value: showingConfetti)
     }
 
     @ViewBuilder
@@ -112,7 +122,17 @@ struct MainView: View {
 
                     Button {
                         UINotificationFeedbackGenerator().notificationOccurred(.success)
-                        store.done()
+                        if shouldAnimate {
+                            showingConfetti = true
+                            Task {
+                                try? await Task.sleep(for: .seconds(0.7))
+                                store.done()
+                                try? await Task.sleep(for: .seconds(1.5))
+                                showingConfetti = false
+                            }
+                        } else {
+                            store.done()
+                        }
                     } label: {
                         Text("Done")
                             .font(.headline)

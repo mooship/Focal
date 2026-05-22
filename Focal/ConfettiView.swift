@@ -47,7 +47,7 @@ final class ConfettiUIView: UIView {
             cell.velocity = 300
             cell.velocityRange = 150
             cell.emissionLongitude = .pi
-            cell.emissionRange = .pi / 4
+            cell.emissionRange = .pi / 2
             cell.spin = 2 * .pi
             cell.spinRange = .pi
             cell.yAcceleration = 150

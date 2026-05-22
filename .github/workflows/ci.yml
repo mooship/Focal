@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: macos-latest
+    runs-on: macos-26-arm64
 
     env:
       SCHEME: Focal
@@ -29,15 +29,11 @@ jobs:
       - name: Initialize Xcode
         run: sudo xcodebuild -runFirstLaunch
 
-      # macos-latest is macOS 15; the iOS 26 Simulator runtime requires macOS 26
-      # which is not yet available as a GitHub-hosted runner. Apple Vision Pro
-      # (visionOS, variant:Designed for [iPad,iPhone]) is the only simulator
-      # runtime present on this runner that can host iPhone apps.
       - name: Boot simulator
         run: |
-          UDID=$(xcrun simctl list devices available | grep "Apple Vision Pro (" | tail -1 | grep -oE '[0-9A-Fa-f-]{36}')
+          UDID=$(xcrun simctl list devices available | grep "iPhone 16 (" | head -1 | grep -oE '[0-9A-Fa-f-]{36}')
           if [ -z "$UDID" ]; then
-            echo "No Apple Vision Pro simulator found" >&2
+            echo "No iPhone 16 simulator found" >&2
             xcrun simctl list devices available
             exit 1
           fi

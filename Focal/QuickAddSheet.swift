@@ -7,8 +7,6 @@ struct QuickAddSheet: View {
     @State private var note = ""
     @FocusState private var titleFocused: Bool
 
-    private var trimmedTitle: String { title.trimmingCharacters(in: .whitespaces) }
-
     var body: some View {
         NavigationStack {
             Form {
@@ -24,10 +22,10 @@ struct QuickAddSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        store.addTask(title: trimmedTitle, note: note)
+                        store.addTask(title: title.trimmed, note: note)
                         dismiss()
                     }
-                    .disabled(trimmedTitle.isEmpty)
+                    .disabled(title.trimmed.isEmpty)
                 }
             }
         }

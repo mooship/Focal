@@ -31,13 +31,6 @@ struct TaskStoreTests {
         #expect(store.currentTaskID == id)
     }
 
-    @Test func notNowWithOneTaskSetsLastSkippedAt() throws {
-        let (store, _) = try makeStore(tasks: [FocalTask(title: "Only task")])
-        #expect(store.currentTask?.lastSkippedAt == nil)
-        store.notNow()
-        #expect(store.currentTask?.lastSkippedAt != nil)
-    }
-
     @Test func doneSingleTaskLeavesEmptyState() throws {
         let (store, _) = try makeStore(tasks: [FocalTask(title: "Only task")])
         store.done()

@@ -38,6 +38,24 @@
               }
             }
           }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "La última"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld tareas"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -47,6 +65,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "2 uur"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 horas"
           }
         }
       }
@@ -58,6 +82,12 @@
             "state" : "translated",
             "value" : "4 uur"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4 horas"
+          }
         }
       }
     },
@@ -67,6 +97,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "8 uur"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 horas"
           }
         }
       }
@@ -78,15 +114,27 @@
             "state" : "translated",
             "value" : "Voeg By"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir"
+          }
         }
       }
     },
-    "Add something when you’re ready." : {
+    "Add something when you're ready." : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voeg iets by wanneer jy gereed is."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade algo cuando estés listo."
           }
         }
       }
@@ -98,6 +146,12 @@
             "state" : "translated",
             "value" : "Alle Take"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las tareas"
+          }
         }
       }
     },
@@ -107,6 +161,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Animasies"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animaciones"
           }
         }
       }
@@ -118,6 +178,12 @@
             "state" : "translated",
             "value" : "Voorkoms"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apariencia"
+          }
         }
       }
     },
@@ -127,6 +193,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kanselleer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
           }
         }
       }
@@ -138,6 +210,12 @@
             "state" : "translated",
             "value" : "Voltooi"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completadas"
+          }
         }
       }
     },
@@ -147,6 +225,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Donker"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oscuro"
           }
         }
       }
@@ -158,6 +242,12 @@
             "state" : "translated",
             "value" : "Vee Uit"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar"
+          }
         }
       }
     },
@@ -167,6 +257,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vee Taak Uit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar tarea"
           }
         }
       }
@@ -178,6 +274,12 @@
             "state" : "translated",
             "value" : "Vee hierdie taak uit?"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta tarea?"
+          }
         }
       }
     },
@@ -187,6 +289,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "\"%@\" uitgevee"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" eliminada"
           }
         }
       }
@@ -198,6 +306,12 @@
             "state" : "translated",
             "value" : "Weggooi"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartar"
+          }
         }
       }
     },
@@ -207,6 +321,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Veranderinge weggooi?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Descartar cambios?"
           }
         }
       }
@@ -218,6 +338,12 @@
             "state" : "translated",
             "value" : "Klaar"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hecho"
+          }
         }
       }
     },
@@ -228,12 +354,24 @@
             "state" : "translated",
             "value" : "Wysig Taak"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar tarea"
+          }
         }
       }
     },
     "Focal" : {
       "localizations" : {
         "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focal"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Focal"
@@ -248,6 +386,12 @@
             "state" : "translated",
             "value" : "Fokus nou"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enfocarse ahora"
+          }
         }
       }
     },
@@ -257,6 +401,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Onaktiwiteitsherinnering"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordatorio de inactividad"
           }
         }
       }
@@ -268,6 +418,12 @@
             "state" : "translated",
             "value" : "Hou Aan Wysig"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguir editando"
+          }
         }
       }
     },
@@ -277,6 +433,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claro"
           }
         }
       }
@@ -288,6 +450,12 @@
             "state" : "translated",
             "value" : "Nuwe Taak"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva tarea"
+          }
         }
       }
     },
@@ -297,6 +465,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mooi, niks oor nie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genial, no queda nada."
           }
         }
       }
@@ -308,6 +482,12 @@
             "state" : "translated",
             "value" : "Nie nou nie"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
         }
       }
     },
@@ -317,6 +497,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nota (opsioneel)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota (opcional)"
           }
         }
       }
@@ -328,6 +514,12 @@
             "state" : "translated",
             "value" : "Af"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivado"
+          }
         }
       }
     },
@@ -338,15 +530,27 @@
             "state" : "translated",
             "value" : "'n Sagte herinnering as geen taak binne die gekose tydperk voltooi is nie."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un suave recordatorio si no se completa ninguna tarea en el período elegido."
+          }
         }
       }
     },
-    "Pick up a task whenever you’re ready." : {
+    "Pick up a task whenever you're ready." : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Neem 'n taak op wanneer jy gereed is."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige una tarea cuando estés listo."
           }
         }
       }
@@ -358,6 +562,12 @@
             "state" : "translated",
             "value" : "Herinner na"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordar después de"
+          }
         }
       }
     },
@@ -367,6 +577,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Herstel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar"
           }
         }
       }
@@ -378,6 +594,12 @@
             "state" : "translated",
             "value" : "Stoor"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar"
+          }
         }
       }
     },
@@ -387,6 +609,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Instellings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
           }
         }
       }
@@ -398,6 +626,12 @@
             "state" : "translated",
             "value" : "Stelsel"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema"
+          }
         }
       }
     },
@@ -407,6 +641,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Taak"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarea"
           }
         }
       }
@@ -418,6 +658,12 @@
             "state" : "translated",
             "value" : "Tyd om te fokus"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es hora de concentrarse"
+          }
         }
       }
     },
@@ -427,6 +673,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ontdoen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deshacer"
           }
         }
       }

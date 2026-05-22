@@ -8,7 +8,10 @@ struct EditTaskSheet: View {
     let task: FocalTask
     @State private var title: String
     @State private var note: String
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showingDeleteConfirm = false
+
+    private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     init(task: FocalTask) {
         self.task = task
@@ -31,6 +34,7 @@ struct EditTaskSheet: View {
                     }
                 }
             }
+            .frame(maxWidth: isRegularWidth ? 600 : .infinity)
             .navigationTitle("Edit Task")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

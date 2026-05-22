@@ -3,20 +3,16 @@ import SwiftData
 
 struct AllTasksView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     @Environment(TaskStore.self) private var store
     @Query(sort: \FocalTask.createdAt) private var allTasks: [FocalTask]
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
 
     private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {
-        var incomplete = [FocalTask]()
-        var completed = [FocalTask]()
-        for task in allTasks {
-            if task.completedAt == nil { incomplete.append(task) }
-            else { completed.append(task) }
-        }
-        return (incomplete, completed)
+        (
+            incomplete: allTasks.filter { $0.completedAt == nil },
+            completed: allTasks.filter { $0.completedAt != nil }
+        )
     }
 
     var body: some View {
@@ -29,9 +25,7 @@ struct AllTasksView: View {
                             .foregroundStyle(.primary)
                     }
                     .onDelete { offsets in
-                        for index in offsets { modelContext.delete(groups.incomplete[index]) }
-                        try? modelContext.save()
-                        store.refreshIfNeeded()
+                        for index in offsets { store.deleteTask(groups.incomplete[index]) }
                     }
                 }
 
@@ -42,8 +36,7 @@ struct AllTasksView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .onDelete { offsets in
-                            for index in offsets { modelContext.delete(groups.completed[index]) }
-                            try? modelContext.save()
+                            for index in offsets { store.deleteTask(groups.completed[index]) }
                         }
                     }
                 }

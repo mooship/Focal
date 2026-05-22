@@ -6,7 +6,7 @@ struct SettingsView: View {
     @AppStorage(NotificationManager.Key.inactivityThreshold) private var inactivityThreshold =
         InactivityThreshold.twoHours.rawValue
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
-    @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = "system"
+    @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = NotificationManager.Key.colorSchemeSystem
 
     var body: some View {
         NavigationStack {

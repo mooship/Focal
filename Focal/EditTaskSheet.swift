@@ -22,28 +22,8 @@ struct EditTaskSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    HStack {
-                        TextField("Task", text: $title)
-                        if title.count > TaskLimit.titleMax - 20 {
-                            Text("\(TaskLimit.titleMax - title.count)")
-                                .font(.caption.monospacedDigit())
-                                .foregroundStyle(title.count >= TaskLimit.titleMax ? .red : .secondary)
-                        }
-                    }
-                    .onChange(of: title) { _, new in
-                        if new.count > TaskLimit.titleMax { title = String(new.prefix(TaskLimit.titleMax)) }
-                    }
-                    HStack {
-                        TextField("Note (optional)", text: $note)
-                        if note.count > TaskLimit.noteMax - 20 {
-                            Text("\(TaskLimit.noteMax - note.count)")
-                                .font(.caption.monospacedDigit())
-                                .foregroundStyle(note.count >= TaskLimit.noteMax ? .red : .secondary)
-                        }
-                    }
-                    .onChange(of: note) { _, new in
-                        if new.count > TaskLimit.noteMax { note = String(new.prefix(TaskLimit.noteMax)) }
-                    }
+                    LimitedTextField(label: "Task", text: $title, limit: TaskLimit.titleMax)
+                    LimitedTextField(label: "Note (optional)", text: $note, limit: TaskLimit.noteMax)
                 }
                 Section {
                     Button(role: .destructive) {
@@ -62,7 +42,7 @@ struct EditTaskSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         task.title = trimmedTitle
-                        task.note = note.isEmpty ? nil : note
+                        task.note = note.nilIfEmpty
                         try? modelContext.save()
                         dismiss()
                     }
@@ -75,9 +55,7 @@ struct EditTaskSheet: View {
                 titleVisibility: .visible
             ) {
                 Button("Delete", role: .destructive) {
-                    modelContext.delete(task)
-                    try? modelContext.save()
-                    store.refreshIfNeeded()
+                    store.deleteTask(task)
                     dismiss()
                 }
             }

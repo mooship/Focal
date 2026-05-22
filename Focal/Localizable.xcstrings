@@ -181,12 +181,12 @@
         }
       }
     },
-    "Deleted “%@”" : {
+    "Deleted \"%@\"" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” uitgevee"
+            "value" : "\"%@\" uitgevee"
           }
         }
       }

@@ -54,7 +54,9 @@ struct AllTasksView: View {
                         }
                     }
                     .onDelete { offsets in
-                        for index in offsets { store.deleteTask(groups.incomplete[index]) }
+                        for index in offsets {
+                            store.deleteTask(groups.incomplete[index])
+                        }
                     }
                 }
 
@@ -81,7 +83,9 @@ struct AllTasksView: View {
                                 }
                         }
                         .onDelete { offsets in
-                            for index in offsets { store.deleteTask(groups.completed[index]) }
+                            for index in offsets {
+                                store.deleteTask(groups.completed[index])
+                            }
                         }
                     }
                 }

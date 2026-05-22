@@ -8,7 +8,9 @@ struct TaskStoreTests {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: FocalTask.self, configurations: config)
         let context = ModelContext(container)
-        for task in tasks { context.insert(task) }
+        for task in tasks {
+            context.insert(task)
+        }
         try context.save()
         return (TaskStore(modelContext: context), context)
     }
@@ -119,7 +121,10 @@ struct TaskStoreTests {
 
     @Test func deleteTaskSetsPendingUndo() throws {
         let (store, _) = try makeStore(tasks: [FocalTask(title: "Buy milk")])
-        guard let task = store.currentTask else { Issue.record("Expected current task"); return }
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
         store.deleteTask(task)
         #expect(store.pendingUndo?.title == "Buy milk")
     }
@@ -133,7 +138,10 @@ struct TaskStoreTests {
 
     @Test func undoDeleteRestoresIncompleteTask() throws {
         let (store, context) = try makeStore(tasks: [FocalTask(title: "Walk dog")])
-        guard let task = store.currentTask else { Issue.record("Expected current task"); return }
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
         store.deleteTask(task)
         store.undoDelete()
         let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
@@ -143,7 +151,10 @@ struct TaskStoreTests {
 
     @Test func undoDeleteRestoredTaskIsIncomplete() throws {
         let (store, context) = try makeStore(tasks: [FocalTask(title: "Call mum")])
-        guard let task = store.currentTask else { Issue.record("Expected current task"); return }
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
         store.deleteTask(task)
         store.undoDelete()
         let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
@@ -170,7 +181,10 @@ struct TaskStoreTests {
 
     @Test func undoDeleteClearsPendingUndo() throws {
         let (store, _) = try makeStore(tasks: [FocalTask(title: "Gym")])
-        guard let task = store.currentTask else { Issue.record("Expected current task"); return }
+        guard let task = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
         store.deleteTask(task)
         store.undoDelete()
         #expect(store.pendingUndo == nil)
@@ -215,7 +229,10 @@ struct TaskStoreTests {
     @Test func prioritizeTaskAlreadyCurrentIsNoOp() throws {
         let (store, _) = try makeStore(tasks: [FocalTask(title: "Only")])
         let id = store.currentTaskID
-        guard let current = store.currentTask else { Issue.record("Expected current task"); return }
+        guard let current = store.currentTask else {
+            Issue.record("Expected current task")
+            return
+        }
         store.prioritizeTask(current)
         #expect(store.currentTaskID == id)
     }

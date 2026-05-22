@@ -32,8 +32,9 @@ jobs:
       - name: Boot simulator
         run: |
           UDID=$(xcodebuild -scheme "$SCHEME" -showdestinations 2>/dev/null \
-            | awk -F'id:' '/iPhone 17.*iOS Simulator/{print $2}' \
-            | awk -F',' '{print $1}' \
+            | grep 'platform:iOS Simulator' \
+            | grep 'name:iPhone 17 }' \
+            | grep -oE '[0-9A-Fa-f-]{36}' \
             | head -1)
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b

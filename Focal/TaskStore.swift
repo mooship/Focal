@@ -6,6 +6,14 @@ final class TaskStore {
     private let modelContext: ModelContext
     private var sessionQueue: [UUID] = []
     private(set) var currentTaskID: UUID?
+    private(set) var pendingUndo: PendingUndo? = nil
+    private var undoTask: Task<Void, Never>?
+
+    struct PendingUndo: Equatable {
+        let title: String
+        let note: String?
+        let completedAt: Date?
+    }
 
     var currentTask: FocalTask? {
         guard let id = currentTaskID else { return nil }
@@ -51,9 +59,53 @@ final class TaskStore {
     }
 
     func deleteTask(_ task: FocalTask) {
+        let title = task.title
+        let note = task.note
+        let completedAt = task.completedAt
         modelContext.delete(task)
         try? modelContext.save()
+        if let i = sessionQueue.firstIndex(of: task.id) { sessionQueue.remove(at: i) }
         refreshIfNeeded()
+
+        undoTask?.cancel()
+        pendingUndo = PendingUndo(title: title, note: note, completedAt: completedAt)
+        undoTask = Task { @MainActor [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(5))
+                self?.pendingUndo = nil
+            } catch {}
+        }
+    }
+
+    func undoDelete() {
+        undoTask?.cancel()
+        undoTask = nil
+        guard let undo = pendingUndo else { return }
+        pendingUndo = nil
+        if let completedAt = undo.completedAt {
+            let task = FocalTask(title: undo.title, note: undo.note?.nilIfEmpty)
+            task.completedAt = completedAt
+            modelContext.insert(task)
+            try? modelContext.save()
+        } else {
+            addTask(title: undo.title, note: undo.note)
+        }
+    }
+
+    func restoreTask(_ task: FocalTask) {
+        task.completedAt = nil
+        try? modelContext.save()
+        let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
+        sessionQueue.insert(task.id, at: insertIndex)
+        if currentTaskID == nil { advance() }
+        NotificationManager.shared.reschedule()
+    }
+
+    func prioritizeTask(_ task: FocalTask) {
+        if let i = sessionQueue.firstIndex(of: task.id) { sessionQueue.remove(at: i) }
+        sessionQueue.insert(task.id, at: 0)
+        currentTaskID = task.id
+        NotificationManager.shared.reschedule()
     }
 
     private func refreshIfNeeded() {

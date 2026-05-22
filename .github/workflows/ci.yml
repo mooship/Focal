@@ -30,14 +30,20 @@ jobs:
       - name: Initialize Xcode
         run: sudo xcodebuild -runFirstLaunch
 
-      - name: Register iOS simulator runtime
-        run: |
-          RUNTIME="$(xcode-select -p)/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime"
-          xcrun simctl runtime add "$RUNTIME"
+      - name: Cache iOS simulator runtime
+        id: cache-runtime
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/CoreSimulator/Volumes
+          key: ${{ runner.os }}-ios-runtime-${{ env.MD_APPLE_SDK_ROOT }}
+
+      - name: Install iOS simulator runtime
+        if: steps.cache-runtime.outputs.cache-hit != 'true'
+        run: xcodebuild -downloadPlatform iOS
 
       - name: Boot simulator
         run: |
-          UDID=$(xcrun simctl list devices available | grep "iPhone 16 (" | head -1 | grep -oE '[0-9A-F-]{36}')
+          UDID=$(xcrun simctl list devices available | grep "iPhone 16 (" | head -1 | grep -oE '[0-9A-Fa-f-]{36}')
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
 

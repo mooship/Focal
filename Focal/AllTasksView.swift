@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import UIKit
 
 struct AllTasksView: View {
     @Environment(\.dismiss) private var dismiss
@@ -10,6 +9,8 @@ struct AllTasksView: View {
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
+    @State private var focusNowHapticTrigger = false
+    @State private var successHapticTrigger = false
 
     private var shouldAnimate: Bool { animationsEnabled }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
@@ -44,7 +45,7 @@ struct AllTasksView: View {
                         .listRowInsets(rowInsets)
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
-                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                focusNowHapticTrigger.toggle()
                                 store.prioritizeTask(task)
                                 dismiss()
                             } label: {
@@ -74,7 +75,7 @@ struct AllTasksView: View {
                                 .listRowInsets(rowInsets)
                                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                     Button {
-                                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                                        successHapticTrigger.toggle()
                                         store.restoreTask(task)
                                     } label: {
                                         Label("Restore", systemImage: "arrow.uturn.backward")
@@ -122,6 +123,8 @@ struct AllTasksView: View {
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }
+        .sensoryFeedback(.impact(weight: .medium), trigger: focusNowHapticTrigger)
+        .sensoryFeedback(.success, trigger: successHapticTrigger)
     }
 
     private func undoBanner(_ undo: TaskStore.PendingUndo) -> some View {
@@ -131,7 +134,7 @@ struct AllTasksView: View {
                 .truncationMode(.middle)
             Spacer()
             Button("Undo") {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                successHapticTrigger.toggle()
                 store.undoDelete()
             }
             .fontWeight(.semibold)

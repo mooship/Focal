@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import UIKit
 
 struct MainView: View {
     @Environment(TaskStore.self) private var store
@@ -10,6 +9,8 @@ struct MainView: View {
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
+    @State private var notNowHapticTrigger = false
+    @State private var doneHapticTrigger = false
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
@@ -62,6 +63,8 @@ struct MainView: View {
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }
+        .sensoryFeedback(.impact(weight: .light), trigger: notNowHapticTrigger)
+        .sensoryFeedback(.success, trigger: doneHapticTrigger)
     }
 
     @ViewBuilder
@@ -98,7 +101,7 @@ struct MainView: View {
 
                 HStack(alignment: .bottom) {
                     Button {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        notNowHapticTrigger.toggle()
                         store.notNow()
                     } label: {
                         Text("Not now")
@@ -111,7 +114,7 @@ struct MainView: View {
                     Spacer()
 
                     Button {
-                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        doneHapticTrigger.toggle()
                         store.done()
                     } label: {
                         Text("Done")
@@ -147,7 +150,7 @@ struct MainView: View {
                 .truncationMode(.middle)
             Spacer()
             Button("Undo") {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                doneHapticTrigger.toggle()
                 store.undoDelete()
             }
             .fontWeight(.semibold)

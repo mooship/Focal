@@ -12,9 +12,29 @@ struct QuickAddSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Task", text: $title)
-                    .focused($titleFocused)
-                TextField("Note (optional)", text: $note)
+                HStack {
+                    TextField("Task", text: $title)
+                        .focused($titleFocused)
+                    if title.count > TaskLimit.titleMax - 20 {
+                        Text("\(TaskLimit.titleMax - title.count)")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(title.count >= TaskLimit.titleMax ? .red : .secondary)
+                    }
+                }
+                .onChange(of: title) { _, new in
+                    if new.count > TaskLimit.titleMax { title = String(new.prefix(TaskLimit.titleMax)) }
+                }
+                HStack {
+                    TextField("Note (optional)", text: $note)
+                    if note.count > TaskLimit.noteMax - 20 {
+                        Text("\(TaskLimit.noteMax - note.count)")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(note.count >= TaskLimit.noteMax ? .red : .secondary)
+                    }
+                }
+                .onChange(of: note) { _, new in
+                    if new.count > TaskLimit.noteMax { note = String(new.prefix(TaskLimit.noteMax)) }
+                }
             }
             .navigationTitle("New Task")
             .navigationBarTitleDisplayMode(.inline)

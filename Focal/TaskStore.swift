@@ -44,7 +44,7 @@ final class TaskStore {
         if currentTaskID == nil {
             advance()
         } else {
-            let insertIndex = Int.random(in: 1...sessionQueue.count)
+            let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
             sessionQueue.insert(task.id, at: insertIndex)
         }
     }

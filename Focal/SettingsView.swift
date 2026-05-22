@@ -44,9 +44,9 @@ struct SettingsView: View {
 
                 Section {
                     Picker("Appearance", selection: $colorSchemeRaw) {
-                        Text("System").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
+                        Text("System").tag(NotificationManager.Key.colorSchemeSystem)
+                        Text("Light").tag(NotificationManager.Key.colorSchemeLight)
+                        Text("Dark").tag(NotificationManager.Key.colorSchemeDark)
                     }
                     Toggle("Animations", isOn: $animationsEnabled)
                 }

@@ -1,6 +1,11 @@
 import Foundation
 import SwiftData
 
+enum TaskLimit {
+    static let titleMax = 80
+    static let noteMax = 300
+}
+
 @Model
 final class FocalTask {
     var id: UUID

@@ -39,7 +39,7 @@ final class ConfettiUIView: UIView {
         let image = confettiImage()
         return colors.map { color in
             let cell = CAEmitterCell()
-            cell.birthRate = 10
+            cell.birthRate = 35
             cell.lifetime = 2.0
             cell.velocity = 300
             cell.velocityRange = 150
@@ -50,7 +50,7 @@ final class ConfettiUIView: UIView {
             cell.yAcceleration = 150
             cell.scale = 0.6
             cell.scaleRange = 0.3
-            cell.alphaSpeed = -0.5
+            cell.alphaSpeed = -0.3
             cell.color = color.cgColor
             cell.contents = image.cgImage
             return cell

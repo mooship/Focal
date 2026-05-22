@@ -51,8 +51,8 @@ final class ConfettiUIView: UIView {
             cell.spin = 2 * .pi
             cell.spinRange = .pi
             cell.yAcceleration = 150
-            cell.scale = 0.6
-            cell.scaleRange = 0.3
+            cell.scale = 0.4
+            cell.scaleRange = 0.2
             cell.alphaSpeed = -0.3
             cell.color = color.cgColor
             cell.contents = image.cgImage

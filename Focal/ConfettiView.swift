@@ -26,7 +26,7 @@ final class ConfettiUIView: UIView {
         guard !fired, bounds.size != .zero else { return }
         fired = true
         emitter.frame = bounds
-        emitter.emitterPosition = CGPoint(x: bounds.midX, y: bounds.height * 0.3)
+        emitter.emitterPosition = CGPoint(x: bounds.midX, y: 0)
         emitter.emitterSize = CGSize(width: bounds.width, height: 1)
         emitter.birthRate = 1
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in

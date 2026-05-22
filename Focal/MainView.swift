@@ -1,4 +1,6 @@
 import SwiftUI
+import SwiftData
+import UIKit
 
 struct MainView: View {
     @Environment(TaskStore.self) private var store
@@ -8,6 +10,7 @@ struct MainView: View {
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
+    @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
@@ -41,6 +44,15 @@ struct MainView: View {
                 }
             }
         }
+        .overlay(alignment: .bottom) {
+            if let undo = store.pendingUndo {
+                undoBanner(undo)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.pendingUndo)
         .sheet(isPresented: $showingQuickAdd) {
             QuickAddSheet()
         }
@@ -78,28 +90,37 @@ struct MainView: View {
 
             Spacer()
 
-            HStack(alignment: .bottom) {
-                Button {
-                    store.notNow()
-                } label: {
-                    Text("Not now")
-                        .font(.body)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                }
-                .glassEffect(in: Capsule())
+            VStack(spacing: 8) {
+                let count = incompleteTasks.count
+                Text(count == 1 ? "Last one" : "\(count) tasks")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
 
-                Spacer()
+                HStack(alignment: .bottom) {
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        store.notNow()
+                    } label: {
+                        Text("Not now")
+                            .font(.body)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                    }
+                    .glassEffect(in: Capsule())
 
-                Button {
-                    store.done()
-                } label: {
-                    Text("Done")
-                        .font(.headline)
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 16)
+                    Spacer()
+
+                    Button {
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        store.done()
+                    } label: {
+                        Text("Done")
+                            .font(.headline)
+                            .padding(.horizontal, 32)
+                            .padding(.vertical, 16)
+                    }
+                    .glassEffect(in: Capsule())
                 }
-                .glassEffect(in: Capsule())
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
@@ -117,5 +138,22 @@ struct MainView: View {
         }
         .multilineTextAlignment(.center)
         .padding()
+    }
+
+    private func undoBanner(_ undo: TaskStore.PendingUndo) -> some View {
+        HStack {
+            Text("Deleted "\(undo.title)"")
+                .lineLimit(1)
+                .truncationMode(.middle)
+            Spacer()
+            Button("Undo") {
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                store.undoDelete()
+            }
+            .fontWeight(.semibold)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .glassEffect(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }

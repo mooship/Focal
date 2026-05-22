@@ -31,9 +31,9 @@ jobs:
 
       - name: Boot simulator
         run: |
-          UDID=$(xcrun simctl list devices available | grep "iPhone 16 (" | head -1 | grep -oE '[0-9A-Fa-f-]{36}')
+          UDID=$(xcrun simctl list devices available | grep "iPhone 17 (" | head -1 | grep -oE '[0-9A-Fa-f-]{36}')
           if [ -z "$UDID" ]; then
-            echo "No iPhone 16 simulator found" >&2
+            echo "No iPhone 17 simulator found" >&2
             xcrun simctl list devices available
             exit 1
           fi

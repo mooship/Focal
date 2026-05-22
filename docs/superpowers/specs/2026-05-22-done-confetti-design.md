@@ -5,7 +5,7 @@
 
 ## Summary
 
-Add a brief confetti burst when the user taps Done, giving positive feedback before the next task appears. The celebration is purely visual (plus the existing haptic), lasts under two seconds, and is skipped entirely when animations are disabled or Reduce Motion is on.
+Add a brief confetti burst when the user taps Done, giving positive feedback before the next task appears. The celebration is purely visual (plus the existing haptic), lasts ~2.2 seconds total, and is skipped entirely when animations are disabled or Reduce Motion is on.
 
 ## User-Visible Flow
 
@@ -13,7 +13,7 @@ Add a brief confetti burst when the user taps Done, giving positive feedback bef
 2. `.success` haptic fires (existing behaviour, unchanged)
 3. Full-screen confetti overlay appears instantly
 4. 0.7s later, `store.done()` is called — task slides out as normal
-5. Confetti overlay fades out after ~1.5s total (particles have settled)
+5. Confetti overlay fades out 1.5s after step 4 (~2.2s total from tap — particles have settled)
 
 If `shouldAnimate` is `false`, step 3–5 are skipped and `store.done()` is called immediately, exactly as today.
 
@@ -83,6 +83,7 @@ if shouldAnimate {
             .transition(.opacity)
     }
 }
+.animation(.easeOut(duration: 0.4), value: showingConfetti)
 ```
 
 The overlay uses `.allowsHitTesting(false)` so the confetti doesn't block any taps during its lifetime.

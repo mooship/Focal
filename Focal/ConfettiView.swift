@@ -58,7 +58,7 @@ final class ConfettiUIView: UIView {
     }
 
     private static func confettiImage() -> UIImage {
-        UIGraphicsImageRenderer(size: CGSize(width: 8, height: 5)).image { ctx in
+        UIGraphicsImageRenderer(size: CGSize(width: 8, height: 5)).image { _ in
             UIColor.white.setFill()
             UIBezierPath(rect: CGRect(x: 0, y: 0, width: 8, height: 5)).fill()
         }

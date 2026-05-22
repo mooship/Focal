@@ -50,8 +50,8 @@ final class NotificationManager {
             return
         }
         let content = UNMutableNotificationContent()
-        content.title = "Time to focus"
-        content.body = "Pick up a task whenever you're ready."
+        content.title = String(localized: "Time to focus")
+        content.body = String(localized: "Pick up a task whenever you're ready.")
         content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: threshold.seconds, repeats: false)
         center.add(UNNotificationRequest(identifier: "inactivity", content: content, trigger: trigger))

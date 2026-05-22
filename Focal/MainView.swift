@@ -2,19 +2,30 @@ import SwiftUI
 
 struct MainView: View {
     @Environment(TaskStore.self) private var store
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
-    @State private var showingEdit = false
+    @State private var editingTask: FocalTask?
+
+    private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 if let task = store.currentTask {
                     taskView(task)
+                        .id(task.id)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .leading)
+                        ))
                 } else {
                     emptyStateView
+                        .transition(.opacity)
                 }
             }
+            .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.currentTaskID)
             .navigationTitle("Focal")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -34,10 +45,8 @@ struct MainView: View {
         .sheet(isPresented: $showingAllTasks) {
             AllTasksView()
         }
-        .sheet(isPresented: $showingEdit) {
-            if let task = store.currentTask {
-                EditTaskSheet(task: task)
-            }
+        .sheet(item: $editingTask) { task in
+            EditTaskSheet(task: task)
         }
     }
 
@@ -46,7 +55,7 @@ struct MainView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            Button { showingEdit = true } label: {
+            Button { editingTask = task } label: {
                 VStack(spacing: 12) {
                     Text(task.title)
                         .font(.largeTitle.weight(.semibold))

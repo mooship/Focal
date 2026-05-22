@@ -117,4 +117,12 @@ struct TaskStoreTests {
         store.done()
         #expect(store.currentTask == nil)
     }
+
+    @Test func notNowCyclesAfterAddingTaskWhileNonEmpty() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "First")])
+        store.addTask(title: "Second", note: nil)
+        let firstID = store.currentTaskID
+        store.notNow()
+        #expect(store.currentTaskID != firstID)
+    }
 }

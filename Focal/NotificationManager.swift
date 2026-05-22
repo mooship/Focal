@@ -20,6 +20,13 @@ enum InactivityThreshold: String, CaseIterable, Identifiable {
 }
 
 final class NotificationManager {
+    enum Key {
+        static let notificationsEnabled = "notificationsEnabled"
+        static let inactivityThreshold = "inactivityThreshold"
+        static let animationsEnabled = "animationsEnabled"
+        static let colorScheme = "colorScheme"
+    }
+
     static let shared = NotificationManager()
     private let center = UNUserNotificationCenter.current()
     private init() {}
@@ -29,8 +36,8 @@ final class NotificationManager {
     }
 
     func reschedule() {
-        guard UserDefaults.standard.bool(forKey: "notificationsEnabled") else { return }
-        let raw = UserDefaults.standard.string(forKey: "inactivityThreshold")
+        guard UserDefaults.standard.bool(forKey: Key.notificationsEnabled) else { return }
+        let raw = UserDefaults.standard.string(forKey: Key.inactivityThreshold)
             ?? InactivityThreshold.twoHours.rawValue
         let threshold = InactivityThreshold(rawValue: raw) ?? .twoHours
         guard threshold != .off else { cancelAll(); return }

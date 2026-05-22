@@ -64,5 +64,6 @@ struct SettingsView: View {
             }
         }
         .presentationDetents([.medium, .large])
+        .presentationBackground(.regularMaterial)
     }
 }

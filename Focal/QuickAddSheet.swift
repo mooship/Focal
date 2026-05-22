@@ -5,7 +5,10 @@ struct QuickAddSheet: View {
     @Environment(TaskStore.self) private var store
     @State private var title = ""
     @State private var note = ""
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @FocusState private var titleFocused: Bool
+
+    private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     var body: some View {
         NavigationStack {
@@ -14,6 +17,7 @@ struct QuickAddSheet: View {
                     .focused($titleFocused)
                 LimitedTextField(label: "Note (optional)", text: $note, limit: TaskLimit.noteMax)
             }
+            .frame(maxWidth: isRegularWidth ? 600 : .infinity)
             .navigationTitle("New Task")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -1,6 +1,6 @@
 # Focal
 
-A focused task manager for iOS designed to reduce ADHD decision paralysis. Focal shows you **one task at a time** — tap **Done** to complete it, or **Not now** to shuffle it to the back of the queue and see something else.
+A focused task manager for iOS and iPadOS designed to reduce ADHD decision paralysis. Focal shows you **one task at a time** — tap **Done** to complete it, or **Not now** to shuffle it to the back of the queue and see something else.
 
 No lists. No prioritising. Just the next thing.
 
@@ -15,7 +15,7 @@ No lists. No prioritising. Just the next thing.
 
 ## Requirements
 
-- iOS 26+
+- iOS 26+ / iPadOS 26+
 - Xcode 26+
 
 ## Building

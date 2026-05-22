@@ -5,8 +5,11 @@ struct AllTasksView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(TaskStore.self) private var store
     @Query(sort: \FocalTask.createdAt) private var allTasks: [FocalTask]
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
+
+    private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {
         (
@@ -41,6 +44,7 @@ struct AllTasksView: View {
                     }
                 }
             }
+            .frame(maxWidth: isRegularWidth ? 600 : .infinity)
             .navigationTitle("All Tasks")
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)

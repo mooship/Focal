@@ -31,11 +31,17 @@ jobs:
 
       - name: Boot simulator
         run: |
-          UDID=$(xcodebuild -scheme "$SCHEME" -showdestinations 2>/dev/null \
-            | grep 'platform:iOS Simulator' \
-            | grep 'name:iPhone 17 }' \
-            | grep -oE '[0-9A-Fa-f-]{36}' \
-            | head -1)
+          UDID=$(python3 - <<'EOF'
+import json, subprocess
+data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "--json"]))
+ios = sorted(k for k in data["devices"] if "iOS" in k)
+for runtime in reversed(ios):
+    for d in data["devices"][runtime]:
+        if d["name"] == "iPhone 17" and d["isAvailable"]:
+            print(d["udid"])
+            exit()
+EOF
+)
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
           echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"

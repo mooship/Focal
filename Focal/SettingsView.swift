@@ -2,9 +2,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
-    @AppStorage("inactivityThreshold") private var inactivityThreshold =
+    @AppStorage(NotificationManager.Key.notificationsEnabled) private var notificationsEnabled = false
+    @AppStorage(NotificationManager.Key.inactivityThreshold) private var inactivityThreshold =
         InactivityThreshold.twoHours.rawValue
+    @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
+    @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = "system"
 
     var body: some View {
         NavigationStack {
@@ -38,6 +40,15 @@ struct SettingsView: View {
                     }
                 } footer: {
                     Text("One gentle nudge if no task is completed within the chosen period.")
+                }
+
+                Section {
+                    Picker("Appearance", selection: $colorSchemeRaw) {
+                        Text("System").tag("system")
+                        Text("Light").tag("light")
+                        Text("Dark").tag("dark")
+                    }
+                    Toggle("Animations", isOn: $animationsEnabled)
                 }
             }
             .navigationTitle("Settings")

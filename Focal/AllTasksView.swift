@@ -9,32 +9,37 @@ struct AllTasksView: View {
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
 
-    private var incomplete: [FocalTask] { allTasks.filter { $0.completedAt == nil } }
-    private var completed: [FocalTask] { allTasks.filter { $0.completedAt != nil } }
+    private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {
+        allTasks.reduce(into: ([FocalTask](), [FocalTask]())) { acc, task in
+            if task.completedAt == nil { acc.0.append(task) }
+            else { acc.1.append(task) }
+        }
+    }
 
     var body: some View {
+        let groups = taskGroups
         NavigationStack {
             List {
                 Section {
-                    ForEach(incomplete) { task in
+                    ForEach(groups.incomplete) { task in
                         Button(task.title) { editingTask = task }
                             .foregroundStyle(.primary)
                     }
                     .onDelete { offsets in
-                        for index in offsets { modelContext.delete(incomplete[index]) }
+                        for index in offsets { modelContext.delete(groups.incomplete[index]) }
                         try? modelContext.save()
                         store.refreshIfNeeded()
                     }
                 }
 
-                if !completed.isEmpty {
+                if !groups.completed.isEmpty {
                     Section("Completed") {
-                        ForEach(completed) { task in
+                        ForEach(groups.completed) { task in
                             Text(task.title)
                                 .foregroundStyle(.secondary)
                         }
                         .onDelete { offsets in
-                            for index in offsets { modelContext.delete(completed[index]) }
+                            for index in offsets { modelContext.delete(groups.completed[index]) }
                             try? modelContext.save()
                         }
                     }

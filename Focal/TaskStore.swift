@@ -41,7 +41,12 @@ final class TaskStore {
         let task = FocalTask(title: title, note: note.flatMap { $0.isEmpty ? nil : $0 })
         modelContext.insert(task)
         try? modelContext.save()
-        if currentTaskID == nil { advance() }
+        if currentTaskID == nil {
+            advance()
+        } else {
+            let insertIndex = Int.random(in: 1...sessionQueue.count)
+            sessionQueue.insert(task.id, at: insertIndex)
+        }
     }
 
     func refreshIfNeeded() {

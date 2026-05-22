@@ -5,6 +5,15 @@ import SwiftData
 struct FocalApp: App {
     let modelContainer: ModelContainer
     let taskStore: TaskStore
+    @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = "system"
+
+    var preferredScheme: ColorScheme? {
+        switch colorSchemeRaw {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
+        }
+    }
 
     init() {
         do {
@@ -22,6 +31,7 @@ struct FocalApp: App {
         WindowGroup {
             MainView()
                 .environment(taskStore)
+                .preferredColorScheme(preferredScheme)
         }
         .modelContainer(modelContainer)
     }

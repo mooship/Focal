@@ -10,6 +10,8 @@ struct EditTaskSheet: View {
     @State private var note: String
     @State private var showingDeleteConfirm = false
 
+    private var trimmedTitle: String { title.trimmingCharacters(in: .whitespaces) }
+
     init(task: FocalTask) {
         self.task = task
         _title = State(initialValue: task.title)
@@ -39,12 +41,12 @@ struct EditTaskSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        task.title = title.trimmingCharacters(in: .whitespaces)
+                        task.title = trimmedTitle
                         task.note = note.isEmpty ? nil : note
                         try? modelContext.save()
                         dismiss()
                     }
-                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(trimmedTitle.isEmpty)
                 }
             }
             .confirmationDialog(

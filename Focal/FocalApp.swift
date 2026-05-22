@@ -5,7 +5,7 @@ import SwiftData
 struct FocalApp: App {
     let modelContainer: ModelContainer
     let taskStore: TaskStore
-    @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = "system"
+    @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = NotificationManager.Key.colorSchemeSystem
 
     var preferredScheme: ColorScheme? {
         switch colorSchemeRaw {

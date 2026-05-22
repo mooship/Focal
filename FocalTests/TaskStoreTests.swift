@@ -89,18 +89,16 @@ struct TaskStoreTests {
         #expect(store.currentTask?.title == "New task")
     }
 
-    @Test func refreshIfNeededAdvancesWhenCurrentTaskDeleted() throws {
+    @Test func deleteTaskAdvancesWhenCurrentTaskDeleted() throws {
         let t1 = FocalTask(title: "Task 1")
         let t2 = FocalTask(title: "Task 2")
-        let (store, context) = try makeStore(tasks: [t1, t2])
+        let (store, _) = try makeStore(tasks: [t1, t2])
         guard let current = store.currentTask else {
             Issue.record("Expected a current task")
             return
         }
         let deletedTitle = current.title
-        context.delete(current)
-        try context.save()
-        store.refreshIfNeeded()
+        store.deleteTask(current)
         #expect(store.currentTask != nil)
         #expect(store.currentTask?.title != deletedTitle)
     }

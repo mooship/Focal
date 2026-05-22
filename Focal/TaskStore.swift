@@ -19,26 +19,30 @@ final class TaskStore {
     }
 
     func done() {
-        guard let id = currentTaskID, let task = currentTask else { return }
+        let incomplete = fetchIncomplete()
+        guard let id = currentTaskID,
+              let task = incomplete.first(where: { $0.id == id }) else { return }
         task.completedAt = Date()
         try? modelContext.save()
-        sessionQueue.removeAll { $0 == id }
-        advance()
+        if let i = sessionQueue.firstIndex(of: id) { sessionQueue.remove(at: i) }
+        advance(using: incomplete.filter { $0.id != id })
         NotificationManager.shared.reschedule()
     }
 
     func notNow() {
-        guard let id = currentTaskID else { return }
-        currentTask?.lastSkippedAt = Date()
+        let incomplete = fetchIncomplete()
+        guard let id = currentTaskID,
+              let task = incomplete.first(where: { $0.id == id }) else { return }
+        task.lastSkippedAt = Date()
         try? modelContext.save()
-        sessionQueue.removeAll { $0 == id }
+        if let i = sessionQueue.firstIndex(of: id) { sessionQueue.remove(at: i) }
         sessionQueue.append(id)
-        advance()
+        advance(using: incomplete)
         NotificationManager.shared.reschedule()
     }
 
     func addTask(title: String, note: String?) {
-        let task = FocalTask(title: title, note: note.flatMap { $0.isEmpty ? nil : $0 })
+        let task = FocalTask(title: title, note: note?.nilIfEmpty)
         modelContext.insert(task)
         try? modelContext.save()
         if currentTaskID == nil {
@@ -49,14 +53,20 @@ final class TaskStore {
         }
     }
 
-    func refreshIfNeeded() {
+    func deleteTask(_ task: FocalTask) {
+        modelContext.delete(task)
+        try? modelContext.save()
+        refreshIfNeeded()
+    }
+
+    private func refreshIfNeeded() {
         if currentTaskID != nil && currentTask == nil {
             advance()
         }
     }
 
-    private func advance() {
-        let incomplete = fetchIncomplete()
+    private func advance(using incomplete: [FocalTask]? = nil) {
+        let incomplete = incomplete ?? fetchIncomplete()
         let incompleteIDs = Set(incomplete.map(\.id))
         sessionQueue = sessionQueue.filter { incompleteIDs.contains($0) }
         if sessionQueue.isEmpty {
@@ -66,7 +76,9 @@ final class TaskStore {
     }
 
     private func fetchIncomplete() -> [FocalTask] {
-        let all = (try? modelContext.fetch(FetchDescriptor<FocalTask>())) ?? []
-        return all.filter { $0.completedAt == nil }
+        let descriptor = FetchDescriptor<FocalTask>(
+            predicate: #Predicate { $0.completedAt == nil }
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
     }
 }

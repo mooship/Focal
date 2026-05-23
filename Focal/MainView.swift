@@ -88,6 +88,7 @@ struct MainView: View {
             do {
                 try await Task.sleep(for: .seconds(0.7))
             } catch {
+                store.done(taskID: id)
                 showingConfetti = false
                 return
             }

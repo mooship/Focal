@@ -16,7 +16,7 @@ struct EditTaskSheet: View {
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     private var hasChanges: Bool {
-        title.trimmed != task.title || note.nilIfEmpty != task.note
+        title.trimmed != task.title || note.trimmed.nilIfEmpty != task.note
     }
 
     init(task: FocalTask) {
@@ -58,7 +58,7 @@ struct EditTaskSheet: View {
                     Button("Save") {
                         savedTrigger += 1
                         task.title = title.trimmed
-                        task.note = note.nilIfEmpty
+                        task.note = note.trimmed.nilIfEmpty
                         try? modelContext.save()
                         Task { @MainActor in dismiss() }
                     }

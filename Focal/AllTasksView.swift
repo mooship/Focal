@@ -75,8 +75,9 @@ struct AllTasksView: View {
                         }
                     }
                     .onDelete { offsets in
+                        let incomplete = allTasks.filter { $0.completedAt == nil }
                         for index in offsets {
-                            store.deleteTask(groups.incomplete[index])
+                            store.deleteTask(incomplete[index])
                         }
                     }
                 }
@@ -104,8 +105,9 @@ struct AllTasksView: View {
                                 }
                         }
                         .onDelete { offsets in
+                            let completed = allTasks.filter { $0.completedAt != nil }
                             for index in offsets {
-                                store.deleteTask(groups.completed[index])
+                                store.deleteTask(completed[index])
                             }
                         }
                     }

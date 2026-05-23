@@ -104,7 +104,7 @@ final class TaskStore {
         }
         pendingUndo = nil
         if let completedAt = undo.completedAt {
-            let task = FocalTask(title: undo.title, note: undo.note.flatMap { $0.nilIfEmpty })
+            let task = FocalTask(title: undo.title, note: undo.note.flatMap { $0.trimmed.nilIfEmpty })
             task.completedAt = completedAt
             modelContext.insert(task)
             try? modelContext.save()

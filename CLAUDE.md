@@ -59,6 +59,16 @@ Focal is an iOS 26 SwiftUI app that shows one task at a time to reduce ADHD deci
 - **Unit tests** (`FocalTests/`) use **Swift Testing** (`import Testing`, `@Test`, `#expect`). All tests live in `TaskStoreTests`.
 - To run a single test: `-only-testing:FocalTests/TaskStoreTests/methodName`
 
+## Localisation
+
+The app is localised into **English, Afrikaans (af), and Spanish (es)** using a single `Focal/Localizable.xcstrings` file (Xcode String Catalog format).
+
+- All user-facing strings — including UI labels, accessibility labels, and accessibility hints — must have entries in this file for all three languages.
+- SwiftUI string literals (`Text("...")`, `.accessibilityLabel("...")`, etc.) are automatically resolved as `LocalizedStringKey` and will look up the catalog.
+- String interpolation with `\(variable)` produces a plain `String` **not** a `LocalizedStringKey`. Use `Text("\(variable) key")` (the `Text` initialiser) or `String(localized:)` to keep interpolated strings localized.
+- Plural rules (e.g. "%lld tasks", "%lld characters remaining") use the `variations.plural` structure in xcstrings with `one` and `other` forms for each language.
+- When adding new strings, add the key and all three translations before committing. Run `xcodebuild` to catch missing keys early.
+
 ## Known platform quirks
 
 - iOS 26 uses `.glassEffect()` (Liquid Glass) — requires the iOS 26 SDK; no fallback.

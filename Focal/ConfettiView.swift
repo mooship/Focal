@@ -33,7 +33,7 @@ struct ConfettiView: View {
                         continue
                     }
                     let px = p.startX * size.width + p.vx * elapsed
-                    let py = 0.3 * size.height + p.vy0 * elapsed + 75 * elapsed * elapsed
+                    let py = p.vy0 * elapsed + 75 * elapsed * elapsed
                     guard py < size.height + 20 else {
                         continue
                     }

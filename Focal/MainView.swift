@@ -136,7 +136,7 @@ struct MainView: View {
 
             VStack(spacing: 8) {
                 let count = incompleteTasks.count
-                Text("\(count) \(count == 1 ? "task" : "tasks") remaining")
+                Text("\(count) tasks")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
 

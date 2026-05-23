@@ -28,17 +28,23 @@ final class TaskStore {
     }
 
     func done() {
+        guard let id = currentTaskID else {
+            return
+        }
+        done(taskID: id)
+    }
+
+    func done(taskID: UUID) {
         let incomplete = fetchIncomplete()
-        guard let id = currentTaskID,
-              let task = incomplete.first(where: { $0.id == id }) else {
+        guard let task = incomplete.first(where: { $0.id == taskID }) else {
             return
         }
         task.completedAt = Date()
         try? modelContext.save()
-        if let i = sessionQueue.firstIndex(of: id) {
+        if let i = sessionQueue.firstIndex(of: taskID) {
             sessionQueue.remove(at: i)
         }
-        advance(with: incomplete.filter { $0.id != id })
+        advance(with: incomplete.filter { $0.id != taskID })
         NotificationManager.shared.reschedule()
     }
 

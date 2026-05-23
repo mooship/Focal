@@ -43,6 +43,20 @@ struct AllTasksView: View {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .listRowInsets(rowInsets)
+                        .contextMenu {
+                            Button {
+                                impactTrigger += 1
+                                store.prioritizeTask(task)
+                                Task { @MainActor in dismiss() }
+                            } label: {
+                                Label("Focus Now", systemImage: "arrow.up.to.line")
+                            }
+                            Button {
+                                editingTask = task
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                        }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
                                 impactTrigger += 1

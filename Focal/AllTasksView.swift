@@ -49,7 +49,7 @@ struct AllTasksView: View {
                                 store.prioritizeTask(task)
                                 dismiss()
                             } label: {
-                                Label("Focus Now", systemImage: "arrow.up.to.line")
+                                Label("Focus now", systemImage: "arrow.up.to.line")
                             }
                             Button {
                                 Task { @MainActor in editingTask = task }

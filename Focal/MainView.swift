@@ -73,6 +73,15 @@ struct MainView: View {
             }
         }
         .animation(.easeOut(duration: 0.4), value: showingConfetti)
+        .task(id: showingConfetti) {
+            guard showingConfetti else { return }
+            do {
+                try await Task.sleep(for: .seconds(0.7))
+                store.done()
+                try await Task.sleep(for: .seconds(1.5))
+                showingConfetti = false
+            } catch {}
+        }
         .sensoryFeedback(.impact(weight: .light), trigger: lightImpactTrigger)
         .sensoryFeedback(.success, trigger: successTrigger)
     }
@@ -120,6 +129,7 @@ struct MainView: View {
                             .padding(.vertical, 12)
                     }
                     .glassEffect(in: Capsule())
+                    .disabled(showingConfetti)
 
                     Spacer()
 
@@ -127,12 +137,6 @@ struct MainView: View {
                         successTrigger += 1
                         if shouldAnimate {
                             showingConfetti = true
-                            Task {
-                                try? await Task.sleep(for: .seconds(0.7))
-                                store.done()
-                                try? await Task.sleep(for: .seconds(1.5))
-                                showingConfetti = false
-                            }
                         } else {
                             store.done()
                         }

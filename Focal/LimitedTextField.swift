@@ -12,6 +12,7 @@ struct LimitedTextField: View {
                 Text("\(limit - text.count)")
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(text.count >= limit ? .red : .secondary)
+                    .accessibilityLabel("\(limit - text.count) characters remaining")
             }
         }
         .onChange(of: text) { _, new in

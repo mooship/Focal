@@ -35,17 +35,19 @@ struct MainView: View {
             }
             .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.currentTaskID)
             .navigationTitle("Focal")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 16) {
-                        Button { showingAllTasks = true } label: {
-                            Image(systemName: "list.bullet")
-                        }
-                        Button { showingQuickAdd = true } label: {
-                            Image(systemName: "plus")
-                        }
+                    Button { showingAllTasks = true } label: {
+                        Image(systemName: "list.bullet")
                     }
+                    .accessibilityLabel("All Tasks")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showingQuickAdd = true } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Task")
                 }
             }
         }
@@ -72,6 +74,7 @@ struct MainView: View {
                 ConfettiView()
                     .ignoresSafeArea()
                     .allowsHitTesting(false)
+                    .accessibilityHidden(true)
                     .transition(.opacity)
             }
         }
@@ -121,17 +124,19 @@ struct MainView: View {
                         .font(.caption)
                         .foregroundStyle(.tertiary)
                         .padding(12)
+                        .accessibilityHidden(true)
                 }
                 .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             }
             .buttonStyle(.plain)
+            .accessibilityHint("Opens task editor")
             .padding(.horizontal, 24)
 
             Spacer()
 
             VStack(spacing: 8) {
                 let count = incompleteTasks.count
-                Text("\(count) tasks")
+                Text("\(count) \(count == 1 ? "task" : "tasks") remaining")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
 
@@ -147,6 +152,7 @@ struct MainView: View {
                     }
                     .glassEffect(in: Capsule())
                     .disabled(showingConfetti)
+                    .accessibilityHint("Skips to the next task")
 
                     Spacer()
 
@@ -166,6 +172,7 @@ struct MainView: View {
                     }
                     .glassEffect(in: Capsule())
                     .disabled(showingConfetti)
+                    .accessibilityHint("Marks task as complete")
                 }
             }
             .padding(.horizontal, 24)

@@ -50,7 +50,7 @@ struct QuickAddSheet: View {
                 Button("Keep Editing", role: .cancel) {}
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
         .presentationBackground(.regularMaterial)
         .onAppear { titleFocused = true }
     }

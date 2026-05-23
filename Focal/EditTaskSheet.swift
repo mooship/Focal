@@ -16,7 +16,7 @@ struct EditTaskSheet: View {
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     private var hasChanges: Bool {
-        title.trimmed != task.title || note.trimmed.nilIfEmpty != task.note
+        title.trimmed != task.title || note.trimmed.nilIfEmpty != task.note?.trimmed.nilIfEmpty
     }
 
     init(task: FocalTask) {

@@ -56,6 +56,12 @@ struct AllTasksView: View {
                             } label: {
                                 Label("Edit", systemImage: "pencil")
                             }
+                        } preview: {
+                            Text(task.title)
+                                .font(.headline)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                                .frame(minWidth: 200)
                         }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
@@ -112,13 +118,14 @@ struct AllTasksView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.regularMaterial)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button { showingSettings = true } label: {
                         Image(systemName: "gear")
                     }
+                    .accessibilityLabel("Settings")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
                 }
             }
         }

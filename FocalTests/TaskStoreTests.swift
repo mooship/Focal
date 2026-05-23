@@ -78,6 +78,13 @@ struct TaskStoreTests {
         #expect(tasks.first?.note == nil)
     }
 
+    @Test func addTaskWithWhitespaceOnlyNoteStoresNil() throws {
+        let (store, context) = try makeStore()
+        store.addTask(title: "Task", note: "   ")
+        let tasks = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(tasks.first?.note == nil)
+    }
+
     @Test func addTaskWhenEmptyMakesItCurrent() throws {
         let (store, _) = try makeStore()
         #expect(store.currentTask == nil)

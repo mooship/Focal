@@ -37,12 +37,14 @@ struct MainView: View {
             .navigationTitle("Focal")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("All Tasks") { showingAllTasks = true }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showingQuickAdd = true } label: {
-                        Image(systemName: "plus")
+                    HStack(spacing: 16) {
+                        Button { showingAllTasks = true } label: {
+                            Image(systemName: "list.bullet")
+                        }
+                        Button { showingQuickAdd = true } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
             }
@@ -114,6 +116,12 @@ struct MainView: View {
                 }
                 .padding(32)
                 .frame(maxWidth: .infinity)
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: "pencil")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .padding(12)
+                }
                 .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             }
             .buttonStyle(.plain)

@@ -38,16 +38,16 @@ struct MainView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showingAllTasks = true } label: {
-                        Image(systemName: "list.bullet")
-                    }
-                    .accessibilityLabel("All Tasks")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
                     Button { showingQuickAdd = true } label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Task")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showingAllTasks = true } label: {
+                        Image(systemName: "list.bullet")
+                    }
+                    .accessibilityLabel("All Tasks")
                 }
             }
         }

@@ -47,12 +47,12 @@ struct AllTasksView: View {
                             Button {
                                 impactTrigger += 1
                                 store.prioritizeTask(task)
-                                Task { @MainActor in dismiss() }
+                                dismiss()
                             } label: {
                                 Label("Focus Now", systemImage: "arrow.up.to.line")
                             }
                             Button {
-                                editingTask = task
+                                Task { @MainActor in editingTask = task }
                             } label: {
                                 Label("Edit", systemImage: "pencil")
                             }
@@ -67,7 +67,7 @@ struct AllTasksView: View {
                             Button {
                                 impactTrigger += 1
                                 store.prioritizeTask(task)
-                                Task { @MainActor in dismiss() }
+                                dismiss()
                             } label: {
                                 Label("Focus now", systemImage: "arrow.up.to.line")
                             }

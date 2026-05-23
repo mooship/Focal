@@ -74,7 +74,9 @@ struct MainView: View {
         }
         .animation(.easeOut(duration: 0.4), value: showingConfetti)
         .task(id: showingConfetti) {
-            guard showingConfetti else { return }
+            guard showingConfetti else {
+                return
+            }
             do {
                 try await Task.sleep(for: .seconds(0.7))
                 store.done()

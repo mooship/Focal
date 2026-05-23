@@ -248,4 +248,52 @@ struct TaskStoreTests {
         store.notNow()
         #expect(store.currentTaskID != t3.id)
     }
+
+    @Test func doneWithTaskIDCompletesCorrectTask() throws {
+        let t1 = FocalTask(title: "A")
+        let t2 = FocalTask(title: "B")
+        let (store, context) = try makeStore(tasks: [t1, t2])
+        let pinnedID = store.currentTaskID
+        guard let pinnedID else {
+            Issue.record("Expected a current task")
+            return
+        }
+        store.done(taskID: pinnedID)
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.first { $0.id == pinnedID }?.completedAt != nil)
+        #expect(store.currentTaskID != pinnedID)
+    }
+
+    @Test func doneWithTaskIDCompletesOriginalTaskAfterCurrentChanges() throws {
+        let t1 = FocalTask(title: "A")
+        let t2 = FocalTask(title: "B")
+        let (store, context) = try makeStore(tasks: [t1, t2])
+        let pinnedID = store.currentTaskID
+        guard let pinnedID else {
+            Issue.record("Expected a current task")
+            return
+        }
+        let other = pinnedID == t1.id ? t2 : t1
+        store.prioritizeTask(other)
+        #expect(store.currentTaskID == other.id)
+        store.done(taskID: pinnedID)
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.first { $0.id == pinnedID }?.completedAt != nil)
+        #expect(all.first { $0.id == other.id }?.completedAt == nil)
+    }
+
+    @Test func doneWithTaskIDIsNoOpWhenTaskAlreadyDeleted() throws {
+        let t1 = FocalTask(title: "A")
+        let t2 = FocalTask(title: "B")
+        let (store, context) = try makeStore(tasks: [t1, t2])
+        let pinnedID = store.currentTaskID
+        guard let pinnedID, let currentTask = store.currentTask else {
+            Issue.record("Expected a current task")
+            return
+        }
+        store.deleteTask(currentTask)
+        store.done(taskID: pinnedID)
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.filter { $0.completedAt != nil }.isEmpty)
+    }
 }

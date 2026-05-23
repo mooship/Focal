@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import UIKit
 
 struct MainView: View {
     @Environment(TaskStore.self) private var store
@@ -11,6 +10,9 @@ struct MainView: View {
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
     @State private var showingConfetti = false
+    @State private var pendingDoneID: UUID?
+    @State private var lightImpactTrigger = 0
+    @State private var successTrigger = 0
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
@@ -72,6 +74,25 @@ struct MainView: View {
             }
         }
         .animation(.easeOut(duration: 0.4), value: showingConfetti)
+        .task(id: showingConfetti) {
+            guard showingConfetti, let id = pendingDoneID else {
+                return
+            }
+            do {
+                try await Task.sleep(for: .seconds(0.7))
+            } catch {
+                store.done(taskID: id)
+                showingConfetti = false
+                return
+            }
+            store.done(taskID: id)
+            do {
+                try await Task.sleep(for: .seconds(1.5))
+            } catch {}
+            showingConfetti = false
+        }
+        .sensoryFeedback(.impact(weight: .light), trigger: lightImpactTrigger)
+        .sensoryFeedback(.success, trigger: successTrigger)
     }
 
     @ViewBuilder
@@ -108,7 +129,7 @@ struct MainView: View {
 
                 HStack(alignment: .bottom) {
                     Button {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        lightImpactTrigger += 1
                         store.notNow()
                     } label: {
                         Text("Not now")
@@ -117,19 +138,15 @@ struct MainView: View {
                             .padding(.vertical, 12)
                     }
                     .glassEffect(in: Capsule())
+                    .disabled(showingConfetti)
 
                     Spacer()
 
                     Button {
-                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        successTrigger += 1
                         if shouldAnimate {
+                            pendingDoneID = store.currentTaskID
                             showingConfetti = true
-                            Task {
-                                try? await Task.sleep(for: .seconds(0.7))
-                                store.done()
-                                try? await Task.sleep(for: .seconds(1.5))
-                                showingConfetti = false
-                            }
                         } else {
                             store.done()
                         }
@@ -140,6 +157,7 @@ struct MainView: View {
                             .padding(.vertical, 16)
                     }
                     .glassEffect(in: Capsule())
+                    .disabled(showingConfetti)
                 }
             }
             .padding(.horizontal, 24)
@@ -167,7 +185,7 @@ struct MainView: View {
                 .truncationMode(.middle)
             Spacer()
             Button("Undo") {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                successTrigger += 1
                 store.undoDelete()
             }
             .fontWeight(.semibold)

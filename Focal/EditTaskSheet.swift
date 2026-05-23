@@ -60,7 +60,7 @@ struct EditTaskSheet: View {
                         task.title = title.trimmed
                         task.note = note.nilIfEmpty
                         try? modelContext.save()
-                        dismiss()
+                        Task { @MainActor in dismiss() }
                     }
                     .disabled(title.trimmed.isEmpty)
                 }

@@ -47,7 +47,7 @@ struct AllTasksView: View {
                             Button {
                                 impactTrigger += 1
                                 store.prioritizeTask(task)
-                                dismiss()
+                                Task { @MainActor in dismiss() }
                             } label: {
                                 Label("Focus now", systemImage: "arrow.up.to.line")
                             }

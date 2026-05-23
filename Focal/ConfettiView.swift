@@ -19,6 +19,7 @@ struct ConfettiView: View {
     var body: some View {
         TimelineView(.animation) { timeline in
             Canvas { ctx, size in
+                guard size.width > 0, size.height > 0 else { return }
                 let t = timeline.date.timeIntervalSince(startDate)
                 for p in particles {
                     let elapsed = t - p.spawnDelay
@@ -26,7 +27,7 @@ struct ConfettiView: View {
                     let alpha = max(0, 1.0 - 0.3 * elapsed)
                     guard alpha > 0 else { continue }
                     let px = p.startX * size.width + p.vx * elapsed
-                    let py = p.vy0 * elapsed + 250 * elapsed * elapsed
+                    let py = p.vy0 * elapsed + 75 * elapsed * elapsed
                     guard py < size.height + 20 else { continue }
                     let angle = p.angle0 + p.angularVelocity * elapsed
                     let hw = p.width / 2

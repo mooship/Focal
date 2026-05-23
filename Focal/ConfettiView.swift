@@ -52,6 +52,9 @@ struct ConfettiView: View {
             }
         }
         .onAppear {
+            guard particles.isEmpty else {
+                return
+            }
             var rng = SystemRandomNumberGenerator()
             let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .purple, .pink, .white]
             var ps = [Particle]()

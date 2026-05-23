@@ -33,7 +33,7 @@ struct ConfettiView: View {
                         continue
                     }
                     let px = p.startX * size.width + p.vx * elapsed
-                    let py = p.vy0 * elapsed + 75 * elapsed * elapsed
+                    let py = 0.3 * size.height + p.vy0 * elapsed + 75 * elapsed * elapsed
                     guard py < size.height + 20 else {
                         continue
                     }
@@ -56,7 +56,7 @@ struct ConfettiView: View {
                 return
             }
             var rng = SystemRandomNumberGenerator()
-            let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .purple, .pink, .white]
+            let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .purple, .pink, .cyan]
             var ps = [Particle]()
             ps.reserveCapacity(120)
             for color in colors {

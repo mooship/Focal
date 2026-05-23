@@ -43,11 +43,31 @@ struct AllTasksView: View {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .listRowInsets(rowInsets)
+                        .contextMenu {
+                            Button {
+                                impactTrigger += 1
+                                store.prioritizeTask(task)
+                                dismiss()
+                            } label: {
+                                Label("Focus now", systemImage: "arrow.up.to.line")
+                            }
+                            Button {
+                                Task { @MainActor in editingTask = task }
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                        } preview: {
+                            Text(task.title)
+                                .font(.headline)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                                .frame(minWidth: 200)
+                        }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
                                 impactTrigger += 1
                                 store.prioritizeTask(task)
-                                Task { @MainActor in dismiss() }
+                                dismiss()
                             } label: {
                                 Label("Focus now", systemImage: "arrow.up.to.line")
                             }
@@ -98,13 +118,14 @@ struct AllTasksView: View {
             .presentationDragIndicator(.visible)
             .presentationBackground(.regularMaterial)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button { showingSettings = true } label: {
                         Image(systemName: "gear")
                     }
+                    .accessibilityLabel("Settings")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
                 }
             }
         }

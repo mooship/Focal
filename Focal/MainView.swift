@@ -35,15 +35,19 @@ struct MainView: View {
             }
             .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.currentTaskID)
             .navigationTitle("Focal")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("All Tasks") { showingAllTasks = true }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showingQuickAdd = true } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("Add Task")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showingAllTasks = true } label: {
+                        Image(systemName: "list.bullet")
+                    }
+                    .accessibilityLabel("All Tasks")
                 }
             }
         }
@@ -70,6 +74,7 @@ struct MainView: View {
                 ConfettiView()
                     .ignoresSafeArea()
                     .allowsHitTesting(false)
+                    .accessibilityHidden(true)
                     .transition(.opacity)
             }
         }
@@ -114,9 +119,17 @@ struct MainView: View {
                 }
                 .padding(32)
                 .frame(maxWidth: .infinity)
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: "pencil")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .padding(12)
+                        .accessibilityHidden(true)
+                }
                 .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             }
             .buttonStyle(.plain)
+            .accessibilityHint("Opens task editor")
             .padding(.horizontal, 24)
 
             Spacer()
@@ -139,6 +152,7 @@ struct MainView: View {
                     }
                     .glassEffect(in: Capsule())
                     .disabled(showingConfetti)
+                    .accessibilityHint("Skips to the next task")
 
                     Spacer()
 
@@ -158,6 +172,7 @@ struct MainView: View {
                     }
                     .glassEffect(in: Capsule())
                     .disabled(showingConfetti)
+                    .accessibilityHint("Marks task as complete")
                 }
             }
             .padding(.horizontal, 24)

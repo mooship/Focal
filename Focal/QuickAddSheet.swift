@@ -7,8 +7,10 @@ struct QuickAddSheet: View {
     @State private var note = ""
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @FocusState private var titleFocused: Bool
+    @State private var showingDiscardConfirm = false
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
+    private var hasChanges: Bool { !title.trimmed.isEmpty || !note.trimmed.isEmpty }
 
     var body: some View {
         NavigationStack {
@@ -20,20 +22,35 @@ struct QuickAddSheet: View {
             .frame(maxWidth: isRegularWidth ? 600 : .infinity)
             .navigationTitle("New Task")
             .navigationBarTitleDisplayMode(.inline)
+            .interactiveDismissDisabled(hasChanges)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        if hasChanges {
+                            showingDiscardConfirm = true
+                        } else {
+                            dismiss()
+                        }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        store.addTask(title: title.trimmed, note: note)
+                        store.addTask(title: title.trimmed, note: note.trimmed)
                         dismiss()
                     }
                     .disabled(title.trimmed.isEmpty)
                 }
             }
+            .confirmationDialog(
+                "Discard new task?",
+                isPresented: $showingDiscardConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Discard", role: .destructive) { dismiss() }
+                Button("Keep Editing", role: .cancel) {}
+            }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
         .presentationBackground(.regularMaterial)
         .onAppear { titleFocused = true }
     }

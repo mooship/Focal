@@ -84,7 +84,7 @@ struct EditTaskSheet: View {
                 Button("Keep Editing", role: .cancel) {}
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
         .presentationBackground(.regularMaterial)
         .sensoryFeedback(.success, trigger: savedTrigger)
     }

@@ -46,13 +46,13 @@ Focal is an iOS 26 SwiftUI app that shows one task at a time to reduce ADHD deci
 - `MainView.swift` — root view. Shows the current task card with Done / Not now buttons; animates task transitions (respects Reduce Motion and the in-app toggle).
 - `QuickAddSheet.swift` — sheet for adding a new task.
 - `EditTaskSheet.swift` — sheet for editing or deleting an existing task; saves via `@Environment(\.modelContext)`, deletes via `store.deleteTask(_:)`.
-- `AllTasksView.swift` — sheet listing all incomplete and completed tasks with swipe-to-delete; opens Settings.
+- `AllTasksView.swift` — sheet listing all incomplete and completed tasks. Incomplete rows: tap to edit, long-press context menu for "Focus Now" / "Edit", swipe-right for "Focus now", swipe-left to delete. Completed rows: swipe-right to restore, swipe-left to delete. Opens Settings via gear icon.
 - `SettingsView.swift` — notifications (inactivity threshold), color scheme, animations toggle.
 - `LimitedTextField.swift` — reusable `TextField` with live character counter (shown in last 20 chars, red at limit) and hard clamp via `onChange`.
 
 ### Extensions
 
-- `Extensions.swift` — `String.nilIfEmpty: String?` (empty string → nil).
+- `Extensions.swift` — `String.nilIfEmpty: String?` (empty string → nil). `String.trimmed: String` (strips leading/trailing whitespace only — does not coerce to nil).
 
 ### Testing
 

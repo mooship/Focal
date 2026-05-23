@@ -35,7 +35,7 @@ struct QuickAddSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        store.addTask(title: title.trimmed, note: note)
+                        store.addTask(title: title.trimmed, note: note.trimmed)
                         dismiss()
                     }
                     .disabled(title.trimmed.isEmpty)

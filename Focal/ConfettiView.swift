@@ -28,7 +28,7 @@ struct ConfettiView: View {
                     guard elapsed > 0 else {
                         continue
                     }
-                    let alpha = max(0, 1.0 - 0.5 * elapsed)
+                    let alpha = max(0, 1.0 - 0.4 * elapsed)
                     guard alpha > 0 else {
                         continue
                     }

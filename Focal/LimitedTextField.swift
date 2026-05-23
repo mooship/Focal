@@ -15,7 +15,9 @@ struct LimitedTextField: View {
             }
         }
         .onChange(of: text) { _, new in
-            if new.count > limit { text = String(new.prefix(limit)) }
+            if new.count > limit {
+                text = String(new.prefix(limit))
+            }
         }
     }
 }

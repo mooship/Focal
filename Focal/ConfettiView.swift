@@ -41,8 +41,8 @@ struct ConfettiView: View {
                     let hw = p.width / 2
                     let hh = p.height / 2
                     let transform = CGAffineTransform.identity
-                        .translatedBy(x: px, y: py)
                         .rotated(by: angle)
+                        .translatedBy(x: px, y: py)
                     ctx.fill(
                         Path(CGRect(x: -hw, y: -hh, width: p.width, height: p.height))
                             .applying(transform),

@@ -28,7 +28,7 @@ struct ConfettiView: View {
                     guard elapsed > 0 else {
                         continue
                     }
-                    let alpha = max(0, 1.0 - 0.3 * elapsed)
+                    let alpha = max(0, 1.0 - 0.4 * elapsed)
                     guard alpha > 0 else {
                         continue
                     }
@@ -41,8 +41,8 @@ struct ConfettiView: View {
                     let hw = p.width / 2
                     let hh = p.height / 2
                     let transform = CGAffineTransform.identity
-                        .translatedBy(x: px, y: py)
                         .rotated(by: angle)
+                        .translatedBy(x: px, y: py)
                     ctx.fill(
                         Path(CGRect(x: -hw, y: -hh, width: p.width, height: p.height))
                             .applying(transform),
@@ -56,11 +56,11 @@ struct ConfettiView: View {
                 return
             }
             var rng = SystemRandomNumberGenerator()
-            let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .purple, .pink, .white]
+            let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .purple, .pink, .cyan]
             var ps = [Particle]()
-            ps.reserveCapacity(120)
+            ps.reserveCapacity(200)
             for color in colors {
-                for _ in 0..<15 {
+                for _ in 0..<25 {
                     ps.append(Particle(
                         startX: Double.random(in: 0...1, using: &rng),
                         vx: Double.random(in: -150...150, using: &rng),

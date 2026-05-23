@@ -63,7 +63,7 @@ final class TaskStore {
     }
 
     func addTask(title: String, note: String?) {
-        let task = FocalTask(title: title, note: note.flatMap { $0.nilIfEmpty })
+        let task = FocalTask(title: title, note: note.flatMap { $0.trimmed.nilIfEmpty })
         modelContext.insert(task)
         try? modelContext.save()
         if currentTaskID == nil {

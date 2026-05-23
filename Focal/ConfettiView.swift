@@ -61,7 +61,7 @@ struct ConfettiView: View {
                     ps.append(Particle(
                         startX: Double.random(in: 0...1, using: &rng),
                         vx: Double.random(in: -150...150, using: &rng),
-                        vy0: Double.random(in: -450 ... -150, using: &rng),
+                        vy0: Double.random(in: 150 ... 450, using: &rng),
                         angle0: Double.random(in: 0 ... 2 * .pi, using: &rng),
                         angularVelocity: Double.random(in: -6...6, using: &rng),
                         width: Double.random(in: 6...10, using: &rng),

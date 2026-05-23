@@ -123,7 +123,9 @@ final class TaskStore {
     }
 
     func prioritizeTask(_ task: FocalTask) {
-        guard task.completedAt == nil else { return }
+        guard task.completedAt == nil else {
+            return
+        }
         if let i = sessionQueue.firstIndex(of: task.id) {
             sessionQueue.remove(at: i)
         }

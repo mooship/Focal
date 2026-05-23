@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import UIKit
 
 struct EditTaskSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -12,6 +11,7 @@ struct EditTaskSheet: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showingDeleteConfirm = false
     @State private var showingDiscardConfirm = false
+    @State private var savedTrigger = 0
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
@@ -56,7 +56,7 @@ struct EditTaskSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        savedTrigger += 1
                         task.title = title.trimmed
                         task.note = note.nilIfEmpty
                         try? modelContext.save()
@@ -86,5 +86,6 @@ struct EditTaskSheet: View {
         }
         .presentationDetents([.medium, .large])
         .presentationBackground(.regularMaterial)
+        .sensoryFeedback(.success, trigger: savedTrigger)
     }
 }

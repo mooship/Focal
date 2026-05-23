@@ -11,6 +11,7 @@ struct MainView: View {
     @State private var editingTask: FocalTask?
     @State private var showingConfetti = false
     @State private var pendingDoneID: UUID?
+    @State private var confettiRunID = UUID()
     @State private var lightImpactTrigger = 0
     @State private var successTrigger = 0
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
@@ -72,6 +73,7 @@ struct MainView: View {
         .overlay {
             if showingConfetti {
                 ConfettiView()
+                    .id(confettiRunID)
                     .ignoresSafeArea()
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
@@ -86,7 +88,6 @@ struct MainView: View {
             do {
                 try await Task.sleep(for: .seconds(0.7))
             } catch {
-                store.done(taskID: id)
                 showingConfetti = false
                 return
             }
@@ -160,6 +161,7 @@ struct MainView: View {
                         successTrigger += 1
                         if shouldAnimate {
                             pendingDoneID = store.currentTaskID
+                            confettiRunID = UUID()
                             showingConfetti = true
                         } else {
                             store.done()

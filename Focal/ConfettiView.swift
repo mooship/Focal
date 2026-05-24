@@ -40,9 +40,7 @@ struct ConfettiView: View {
                     let angle = p.angle0 + p.angularVelocity * elapsed
                     let hw = p.width / 2
                     let hh = p.height / 2
-                    let transform = CGAffineTransform.identity
-                        .rotated(by: angle)
-                        .translatedBy(x: px, y: py)
+                    let transform = CGAffineTransform(translationX: px, y: py).rotated(by: angle)
                     ctx.fill(
                         Path(CGRect(x: -hw, y: -hh, width: p.width, height: p.height))
                             .applying(transform),

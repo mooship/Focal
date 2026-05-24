@@ -9,9 +9,6 @@ struct MainView: View {
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
-    @State private var showingConfetti = false
-    @State private var pendingDoneID: UUID?
-    @State private var confettiRunID = UUID()
     @State private var lightImpactTrigger = 0
     @State private var successTrigger = 0
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
@@ -70,33 +67,6 @@ struct MainView: View {
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }
-        .overlay {
-            if showingConfetti {
-                ConfettiView()
-                    .id(confettiRunID)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-                    .transition(.opacity)
-            }
-        }
-        .animation(.easeOut(duration: 0.4), value: showingConfetti)
-        .task(id: showingConfetti) {
-            guard showingConfetti, let id = pendingDoneID else {
-                return
-            }
-            do {
-                try await Task.sleep(for: .seconds(0.7))
-            } catch {
-                showingConfetti = false
-                return
-            }
-            store.done(taskID: id)
-            do {
-                try await Task.sleep(for: .seconds(1.5))
-            } catch {}
-            showingConfetti = false
-        }
         .sensoryFeedback(.impact(weight: .light), trigger: lightImpactTrigger)
         .sensoryFeedback(.success, trigger: successTrigger)
     }
@@ -152,20 +122,13 @@ struct MainView: View {
                             .padding(.vertical, 12)
                     }
                     .glassEffect(in: Capsule())
-                    .disabled(showingConfetti)
                     .accessibilityHint("Skips to the next task")
 
                     Spacer()
 
                     Button {
                         successTrigger += 1
-                        if shouldAnimate {
-                            pendingDoneID = store.currentTaskID
-                            confettiRunID = UUID()
-                            showingConfetti = true
-                        } else {
-                            store.done()
-                        }
+                        store.done()
                     } label: {
                         Text("Done")
                             .font(.headline)
@@ -173,7 +136,6 @@ struct MainView: View {
                             .padding(.vertical, 16)
                     }
                     .glassEffect(in: Capsule())
-                    .disabled(showingConfetti)
                     .accessibilityHint("Marks task as complete")
                 }
             }

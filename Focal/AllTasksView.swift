@@ -7,12 +7,13 @@ struct AllTasksView: View {
     @Query(sort: \FocalTask.createdAt) private var allTasks: [FocalTask]
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
     @State private var impactTrigger = 0
     @State private var successTrigger = 0
 
-    private var shouldAnimate: Bool { animationsEnabled }
+    private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {

@@ -40,6 +40,7 @@ struct AllTasksView: View {
                                 .padding(.vertical, 10)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .accessibilityHint("Opens task editor")
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -86,6 +87,7 @@ struct AllTasksView: View {
                     Section("Completed") {
                         ForEach(groups.completed) { task in
                             Text(task.title)
+                                .strikethrough()
                                 .foregroundStyle(.secondary)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 10)

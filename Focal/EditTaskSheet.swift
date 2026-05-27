@@ -50,8 +50,9 @@ struct EditTaskSheet: View {
         let draftExistingIDs = Set(subtaskDrafts.filter { !$0.isNew }.map(\.id))
         if originalIDs != draftExistingIDs { return true }
         if subtaskDrafts.contains(where: \.isNew) { return true }
+        let originalByID = Dictionary(uniqueKeysWithValues: task.subtasks.map { ($0.id, $0) })
         for draft in subtaskDrafts where !draft.isNew {
-            if let original = task.subtasks.first(where: { $0.id == draft.id }),
+            if let original = originalByID[draft.id],
                original.isCompleted != draft.isCompleted { return true }
         }
         return false
@@ -88,8 +89,8 @@ struct EditTaskSheet: View {
                             displayedComponents: .date
                         )
                     }
-                    estimatePicker
-                    recurrencePicker
+                    EstimatePicker(selection: $selectedEstimate)
+                    RecurrencePicker(selection: $selectedRecurrence)
                 }
 
                 Section("Subtasks") {
@@ -186,31 +187,6 @@ struct EditTaskSheet: View {
         .sensoryFeedback(.success, trigger: savedTrigger)
     }
 
-    private var estimatePicker: some View {
-        Picker("Estimate", selection: $selectedEstimate) {
-            Text("None").tag(Optional<Int>.none)
-            Text("~5 min").tag(Optional(5))
-            Text("~10 min").tag(Optional(10))
-            Text("~15 min").tag(Optional(15))
-            Text("~30 min").tag(Optional(30))
-            Text("~45 min").tag(Optional(45))
-            Text("~1 hr").tag(Optional(60))
-            Text("~1.5 hr").tag(Optional(90))
-            Text("~2 hr").tag(Optional(120))
-        }
-        .pickerStyle(.menu)
-    }
-
-    private var recurrencePicker: some View {
-        Picker("Repeat", selection: $selectedRecurrence) {
-            Text("None").tag(Optional<RecurrenceRule>.none)
-            ForEach(RecurrenceRule.allCases, id: \.self) { rule in
-                Text(rule.localizedLabel).tag(Optional(rule))
-            }
-        }
-        .pickerStyle(.menu)
-    }
-
     private func commitNewSubtask() {
         let trimmed = newSubtaskTitle.trimmed
         guard !trimmed.isEmpty else { return }
@@ -225,12 +201,12 @@ struct EditTaskSheet: View {
         task.estimatedMinutes = selectedEstimate
         task.recurrence = selectedRecurrence
 
-        let draftExistingIDs = Set(subtaskDrafts.filter { !$0.isNew }.map(\.id))
-        for existing in task.subtasks {
-            if !draftExistingIDs.contains(existing.id) {
-                modelContext.delete(existing)
-            } else if let draft = subtaskDrafts.first(where: { $0.id == existing.id }) {
+        let draftByID = Dictionary(uniqueKeysWithValues: subtaskDrafts.filter { !$0.isNew }.map { ($0.id, $0) })
+        for existing in Array(task.subtasks) {
+            if let draft = draftByID[existing.id] {
                 existing.isCompleted = draft.isCompleted
+            } else {
+                modelContext.delete(existing)
             }
         }
         for draft in subtaskDrafts where draft.isNew {

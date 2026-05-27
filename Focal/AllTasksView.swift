@@ -169,34 +169,15 @@ struct AllTasksView: View {
     private func metaLine(for task: FocalTask) -> String? {
         var parts: [String] = []
         if let mins = task.estimatedMinutes {
-            parts.append(estimateString(mins))
+            parts.append(formatEstimateMinutes(mins))
         }
         if let due = task.dueDate {
-            parts.append(dueDateString(for: due))
+            parts.append(formatDueDate(due).text)
         }
         if let rule = task.recurrence {
             parts.append(rule.stringValue)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
-    }
-
-    private func estimateString(_ minutes: Int) -> String {
-        switch minutes {
-        case 60: return String(localized: "~1 hr")
-        case 90: return String(localized: "~1.5 hr")
-        case 120: return String(localized: "~2 hr")
-        default: return String(localized: "~\(minutes) min")
-        }
-    }
-
-    private func dueDateString(for due: Date) -> String {
-        let cal = Calendar.current
-        if !cal.isDateInToday(due) && due < Date() {
-            return String(localized: "Overdue")
-        }
-        if cal.isDateInToday(due) { return String(localized: "Due today") }
-        if cal.isDateInTomorrow(due) { return String(localized: "Tomorrow") }
-        return due.formatted(.dateTime.month(.abbreviated).day())
     }
 
     @ViewBuilder

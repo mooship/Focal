@@ -17,7 +17,7 @@ struct FocalApp: App {
 
     init() {
         do {
-            let schema = Schema([FocalTask.self])
+            let schema = Schema([FocalTask.self, SubTask.self])
             let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
             let container = try ModelContainer(for: schema, configurations: [config])
             modelContainer = container

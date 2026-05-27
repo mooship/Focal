@@ -8,6 +8,7 @@ struct LimitedTextField: View {
     var body: some View {
         HStack {
             TextField(label, text: $text)
+                .accessibilityHint(Text("Maximum \(limit) characters"))
             if text.count > limit - 20 {
                 Text("\(limit - text.count)")
                     .font(.caption.monospacedDigit())

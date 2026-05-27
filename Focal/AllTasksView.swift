@@ -40,6 +40,7 @@ struct AllTasksView: View {
                                 .padding(.vertical, 10)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .accessibilityHint("Opens task editor")
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -76,9 +77,8 @@ struct AllTasksView: View {
                         }
                     }
                     .onDelete { offsets in
-                        for index in offsets {
-                            store.deleteTask(groups.incomplete[index])
-                        }
+                        let tasks = offsets.map { groups.incomplete[$0] }
+                        tasks.forEach { store.deleteTask($0) }
                     }
                 }
 
@@ -86,6 +86,7 @@ struct AllTasksView: View {
                     Section("Completed") {
                         ForEach(groups.completed) { task in
                             Text(task.title)
+                                .strikethrough()
                                 .foregroundStyle(.secondary)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 10)
@@ -105,9 +106,8 @@ struct AllTasksView: View {
                                 }
                         }
                         .onDelete { offsets in
-                            for index in offsets {
-                                store.deleteTask(groups.completed[index])
-                            }
+                            let tasks = offsets.map { groups.completed[$0] }
+                            tasks.forEach { store.deleteTask($0) }
                         }
                     }
                 }

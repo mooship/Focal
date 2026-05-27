@@ -176,6 +176,7 @@ final class TaskStore {
 
     func restoreTask(_ task: FocalTask) {
         task.completedAt = nil
+        task.subtasks.forEach { $0.isCompleted = false }
         try? modelContext.save()
         guard !sessionQueue.contains(task.id) else { return }
         let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)

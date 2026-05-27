@@ -51,10 +51,13 @@ struct MainView: View {
         }
         .overlay(alignment: .bottom) {
             if let undo = store.pendingUndo {
-                undoBanner(undo)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                UndoBanner(undo: undo) {
+                    successTrigger += 1
+                    store.undoDelete()
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.pendingUndo)
@@ -236,20 +239,4 @@ struct MainView: View {
         .padding()
     }
 
-    private func undoBanner(_ undo: TaskStore.PendingUndo) -> some View {
-        HStack {
-            Text("Deleted \"\(undo.title)\"")
-                .lineLimit(1)
-                .truncationMode(.middle)
-            Spacer()
-            Button("Undo") {
-                successTrigger += 1
-                store.undoDelete()
-            }
-            .fontWeight(.semibold)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .glassEffect(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
 }

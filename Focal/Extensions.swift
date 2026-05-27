@@ -58,9 +58,28 @@ struct RecurrencePicker: View {
         Picker("Repeat", selection: $selection) {
             Text("None").tag(Optional<RecurrenceRule>.none)
             ForEach(RecurrenceRule.allCases, id: \.self) { rule in
-                Text(rule.localizedLabel).tag(Optional(rule))
+                Text(rule.stringValue).tag(Optional(rule))
             }
         }
         .pickerStyle(.menu)
+    }
+}
+
+struct UndoBanner: View {
+    let undo: TaskStore.PendingUndo
+    let onUndo: () -> Void
+
+    var body: some View {
+        HStack {
+            Text("Deleted \"\(undo.title)\"")
+                .lineLimit(1)
+                .truncationMode(.middle)
+            Spacer()
+            Button("Undo", action: onUndo)
+                .fontWeight(.semibold)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .glassEffect(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }

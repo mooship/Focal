@@ -12,15 +12,6 @@ enum RecurrenceRule: String, Codable, CaseIterable {
     case weekly
     case monthly
 
-    var localizedLabel: LocalizedStringKey {
-        switch self {
-        case .daily: "Daily"
-        case .weekdays: "Weekdays"
-        case .weekly: "Weekly"
-        case .monthly: "Monthly"
-        }
-    }
-
     var stringValue: String {
         switch self {
         case .daily: return String(localized: "Daily")

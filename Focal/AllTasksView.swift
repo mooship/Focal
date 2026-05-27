@@ -34,11 +34,7 @@ struct AllTasksView: View {
                         Button {
                             editingTask = task
                         } label: {
-                            Text(task.title)
-                                .foregroundStyle(.primary)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            incompleteRow(for: task)
                         }
                         .accessibilityHint("Opens task editor")
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -149,6 +145,74 @@ struct AllTasksView: View {
         .sensoryFeedback(.success, trigger: successTrigger)
     }
 
+    @ViewBuilder
+    private func incompleteRow(for task: FocalTask) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(task.title)
+                    .foregroundStyle(.primary)
+                if let meta = metaLine(for: task) {
+                    Text(meta)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 10)
+            .padding(.leading, 12)
+
+            ageBadge(for: task)
+                .padding(.trailing, 12)
+        }
+    }
+
+    private func metaLine(for task: FocalTask) -> String? {
+        var parts: [String] = []
+        if let mins = task.estimatedMinutes {
+            parts.append(estimateString(mins))
+        }
+        if let due = task.dueDate {
+            parts.append(dueDateString(for: due))
+        }
+        if let rule = task.recurrence {
+            parts.append(rule.stringValue)
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    private func estimateString(_ minutes: Int) -> String {
+        switch minutes {
+        case 60: return String(localized: "~1 hr")
+        case 90: return String(localized: "~1.5 hr")
+        case 120: return String(localized: "~2 hr")
+        default: return String(localized: "~\(minutes) min")
+        }
+    }
+
+    private func dueDateString(for due: Date) -> String {
+        let cal = Calendar.current
+        if !cal.isDateInToday(due) && due < Date() {
+            return String(localized: "Overdue")
+        }
+        if cal.isDateInToday(due) { return String(localized: "Due today") }
+        if cal.isDateInTomorrow(due) { return String(localized: "Tomorrow") }
+        return due.formatted(.dateTime.month(.abbreviated).day())
+    }
+
+    @ViewBuilder
+    private func ageBadge(for task: FocalTask) -> some View {
+        let days = Calendar.current.dateComponents([.day], from: task.createdAt, to: Date()).day ?? 0
+        let color: Color = days <= 7 ? .secondary : days <= 30 ? .orange : .red
+        if days > 0 {
+            Text("\(days)d")
+                .font(.caption2)
+                .foregroundStyle(color)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(color.opacity(0.12), in: Capsule())
+        }
+    }
+
     private func undoBanner(_ undo: TaskStore.PendingUndo) -> some View {
         HStack {
             Text("Deleted \"\(undo.title)\"")
@@ -166,3 +230,4 @@ struct AllTasksView: View {
         .glassEffect(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
+

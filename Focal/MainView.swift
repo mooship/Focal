@@ -73,34 +73,86 @@ struct MainView: View {
 
     @ViewBuilder
     private func taskView(_ task: FocalTask) -> some View {
+        let sortedSubtasks = task.subtasks.sorted { $0.createdAt < $1.createdAt }
+        let hasSubtasks = !sortedSubtasks.isEmpty
+        let hasMeta = task.estimatedMinutes != nil || task.dueDate != nil || task.recurrence != nil
+
         VStack(spacing: 0) {
             Spacer()
 
-            Button { editingTask = task } label: {
-                VStack(spacing: 12) {
-                    Text(task.title)
-                        .font(.largeTitle.weight(.semibold))
-                        .multilineTextAlignment(.center)
-                    if let note = task.note, !note.isEmpty {
-                        Text(note)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
+            VStack(spacing: 0) {
+                Button { editingTask = task } label: {
+                    VStack(spacing: 12) {
+                        Text(task.title)
+                            .font(.largeTitle.weight(.semibold))
                             .multilineTextAlignment(.center)
+                        if let note = task.note, !note.isEmpty {
+                            Text(note)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                    .frame(maxWidth: .infinity)
+                    .overlay(alignment: .topTrailing) {
+                        Image(systemName: "pencil")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                            .padding(8)
+                            .accessibilityHidden(true)
                     }
                 }
-                .padding(32)
-                .frame(maxWidth: .infinity)
-                .overlay(alignment: .topTrailing) {
-                    Image(systemName: "pencil")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .padding(12)
-                        .accessibilityHidden(true)
+                .buttonStyle(.plain)
+                .accessibilityHint("Opens task editor")
+                .padding(.top, 24)
+                .padding(.horizontal, 24)
+                .padding(.bottom, hasSubtasks || hasMeta ? 16 : 24)
+
+                if hasSubtasks {
+                    Divider()
+                        .padding(.horizontal, 24)
+                    VStack(spacing: 2) {
+                        ForEach(sortedSubtasks) { subtask in
+                            Button {
+                                successTrigger += 1
+                                store.toggleSubtask(subtask, in: task)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: subtask.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(subtask.isCompleted ? .secondary : .primary)
+                                    Text(subtask.title)
+                                        .strikethrough(subtask.isCompleted)
+                                        .foregroundStyle(subtask.isCompleted ? .secondary : .primary)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                .font(.subheadline)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 24)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(subtask.isCompleted
+                                ? Text("\(subtask.title), completed")
+                                : Text(subtask.title)
+                            )
+                            .accessibilityHint(subtask.isCompleted
+                                ? "Mark as incomplete"
+                                : "Mark as complete"
+                            )
+                        }
+                    }
+                    .padding(.top, 8)
+                    .padding(.bottom, hasMeta ? 0 : 16)
                 }
-                .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+
+                if hasMeta {
+                    metaBadgeRow(for: task)
+                        .padding(.horizontal, 24)
+                        .padding(.top, hasSubtasks ? 12 : 8)
+                        .padding(.bottom, 20)
+                }
             }
-            .buttonStyle(.plain)
-            .accessibilityHint("Opens task editor")
+            .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .padding(.horizontal, 24)
 
             Spacer()
@@ -143,6 +195,61 @@ struct MainView: View {
             .padding(.bottom, 40)
         }
         .frame(maxWidth: isRegularWidth ? 600 : .infinity)
+    }
+
+    @ViewBuilder
+    private func metaBadgeRow(for task: FocalTask) -> some View {
+        HStack(spacing: 8) {
+            if let mins = task.estimatedMinutes {
+                metaBadge(estimateText(mins), color: .secondary)
+            }
+            if let due = task.dueDate {
+                let badge = dueDateBadge(for: due)
+                metaBadge(badge.text, color: badge.color)
+            }
+            if let rule = task.recurrence {
+                metaBadge(rule.localizedLabel, color: .secondary)
+            }
+            Spacer()
+        }
+    }
+
+    private func metaBadge(_ text: LocalizedStringKey, color: Color) -> some View {
+        Text(text)
+            .font(.caption)
+            .foregroundStyle(color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(color.opacity(0.12), in: Capsule())
+    }
+
+    private func estimateText(_ minutes: Int) -> LocalizedStringKey {
+        switch minutes {
+        case 60: return "~1 hr"
+        case 90: return "~1.5 hr"
+        case 120: return "~2 hr"
+        default: return "~\(minutes) min"
+        }
+    }
+
+    private struct DueDateInfo {
+        let text: LocalizedStringKey
+        let color: Color
+    }
+
+    private func dueDateBadge(for due: Date) -> DueDateInfo {
+        let cal = Calendar.current
+        if !cal.isDateInToday(due) && due < Date() {
+            return DueDateInfo(text: "Overdue", color: .red)
+        }
+        if cal.isDateInToday(due) {
+            return DueDateInfo(text: "Due today", color: .orange)
+        }
+        if cal.isDateInTomorrow(due) {
+            return DueDateInfo(text: "Tomorrow", color: .blue)
+        }
+        let formatted = due.formatted(.dateTime.month(.abbreviated).day())
+        return DueDateInfo(text: LocalizedStringKey(formatted), color: .secondary)
     }
 
     private var emptyStateView: some View {

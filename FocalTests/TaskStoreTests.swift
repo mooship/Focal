@@ -7,7 +7,7 @@ struct TaskStoreTests {
 
     private func makeStore(tasks: [FocalTask] = []) throws -> (TaskStore, ModelContext) {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: FocalTask.self, configurations: config)
+        let container = try ModelContainer(for: FocalTask.self, SubTask.self, configurations: config)
         let context = ModelContext(container)
         for task in tasks {
             context.insert(task)
@@ -302,5 +302,131 @@ struct TaskStoreTests {
         store.done(taskID: pinnedID)
         let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
         #expect(all.filter { $0.completedAt != nil }.isEmpty)
+    }
+
+    @Test func addTaskWithDueDateStoresDueDate() throws {
+        let (store, context) = try makeStore()
+        let due = Date(timeIntervalSinceNow: 86400)
+        store.addTask(title: "Task", note: nil, dueDate: due)
+        let tasks = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(tasks.first?.dueDate == due)
+    }
+
+    @Test func addTaskWithEstimateStoresEstimate() throws {
+        let (store, context) = try makeStore()
+        store.addTask(title: "Task", note: nil, estimatedMinutes: 30)
+        let tasks = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(tasks.first?.estimatedMinutes == 30)
+    }
+
+    @Test func addTaskWithRecurrenceStoresRecurrence() throws {
+        let (store, context) = try makeStore()
+        store.addTask(title: "Daily standup", note: nil, recurrence: .daily)
+        let tasks = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(tasks.first?.recurrence == .daily)
+    }
+
+    @Test func doneOnRecurringTaskMarksOriginalComplete() throws {
+        let due = Calendar.current.startOfDay(for: Date())
+        let task = FocalTask(title: "Standup", dueDate: due, recurrence: .daily)
+        let (store, context) = try makeStore(tasks: [task])
+        store.done()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.first { $0.title == "Standup" && $0.completedAt != nil } != nil)
+    }
+
+    @Test func doneOnRecurringTaskCreatesNextOccurrence() throws {
+        let due = Calendar.current.startOfDay(for: Date())
+        let task = FocalTask(title: "Standup", dueDate: due, recurrence: .daily)
+        let (store, context) = try makeStore(tasks: [task])
+        store.done()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        let next = all.first { $0.completedAt == nil && $0.title == "Standup" }
+        #expect(next != nil)
+        let expectedDue = Calendar.current.date(byAdding: .day, value: 1, to: due)!
+        #expect(next?.dueDate == expectedDue)
+    }
+
+    @Test func addSubtaskCreatesLinkedSubTask() throws {
+        let task = FocalTask(title: "Project")
+        let (store, context) = try makeStore(tasks: [task])
+        store.addSubtask(to: task, title: "Research")
+        let subs = (try? context.fetch(FetchDescriptor<SubTask>())) ?? []
+        #expect(subs.count == 1)
+        #expect(subs.first?.title == "Research")
+        #expect(subs.first?.task?.id == task.id)
+    }
+
+    @Test func deleteSubtaskRemovesIt() throws {
+        let task = FocalTask(title: "Project")
+        let (store, context) = try makeStore(tasks: [task])
+        store.addSubtask(to: task, title: "Research")
+        let subs = (try? context.fetch(FetchDescriptor<SubTask>())) ?? []
+        guard let sub = subs.first else {
+            Issue.record("Expected a subtask")
+            return
+        }
+        store.deleteSubtask(sub)
+        let remaining = (try? context.fetch(FetchDescriptor<SubTask>())) ?? []
+        #expect(remaining.isEmpty)
+    }
+
+    @Test func toggleSubtaskFlipsCompletion() throws {
+        let task = FocalTask(title: "Project")
+        let (store, _) = try makeStore(tasks: [task])
+        store.addSubtask(to: task, title: "Research")
+        guard let sub = task.subtasks.first else {
+            Issue.record("Expected a subtask")
+            return
+        }
+        #expect(sub.isCompleted == false)
+        store.toggleSubtask(sub, in: task)
+        #expect(sub.isCompleted == true)
+        store.toggleSubtask(sub, in: task)
+        #expect(sub.isCompleted == false)
+    }
+
+    @Test func toggleSubtaskAllCompleteAutoCompletesParent() throws {
+        let task = FocalTask(title: "Project")
+        let (store, _) = try makeStore(tasks: [task])
+        store.addSubtask(to: task, title: "Step 1")
+        store.addSubtask(to: task, title: "Step 2")
+        let subs = task.subtasks.sorted { $0.createdAt < $1.createdAt }
+        guard subs.count == 2 else {
+            Issue.record("Expected 2 subtasks")
+            return
+        }
+        store.toggleSubtask(subs[0], in: task)
+        #expect(store.currentTask?.title == "Project")
+        store.toggleSubtask(subs[1], in: task)
+        #expect(task.completedAt != nil)
+    }
+
+    @Test func toggleSubtaskOneIncompleteDoesNotAutoCompleteParent() throws {
+        let task = FocalTask(title: "Project")
+        let (store, _) = try makeStore(tasks: [task])
+        store.addSubtask(to: task, title: "Step 1")
+        store.addSubtask(to: task, title: "Step 2")
+        let subs = task.subtasks.sorted { $0.createdAt < $1.createdAt }
+        guard subs.count == 2 else {
+            Issue.record("Expected 2 subtasks")
+            return
+        }
+        store.toggleSubtask(subs[0], in: task)
+        #expect(task.completedAt == nil)
+    }
+
+    @Test func undoDeleteRestoresTaskWithSubtasks() throws {
+        let task = FocalTask(title: "Project")
+        let (store, context) = try makeStore(tasks: [task])
+        store.addSubtask(to: task, title: "Research")
+        store.addSubtask(to: task, title: "Write")
+        store.deleteTask(task)
+        store.undoDelete()
+        let allTasks = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        let restored = allTasks.first { $0.title == "Project" && $0.completedAt == nil }
+        #expect(restored != nil)
+        let subs = (try? context.fetch(FetchDescriptor<SubTask>())) ?? []
+        #expect(subs.count == 2)
     }
 }

@@ -40,8 +40,8 @@ struct QuickAddSheet: View {
                                 displayedComponents: .date
                             )
                         }
-                        estimatePicker
-                        recurrencePicker
+                        EstimatePicker(selection: $selectedEstimate)
+                        RecurrencePicker(selection: $selectedRecurrence)
                     }
                 }
             }
@@ -89,28 +89,4 @@ struct QuickAddSheet: View {
         .sensoryFeedback(.success, trigger: addedTrigger)
     }
 
-    private var estimatePicker: some View {
-        Picker("Estimate", selection: $selectedEstimate) {
-            Text("None").tag(Optional<Int>.none)
-            Text("~5 min").tag(Optional(5))
-            Text("~10 min").tag(Optional(10))
-            Text("~15 min").tag(Optional(15))
-            Text("~30 min").tag(Optional(30))
-            Text("~45 min").tag(Optional(45))
-            Text("~1 hr").tag(Optional(60))
-            Text("~1.5 hr").tag(Optional(90))
-            Text("~2 hr").tag(Optional(120))
-        }
-        .pickerStyle(.menu)
-    }
-
-    private var recurrencePicker: some View {
-        Picker("Repeat", selection: $selectedRecurrence) {
-            Text("None").tag(Optional<RecurrenceRule>.none)
-            ForEach(RecurrenceRule.allCases, id: \.self) { rule in
-                Text(rule.localizedLabel).tag(Optional(rule))
-            }
-        }
-        .pickerStyle(.menu)
-    }
 }

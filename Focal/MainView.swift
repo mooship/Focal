@@ -115,8 +115,9 @@ struct MainView: View {
                     VStack(spacing: 2) {
                         ForEach(sortedSubtasks) { subtask in
                             Button {
-                                successTrigger += 1
+                                let wasCompleted = subtask.isCompleted
                                 store.toggleSubtask(subtask, in: task)
+                                if wasCompleted { lightImpactTrigger += 1 } else { successTrigger += 1 }
                             } label: {
                                 HStack(spacing: 12) {
                                     Image(systemName: subtask.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -201,55 +202,26 @@ struct MainView: View {
     private func metaBadgeRow(for task: FocalTask) -> some View {
         HStack(spacing: 8) {
             if let mins = task.estimatedMinutes {
-                metaBadge(estimateText(mins), color: .secondary)
+                metaBadge(formatEstimateMinutes(mins), color: .secondary)
             }
             if let due = task.dueDate {
-                let badge = dueDateBadge(for: due)
+                let badge = formatDueDate(due)
                 metaBadge(badge.text, color: badge.color)
             }
             if let rule = task.recurrence {
-                metaBadge(rule.localizedLabel, color: .secondary)
+                metaBadge(rule.stringValue, color: .secondary)
             }
             Spacer()
         }
     }
 
-    private func metaBadge(_ text: LocalizedStringKey, color: Color) -> some View {
+    private func metaBadge(_ text: String, color: Color) -> some View {
         Text(text)
             .font(.caption)
             .foregroundStyle(color)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(color.opacity(0.12), in: Capsule())
-    }
-
-    private func estimateText(_ minutes: Int) -> LocalizedStringKey {
-        switch minutes {
-        case 60: return "~1 hr"
-        case 90: return "~1.5 hr"
-        case 120: return "~2 hr"
-        default: return "~\(minutes) min"
-        }
-    }
-
-    private struct DueDateInfo {
-        let text: LocalizedStringKey
-        let color: Color
-    }
-
-    private func dueDateBadge(for due: Date) -> DueDateInfo {
-        let cal = Calendar.current
-        if !cal.isDateInToday(due) && due < Date() {
-            return DueDateInfo(text: "Overdue", color: .red)
-        }
-        if cal.isDateInToday(due) {
-            return DueDateInfo(text: "Due today", color: .orange)
-        }
-        if cal.isDateInTomorrow(due) {
-            return DueDateInfo(text: "Tomorrow", color: .blue)
-        }
-        let formatted = due.formatted(.dateTime.month(.abbreviated).day())
-        return DueDateInfo(text: LocalizedStringKey(formatted), color: .secondary)
     }
 
     private var emptyStateView: some View {

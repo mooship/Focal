@@ -143,32 +143,33 @@ final class TaskStore {
         undoTask = nil
         guard let undo = pendingUndo else { return }
         pendingUndo = nil
-        let subtaskTitles = undo.subtasks.map(\.title)
+
+        let task = FocalTask(
+            title: undo.title,
+            note: undo.note.flatMap { $0.trimmed.nilIfEmpty },
+            dueDate: undo.dueDate,
+            estimatedMinutes: undo.estimatedMinutes,
+            recurrence: undo.recurrence
+        )
         if let completedAt = undo.completedAt {
-            let task = FocalTask(
-                title: undo.title,
-                note: undo.note.flatMap { $0.trimmed.nilIfEmpty },
-                dueDate: undo.dueDate,
-                estimatedMinutes: undo.estimatedMinutes,
-                recurrence: undo.recurrence
-            )
             task.completedAt = completedAt
-            modelContext.insert(task)
-            for stTitle in subtaskTitles {
-                let sub = SubTask(title: stTitle)
-                sub.task = task
-                modelContext.insert(sub)
+        }
+        modelContext.insert(task)
+        for snapshot in undo.subtasks {
+            let sub = SubTask(title: snapshot.title)
+            sub.isCompleted = snapshot.isCompleted
+            sub.task = task
+            modelContext.insert(sub)
+        }
+        try? modelContext.save()
+
+        if undo.completedAt == nil {
+            if currentTaskID == nil {
+                advance()
+            } else {
+                let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
+                sessionQueue.insert(task.id, at: insertIndex)
             }
-            try? modelContext.save()
-        } else {
-            addTask(
-                title: undo.title,
-                note: undo.note,
-                dueDate: undo.dueDate,
-                estimatedMinutes: undo.estimatedMinutes,
-                recurrence: undo.recurrence,
-                subtaskTitles: subtaskTitles
-            )
         }
         NotificationManager.shared.reschedule()
     }

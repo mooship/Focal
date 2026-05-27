@@ -38,7 +38,7 @@ struct QuickAddSheet: View {
                     Button("Add") {
                         addedTrigger += 1
                         store.addTask(title: title.trimmed, note: note.trimmed)
-                        dismiss()
+                        Task { @MainActor in dismiss() }
                     }
                     .disabled(title.trimmed.isEmpty)
                 }

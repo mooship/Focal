@@ -77,9 +77,8 @@ struct AllTasksView: View {
                         }
                     }
                     .onDelete { offsets in
-                        for index in offsets {
-                            store.deleteTask(groups.incomplete[index])
-                        }
+                        let tasks = offsets.map { groups.incomplete[$0] }
+                        tasks.forEach { store.deleteTask($0) }
                     }
                 }
 
@@ -107,9 +106,8 @@ struct AllTasksView: View {
                                 }
                         }
                         .onDelete { offsets in
-                            for index in offsets {
-                                store.deleteTask(groups.completed[index])
-                            }
+                            let tasks = offsets.map { groups.completed[$0] }
+                            tasks.forEach { store.deleteTask($0) }
                         }
                     }
                 }

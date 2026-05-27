@@ -8,6 +8,7 @@ struct QuickAddSheet: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @FocusState private var titleFocused: Bool
     @State private var showingDiscardConfirm = false
+    @State private var addedTrigger = 0
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
     private var hasChanges: Bool { !title.trimmed.isEmpty || !note.trimmed.isEmpty }
@@ -35,8 +36,9 @@ struct QuickAddSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
+                        addedTrigger += 1
                         store.addTask(title: title.trimmed, note: note.trimmed)
-                        dismiss()
+                        Task { @MainActor in dismiss() }
                     }
                     .disabled(title.trimmed.isEmpty)
                 }
@@ -53,5 +55,6 @@ struct QuickAddSheet: View {
         .presentationDetents([.large])
         .presentationBackground(.regularMaterial)
         .onAppear { titleFocused = true }
+        .sensoryFeedback(.success, trigger: addedTrigger)
     }
 }

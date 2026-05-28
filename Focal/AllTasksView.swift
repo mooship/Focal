@@ -10,7 +10,7 @@ struct AllTasksView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
-    @State private var impactTrigger = 0
+    @State private var selectionTrigger = 0
     @State private var successTrigger = 0
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
@@ -34,12 +34,9 @@ struct AllTasksView: View {
                         Button {
                             editingTask = task
                         } label: {
-                            Text(task.title)
-                                .foregroundStyle(.primary)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            incompleteRow(for: task)
                         }
+                        .accessibilityLabel(task.title)
                         .accessibilityHint("Opens task editor")
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .listRowBackground(Color.clear)
@@ -47,7 +44,7 @@ struct AllTasksView: View {
                         .listRowInsets(rowInsets)
                         .contextMenu {
                             Button {
-                                impactTrigger += 1
+                                selectionTrigger += 1
                                 store.prioritizeTask(task)
                                 dismiss()
                             } label: {
@@ -67,7 +64,7 @@ struct AllTasksView: View {
                         }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
-                                impactTrigger += 1
+                                selectionTrigger += 1
                                 store.prioritizeTask(task)
                                 dismiss()
                             } label: {
@@ -118,6 +115,9 @@ struct AllTasksView: View {
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .presentationBackground(.regularMaterial)
+            .navigationDestination(isPresented: $showingSettings) {
+                SettingsView()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { showingSettings = true } label: {
@@ -130,39 +130,73 @@ struct AllTasksView: View {
                 }
             }
         }
-        .overlay(alignment: .bottom) {
+        .safeAreaInset(edge: .bottom) {
             if let undo = store.pendingUndo {
-                undoBanner(undo)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                UndoBanner(undo: undo) {
+                    successTrigger += 1
+                    store.undoDelete()
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.pendingUndo)
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
-        }
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }
-        .sensoryFeedback(.impact(weight: .medium), trigger: impactTrigger)
+        .sensoryFeedback(.selection, trigger: selectionTrigger)
         .sensoryFeedback(.success, trigger: successTrigger)
     }
 
-    private func undoBanner(_ undo: TaskStore.PendingUndo) -> some View {
-        HStack {
-            Text("Deleted \"\(undo.title)\"")
-                .lineLimit(1)
-                .truncationMode(.middle)
-            Spacer()
-            Button("Undo") {
-                successTrigger += 1
-                store.undoDelete()
+    @ViewBuilder
+    private func incompleteRow(for task: FocalTask) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(task.title)
+                    .foregroundStyle(.primary)
+                if let meta = metaLine(for: task) {
+                    Text(meta)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
-            .fontWeight(.semibold)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 10)
+            .padding(.leading, 12)
+
+            ageBadge(for: task)
+                .padding(.trailing, 12)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .glassEffect(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
+
+    private func metaLine(for task: FocalTask) -> String? {
+        var parts: [String] = []
+        if let mins = task.estimatedMinutes {
+            parts.append(formatEstimateMinutes(mins))
+        }
+        if let due = task.dueDate {
+            parts.append(formatDueDate(due).text)
+        }
+        if let rule = task.recurrence {
+            parts.append(rule.stringValue)
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    @ViewBuilder
+    private func ageBadge(for task: FocalTask) -> some View {
+        let days = Calendar.current.dateComponents([.day], from: task.createdAt, to: Date()).day ?? 0
+        let color: Color = days <= 7 ? .secondary : days <= 30 ? .orange : .red
+        if days > 0 {
+            Text("\(days)d")
+                .font(.caption2)
+                .foregroundStyle(color)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(color.opacity(0.12), in: Capsule())
+                .accessibilityLabel(Text("\(days) days old"))
+        }
+    }
+
 }

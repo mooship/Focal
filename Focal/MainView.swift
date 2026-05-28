@@ -100,13 +100,6 @@ struct MainView: View {
                     }
                     .padding(.horizontal, 8)
                     .frame(maxWidth: .infinity)
-                    .overlay(alignment: .topTrailing) {
-                        Image(systemName: "pencil")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                            .padding(8)
-                            .accessibilityHidden(true)
-                    }
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("Opens task editor")

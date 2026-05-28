@@ -25,6 +25,11 @@ final class TaskStore {
     }
 
     private(set) var currentTask: FocalTask?
+    private(set) var notNowStreak: Int = 0
+
+    var hasCompletedCycle: Bool {
+        !sessionQueue.isEmpty && notNowStreak >= sessionQueue.count
+    }
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -55,6 +60,7 @@ final class TaskStore {
         }
 
         task.completedAt = Date()
+        notNowStreak = 0
         try? modelContext.save()
         if let i = sessionQueue.firstIndex(of: taskID) {
             sessionQueue.remove(at: i)
@@ -71,6 +77,7 @@ final class TaskStore {
         let incomplete = fetchIncomplete()
         guard let id = currentTaskID,
               incomplete.contains(where: { $0.id == id }) else { return }
+        notNowStreak += 1
         if let i = sessionQueue.firstIndex(of: id) {
             sessionQueue.remove(at: i)
         }
@@ -202,6 +209,7 @@ final class TaskStore {
         sessionQueue.insert(task.id, at: 0)
         currentTaskID = task.id
         currentTask = task
+        notNowStreak = 0
         NotificationManager.shared.reschedule()
     }
 
@@ -237,7 +245,18 @@ final class TaskStore {
         let incompleteIDs = Set(incomplete.map(\.id))
         sessionQueue = sessionQueue.filter { incompleteIDs.contains($0) }
         if sessionQueue.isEmpty {
-            sessionQueue = incomplete.map(\.id).shuffled()
+            let cal = Calendar.current
+            let now = Date()
+            let urgent = incomplete.filter { task in
+                guard let due = task.dueDate else { return false }
+                return cal.isDateInToday(due) || due < now
+            }
+            let normal = incomplete.filter { task in
+                guard let due = task.dueDate else { return true }
+                return !cal.isDateInToday(due) && due >= now
+            }
+            sessionQueue = urgent.map(\.id).shuffled() + normal.map(\.id).shuffled()
+            notNowStreak = 0
         }
         currentTaskID = sessionQueue.first
         currentTask = currentTaskID.flatMap { id in incomplete.first { $0.id == id } }

@@ -743,18 +743,34 @@
         }
       }
     },
-    "Pick up a task whenever you're ready." : {
+    "You've got tasks waiting." : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Neem 'n taak op wanneer jy gereed is."
+            "value" : "Jy het take wat wag."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elige una tarea cuando estés listo."
+            "value" : "Tienes tareas esperando."
+          }
+        }
+      }
+    },
+    "You've seen them all." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jy het hulle almal gesien."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya los has visto todos."
           }
         }
       }

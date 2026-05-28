@@ -51,8 +51,8 @@ final class NotificationManager {
         }
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Time to focus")
-        content.body = String(localized: "Pick up a task whenever you're ready.")
-        content.interruptionLevel = .passive
+        content.body = String(localized: "You've got tasks waiting.")
+        content.interruptionLevel = .active
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: threshold.seconds, repeats: false)
         center.add(UNNotificationRequest(identifier: "inactivity", content: content, trigger: trigger)) { error in
             guard error == nil else {

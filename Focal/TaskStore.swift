@@ -128,10 +128,10 @@ final class TaskStore {
             sessionQueue.remove(at: i)
         }
         if currentTaskID == id {
-            currentTaskID = nil
-            currentTask = nil
+            advance()
+        } else {
+            refreshIfNeeded()
         }
-        refreshIfNeeded()
 
         undoTask?.cancel()
         pendingUndo = snapshot
@@ -181,6 +181,9 @@ final class TaskStore {
 
     func restoreTask(_ task: FocalTask) {
         task.completedAt = nil
+        if !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted) {
+            task.subtasks.forEach { $0.isCompleted = false }
+        }
         try? modelContext.save()
         guard !sessionQueue.contains(task.id) else { return }
         let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)

@@ -113,6 +113,7 @@ final class TaskStore {
         } else {
             let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
             sessionQueue.insert(task.id, at: insertIndex)
+            notNowStreak = 0
         }
     }
 
@@ -134,6 +135,7 @@ final class TaskStore {
         if let i = sessionQueue.firstIndex(of: id) {
             sessionQueue.remove(at: i)
         }
+        notNowStreak = 0
         if currentTaskID == id {
             advance()
         } else {
@@ -181,6 +183,7 @@ final class TaskStore {
             } else {
                 let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
                 sessionQueue.insert(task.id, at: insertIndex)
+                notNowStreak = 0
             }
         }
         NotificationManager.shared.reschedule()
@@ -195,6 +198,7 @@ final class TaskStore {
         guard !sessionQueue.contains(task.id) else { return }
         let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
         sessionQueue.insert(task.id, at: insertIndex)
+        notNowStreak = 0
         if currentTaskID == nil {
             advance()
         }

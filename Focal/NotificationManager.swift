@@ -35,7 +35,7 @@ final class NotificationManager {
     private init() {}
 
     func requestPermission() async -> Bool {
-        (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+        (try? await center.requestAuthorization(options: [.alert])) ?? false
     }
 
     func reschedule() {
@@ -52,7 +52,7 @@ final class NotificationManager {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Time to focus")
         content.body = String(localized: "Pick up a task whenever you're ready.")
-        content.sound = .default
+        content.interruptionLevel = .passive
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: threshold.seconds, repeats: false)
         center.add(UNNotificationRequest(identifier: "inactivity", content: content, trigger: trigger))
     }

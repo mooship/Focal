@@ -77,14 +77,14 @@ struct EditTaskSheet: View {
             Form {
                 Section {
                     LimitedTextField(label: "Task", text: $title, limit: TaskLimit.titleMax)
-                    LimitedTextField(label: "Note (optional)", text: $note, limit: TaskLimit.noteMax)
+                    LimitedTextField(label: "Note (optional)", text: $note, limit: TaskLimit.noteMax, axis: .vertical)
                 }
 
                 Section("Scheduling") {
                     Toggle("Due date", isOn: $hasDueDate.animation())
                     if hasDueDate {
                         DatePicker(
-                            "Date",
+                            "Due date",
                             selection: $selectedDueDate,
                             displayedComponents: .date
                         )
@@ -125,6 +125,7 @@ struct EditTaskSheet: View {
                             } label: {
                                 Image(systemName: "plus.circle.fill")
                                     .foregroundStyle(.secondary)
+                                    .frame(minWidth: 44, minHeight: 44)
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel("Add subtask")

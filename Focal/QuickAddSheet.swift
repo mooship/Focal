@@ -27,7 +27,7 @@ struct QuickAddSheet: View {
                 Section {
                     LimitedTextField(label: "Task", text: $title, limit: TaskLimit.titleMax)
                         .focused($titleFocused)
-                    LimitedTextField(label: "Note (optional)", text: $note, limit: TaskLimit.noteMax)
+                    LimitedTextField(label: "Note (optional)", text: $note, limit: TaskLimit.noteMax, axis: .vertical)
                 }
 
                 Section {
@@ -35,7 +35,7 @@ struct QuickAddSheet: View {
                         Toggle("Due date", isOn: $hasDueDate.animation())
                         if hasDueDate {
                             DatePicker(
-                                "Date",
+                                "Due date",
                                 selection: $selectedDueDate,
                                 displayedComponents: .date
                             )

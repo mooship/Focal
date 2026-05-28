@@ -4,10 +4,11 @@ struct LimitedTextField: View {
     let label: LocalizedStringKey
     @Binding var text: String
     let limit: Int
+    var axis: Axis = .horizontal
 
     var body: some View {
         HStack {
-            TextField(label, text: $text)
+            TextField(label, text: $text, axis: axis)
                 .accessibilityHint(Text("Maximum \(limit) characters"))
             if text.count > limit - 20 {
                 Text("\(limit - text.count)")

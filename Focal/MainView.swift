@@ -9,6 +9,7 @@ struct MainView: View {
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
+    @State private var selectionTrigger = 0
     @State private var lightImpactTrigger = 0
     @State private var successTrigger = 0
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
@@ -49,7 +50,7 @@ struct MainView: View {
                 }
             }
         }
-        .overlay(alignment: .bottom) {
+        .safeAreaInset(edge: .bottom) {
             if let undo = store.pendingUndo {
                 UndoBanner(undo: undo) {
                     successTrigger += 1
@@ -70,6 +71,7 @@ struct MainView: View {
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }
+        .sensoryFeedback(.selection, trigger: selectionTrigger)
         .sensoryFeedback(.impact(weight: .light), trigger: lightImpactTrigger)
         .sensoryFeedback(.success, trigger: successTrigger)
     }
@@ -135,6 +137,7 @@ struct MainView: View {
                                 .padding(.horizontal, 24)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityAddTraits(.isToggle)
                             .accessibilityLabel(subtask.isCompleted
                                 ? Text("\(subtask.title), completed")
                                 : Text(subtask.title)
@@ -169,7 +172,7 @@ struct MainView: View {
 
                 HStack(alignment: .bottom) {
                     Button {
-                        lightImpactTrigger += 1
+                        selectionTrigger += 1
                         store.notNow()
                     } label: {
                         Text("Not now")
@@ -192,6 +195,7 @@ struct MainView: View {
                             .padding(.vertical, 16)
                     }
                     .glassEffect(in: Capsule())
+                    .accessibilityLabel(Text("Mark \(task.title) as done"))
                     .accessibilityHint("Marks task as complete")
                 }
             }

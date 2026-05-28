@@ -54,7 +54,14 @@ final class NotificationManager {
         content.body = String(localized: "Pick up a task whenever you're ready.")
         content.interruptionLevel = .passive
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: threshold.seconds, repeats: false)
-        center.add(UNNotificationRequest(identifier: "inactivity", content: content, trigger: trigger))
+        center.add(UNNotificationRequest(identifier: "inactivity", content: content, trigger: trigger)) { error in
+            guard error == nil else {
+                DispatchQueue.main.async {
+                    UserDefaults.standard.set(false, forKey: Key.notificationsEnabled)
+                }
+                return
+            }
+        }
     }
 
     func cancelAll() {

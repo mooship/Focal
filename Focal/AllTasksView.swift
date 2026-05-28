@@ -10,7 +10,7 @@ struct AllTasksView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
-    @State private var impactTrigger = 0
+    @State private var selectionTrigger = 0
     @State private var successTrigger = 0
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
@@ -36,6 +36,7 @@ struct AllTasksView: View {
                         } label: {
                             incompleteRow(for: task)
                         }
+                        .accessibilityLabel(task.title)
                         .accessibilityHint("Opens task editor")
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .listRowBackground(Color.clear)
@@ -43,7 +44,7 @@ struct AllTasksView: View {
                         .listRowInsets(rowInsets)
                         .contextMenu {
                             Button {
-                                impactTrigger += 1
+                                selectionTrigger += 1
                                 store.prioritizeTask(task)
                                 dismiss()
                             } label: {
@@ -63,7 +64,7 @@ struct AllTasksView: View {
                         }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
-                                impactTrigger += 1
+                                selectionTrigger += 1
                                 store.prioritizeTask(task)
                                 dismiss()
                             } label: {
@@ -114,6 +115,9 @@ struct AllTasksView: View {
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .presentationBackground(.regularMaterial)
+            .navigationDestination(isPresented: $showingSettings) {
+                SettingsView()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { showingSettings = true } label: {
@@ -126,7 +130,7 @@ struct AllTasksView: View {
                 }
             }
         }
-        .overlay(alignment: .bottom) {
+        .safeAreaInset(edge: .bottom) {
             if let undo = store.pendingUndo {
                 UndoBanner(undo: undo) {
                     successTrigger += 1
@@ -138,13 +142,10 @@ struct AllTasksView: View {
             }
         }
         .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.pendingUndo)
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
-        }
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }
-        .sensoryFeedback(.impact(weight: .medium), trigger: impactTrigger)
+        .sensoryFeedback(.selection, trigger: selectionTrigger)
         .sensoryFeedback(.success, trigger: successTrigger)
     }
 
@@ -194,8 +195,8 @@ struct AllTasksView: View {
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
                 .background(color.opacity(0.12), in: Capsule())
+                .accessibilityLabel(Text("\(days) days old"))
         }
     }
 
 }
-

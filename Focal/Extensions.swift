@@ -71,8 +71,9 @@ struct UndoBanner: View {
     let onUndo: () -> Void
 
     var body: some View {
+        let label = String(localized: "Deleted \"\(undo.title)\"")
         HStack {
-            Text("Deleted \"\(undo.title)\"")
+            Text(label)
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer()
@@ -83,7 +84,7 @@ struct UndoBanner: View {
         .padding(.vertical, 12)
         .glassEffect(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .onAppear {
-            UIAccessibility.post(notification: .announcement, argument: String(localized: "Deleted \"\(undo.title)\""))
+            UIAccessibility.post(notification: .announcement, argument: label)
         }
     }
 }

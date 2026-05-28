@@ -139,7 +139,7 @@ struct MainView: View {
                             .buttonStyle(.plain)
                             .accessibilityAddTraits(.isToggle)
                             .accessibilityLabel(subtask.isCompleted
-                                ? Text("\(subtask.title), completed")
+                                ? Text(String(localized: "\(subtask.title), completed"))
                                 : Text(subtask.title)
                             )
                             .accessibilityHint(subtask.isCompleted
@@ -166,7 +166,7 @@ struct MainView: View {
 
             VStack(spacing: 8) {
                 let count = incompleteTasks.count
-                Text("\(count) tasks")
+                Text(String(localized: "\(count) tasks"))
                     .font(.caption)
                     .foregroundStyle(.tertiary)
 
@@ -195,7 +195,7 @@ struct MainView: View {
                             .padding(.vertical, 16)
                     }
                     .glassEffect(in: Capsule())
-                    .accessibilityLabel(Text("Mark \(task.title) as done"))
+                    .accessibilityLabel(Text(String(localized: "Mark \(task.title) as done")))
                     .accessibilityHint("Marks task as complete")
                 }
             }

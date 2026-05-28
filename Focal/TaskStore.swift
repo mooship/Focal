@@ -24,10 +24,7 @@ final class TaskStore {
         let subtasks: [SubtaskSnapshot]
     }
 
-    var currentTask: FocalTask? {
-        guard let id = currentTaskID else { return nil }
-        return fetchIncomplete().first { $0.id == id }
-    }
+    private(set) var currentTask: FocalTask?
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -62,7 +59,11 @@ final class TaskStore {
         if let i = sessionQueue.firstIndex(of: taskID) {
             sessionQueue.remove(at: i)
         }
-        advance(with: fetchIncomplete())
+        if task.recurrence != nil {
+            advance(with: fetchIncomplete())
+        } else {
+            advance(with: incomplete.filter { $0.id != taskID })
+        }
         NotificationManager.shared.reschedule()
     }
 
@@ -126,7 +127,11 @@ final class TaskStore {
         if let i = sessionQueue.firstIndex(of: id) {
             sessionQueue.remove(at: i)
         }
-        refreshIfNeeded()
+        if currentTaskID == id {
+            advance()
+        } else {
+            refreshIfNeeded()
+        }
 
         undoTask?.cancel()
         pendingUndo = snapshot
@@ -176,7 +181,9 @@ final class TaskStore {
 
     func restoreTask(_ task: FocalTask) {
         task.completedAt = nil
-        task.subtasks.forEach { $0.isCompleted = false }
+        if !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted) {
+            task.subtasks.forEach { $0.isCompleted = false }
+        }
         try? modelContext.save()
         guard !sessionQueue.contains(task.id) else { return }
         let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
@@ -194,6 +201,7 @@ final class TaskStore {
         }
         sessionQueue.insert(task.id, at: 0)
         currentTaskID = task.id
+        currentTask = task
         NotificationManager.shared.reschedule()
     }
 
@@ -219,7 +227,7 @@ final class TaskStore {
     }
 
     private func refreshIfNeeded() {
-        if currentTaskID != nil && currentTask == nil {
+        if currentTaskID == nil {
             advance()
         }
     }
@@ -232,6 +240,7 @@ final class TaskStore {
             sessionQueue = incomplete.map(\.id).shuffled()
         }
         currentTaskID = sessionQueue.first
+        currentTask = currentTaskID.flatMap { id in incomplete.first { $0.id == id } }
     }
 
     private func fetchIncomplete() -> [FocalTask] {

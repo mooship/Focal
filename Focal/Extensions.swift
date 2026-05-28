@@ -72,7 +72,7 @@ struct UndoBanner: View {
 
     var body: some View {
         HStack {
-            Text("Deleted \"\(undo.title)\"")
+            Text(String(localized: "Deleted \"\(undo.title)\""))
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer()

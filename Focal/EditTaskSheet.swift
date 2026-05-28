@@ -32,17 +32,13 @@ struct EditTaskSheet: View {
     }
 
     private var hasChanges: Bool {
-        guard !title.trimmed.isEmpty else { return false }
         let currentDue: Date? = hasDueDate ? selectedDueDate : nil
-        let dueDateChanged = currentDue != task.dueDate
-        if title.trimmed != task.title
+        return title.trimmed != task.title
             || note.trimmed.nilIfEmpty != task.note
-            || dueDateChanged
+            || currentDue != task.dueDate
             || selectedEstimate != task.estimatedMinutes
-            || selectedRecurrence != task.recurrence {
-            return true
-        }
-        return subtaskDraftsChanged
+            || selectedRecurrence != task.recurrence
+            || subtaskDraftsChanged
     }
 
     private var subtaskDraftsChanged: Bool {

@@ -159,9 +159,15 @@ struct MainView: View {
 
             VStack(spacing: 8) {
                 let count = incompleteTasks.count
-                Text(String(localized: "\(count) tasks"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                if store.hasCompletedCycle {
+                    Text("You've seen them all.")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                } else {
+                    Text(String(localized: "\(count) tasks"))
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
 
                 HStack(alignment: .bottom) {
                     Button {

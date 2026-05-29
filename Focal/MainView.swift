@@ -100,13 +100,6 @@ struct MainView: View {
                     }
                     .padding(.horizontal, 8)
                     .frame(maxWidth: .infinity)
-                    .overlay(alignment: .topTrailing) {
-                        Image(systemName: "pencil")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                            .padding(8)
-                            .accessibilityHidden(true)
-                    }
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("Opens task editor")
@@ -166,9 +159,15 @@ struct MainView: View {
 
             VStack(spacing: 8) {
                 let count = incompleteTasks.count
-                Text(String(localized: "\(count) tasks"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                Group {
+                    if store.hasCompletedCycle {
+                        Text("You've seen them all.")
+                    } else {
+                        Text(String(localized: "\(count) tasks"))
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.tertiary)
 
                 HStack(alignment: .bottom) {
                     Button {

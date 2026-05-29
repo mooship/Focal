@@ -9,10 +9,10 @@ extension String {
 
 func formatEstimateMinutes(_ minutes: Int) -> String {
     switch minutes {
-    case 60: return String(localized: "~1 hr")
-    case 90: return String(localized: "~1.5 hr")
-    case 120: return String(localized: "~2 hr")
-    default: return String(localized: "~\(minutes) min")
+    case 60: return String(localized: "1 hr")
+    case 90: return String(localized: "1.5 hr")
+    case 120: return String(localized: "2 hr")
+    default: return String(localized: "\(minutes) min")
     }
 }
 
@@ -40,14 +40,14 @@ struct EstimatePicker: View {
     var body: some View {
         Picker("Estimate", selection: $selection) {
             Text("None").tag(Optional<Int>.none)
-            Text("~5 min").tag(Optional(5))
-            Text("~10 min").tag(Optional(10))
-            Text("~15 min").tag(Optional(15))
-            Text("~30 min").tag(Optional(30))
-            Text("~45 min").tag(Optional(45))
-            Text("~1 hr").tag(Optional(60))
-            Text("~1.5 hr").tag(Optional(90))
-            Text("~2 hr").tag(Optional(120))
+            Text("5 min").tag(Optional(5))
+            Text("10 min").tag(Optional(10))
+            Text("15 min").tag(Optional(15))
+            Text("30 min").tag(Optional(30))
+            Text("45 min").tag(Optional(45))
+            Text("1 hr").tag(Optional(60))
+            Text("1.5 hr").tag(Optional(90))
+            Text("2 hr").tag(Optional(120))
         }
         .pickerStyle(.menu)
     }

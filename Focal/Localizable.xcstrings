@@ -743,18 +743,34 @@
         }
       }
     },
-    "Pick up a task whenever you're ready." : {
+    "You've got tasks waiting." : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Neem 'n taak op wanneer jy gereed is."
+            "value" : "Jy het take wat wag."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elige una tarea cuando estés listo."
+            "value" : "Tienes tareas esperando."
+          }
+        }
+      }
+    },
+    "You've seen them all." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jy het hulle almal gesien."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya los has visto todos."
           }
         }
       }
@@ -1239,146 +1255,146 @@
         }
       }
     },
-    "~1 hr" : {
+    "1 hr" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~1 uur"
+            "value" : "1 uur"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~1 h"
+            "value" : "1 h"
           }
         }
       }
     },
-    "~1.5 hr" : {
+    "1.5 hr" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~1,5 uur"
+            "value" : "1,5 uur"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~1,5 h"
+            "value" : "1,5 h"
           }
         }
       }
     },
-    "~2 hr" : {
+    "2 hr" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~2 uur"
+            "value" : "2 uur"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~2 h"
+            "value" : "2 h"
           }
         }
       }
     },
-    "~%lld min" : {
+    "%lld min" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~%lld min"
+            "value" : "%lld min"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~%lld min"
+            "value" : "%lld min"
           }
         }
       }
     },
-    "~5 min" : {
+    "5 min" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~5 min"
+            "value" : "5 min"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~5 min"
+            "value" : "5 min"
           }
         }
       }
     },
-    "~10 min" : {
+    "10 min" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~10 min"
+            "value" : "10 min"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~10 min"
+            "value" : "10 min"
           }
         }
       }
     },
-    "~15 min" : {
+    "15 min" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~15 min"
+            "value" : "15 min"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~15 min"
+            "value" : "15 min"
           }
         }
       }
     },
-    "~30 min" : {
+    "30 min" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~30 min"
+            "value" : "30 min"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~30 min"
+            "value" : "30 min"
           }
         }
       }
     },
-    "~45 min" : {
+    "45 min" : {
       "localizations" : {
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~45 min"
+            "value" : "45 min"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "~45 min"
+            "value" : "45 min"
           }
         }
       }
@@ -1431,64 +1447,6 @@
         }
       }
     },
-    "%lld days old" : {
-      "localizations" : {
-        "af" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld dag oud"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld dae oud"
-                }
-              }
-            }
-          }
-        },
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld day old"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld days old"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld día de antigüedad"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld días de antigüedad"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
   },
   "version" : "1.1"
 }

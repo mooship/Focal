@@ -151,23 +151,18 @@ struct AllTasksView: View {
 
     @ViewBuilder
     private func incompleteRow(for task: FocalTask) -> some View {
-        HStack(alignment: .center, spacing: 8) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(task.title)
-                    .foregroundStyle(.primary)
-                if let meta = metaLine(for: task) {
-                    Text(meta)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+        VStack(alignment: .leading, spacing: 3) {
+            Text(task.title)
+                .foregroundStyle(.primary)
+            if let meta = metaLine(for: task) {
+                Text(meta)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 10)
-            .padding(.leading, 12)
-
-            ageBadge(for: task)
-                .padding(.trailing, 12)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
     }
 
     private func metaLine(for task: FocalTask) -> String? {
@@ -182,21 +177,6 @@ struct AllTasksView: View {
             parts.append(rule.stringValue)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
-    }
-
-    @ViewBuilder
-    private func ageBadge(for task: FocalTask) -> some View {
-        let days = Calendar.current.dateComponents([.day], from: task.createdAt, to: Date()).day ?? 0
-        let color: Color = days <= 7 ? .secondary : days <= 30 ? .orange : .red
-        if days > 0 {
-            Text("\(days)d")
-                .font(.caption2)
-                .foregroundStyle(color)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 3)
-                .background(color.opacity(0.12), in: Capsule())
-                .accessibilityLabel(Text("\(days) days old"))
-        }
     }
 
 }

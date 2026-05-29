@@ -20,9 +20,19 @@ struct EditTaskSheet: View {
     @State private var showingDeleteConfirm = false
     @State private var showingDiscardConfirm = false
     @State private var savedTrigger = 0
+    @State private var subtaskCompleteTrigger = 0
+    @State private var subtaskUncompleteTrigger = 0
     @FocusState private var subtaskFieldFocused: Bool
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
+
+    private var dueDateLowerBound: Date {
+        let todayStart = Calendar.current.startOfDay(for: Date())
+        if let existing = task.dueDate, existing < todayStart {
+            return Calendar.current.startOfDay(for: existing)
+        }
+        return todayStart
+    }
 
     private struct SubtaskDraft: Identifiable, Equatable {
         var id: UUID
@@ -38,6 +48,7 @@ struct EditTaskSheet: View {
             || currentDue != task.dueDate
             || selectedEstimate != task.estimatedMinutes
             || selectedRecurrence != task.recurrence
+            || !newSubtaskTitle.trimmed.isEmpty
             || subtaskDraftsChanged
     }
 
@@ -48,8 +59,9 @@ struct EditTaskSheet: View {
         if subtaskDrafts.contains(where: \.isNew) { return true }
         let originalByID = Dictionary(uniqueKeysWithValues: task.subtasks.map { ($0.id, $0) })
         for draft in subtaskDrafts where !draft.isNew {
-            if let original = originalByID[draft.id],
-               original.isCompleted != draft.isCompleted { return true }
+            guard let original = originalByID[draft.id] else { continue }
+            if original.isCompleted != draft.isCompleted { return true }
+            if original.title != draft.title.trimmed { return true }
         }
         return false
     }
@@ -82,6 +94,7 @@ struct EditTaskSheet: View {
                         DatePicker(
                             "Due date",
                             selection: $selectedDueDate,
+                            in: dueDateLowerBound...,
                             displayedComponents: .date
                         )
                     }
@@ -93,7 +106,9 @@ struct EditTaskSheet: View {
                     ForEach($subtaskDrafts) { $draft in
                         HStack(spacing: 12) {
                             Button {
+                                let wasCompleted = draft.isCompleted
                                 draft.isCompleted.toggle()
+                                if wasCompleted { subtaskUncompleteTrigger += 1 } else { subtaskCompleteTrigger += 1 }
                             } label: {
                                 Image(systemName: draft.isCompleted ? "checkmark.circle.fill" : "circle")
                                     .foregroundStyle(draft.isCompleted ? .secondary : .primary)
@@ -101,10 +116,8 @@ struct EditTaskSheet: View {
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel(draft.isCompleted ? "Mark incomplete" : "Mark complete")
-                            Text(draft.title)
-                                .strikethrough(draft.isCompleted)
+                            TextField("Subtask", text: $draft.title)
                                 .foregroundStyle(draft.isCompleted ? .secondary : .primary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                     .onDelete { offsets in
@@ -182,6 +195,8 @@ struct EditTaskSheet: View {
         .presentationDetents([.large])
         .presentationBackground(.regularMaterial)
         .sensoryFeedback(.success, trigger: savedTrigger)
+        .sensoryFeedback(.success, trigger: subtaskCompleteTrigger)
+        .sensoryFeedback(.impact(weight: .light), trigger: subtaskUncompleteTrigger)
     }
 
     private func commitNewSubtask() {
@@ -192,6 +207,7 @@ struct EditTaskSheet: View {
     }
 
     private func saveChanges() {
+        commitNewSubtask()
         task.title = title.trimmed
         task.note = note.trimmed.nilIfEmpty
         task.dueDate = hasDueDate ? selectedDueDate : nil
@@ -201,17 +217,31 @@ struct EditTaskSheet: View {
         let draftByID = Dictionary(uniqueKeysWithValues: subtaskDrafts.filter { !$0.isNew }.map { ($0.id, $0) })
         for existing in Array(task.subtasks) {
             if let draft = draftByID[existing.id] {
-                existing.isCompleted = draft.isCompleted
+                let trimmed = draft.title.trimmed
+                if trimmed.isEmpty {
+                    modelContext.delete(existing)
+                } else {
+                    existing.isCompleted = draft.isCompleted
+                    if existing.title != trimmed { existing.title = trimmed }
+                }
             } else {
                 modelContext.delete(existing)
             }
         }
         for draft in subtaskDrafts where draft.isNew {
-            let sub = SubTask(title: draft.title)
+            let trimmed = draft.title.trimmed
+            guard !trimmed.isEmpty else { continue }
+            let sub = SubTask(title: trimmed)
             sub.task = task
             modelContext.insert(sub)
         }
 
         try? modelContext.save()
+
+        if task.completedAt == nil,
+           !task.subtasks.isEmpty,
+           task.subtasks.allSatisfy(\.isCompleted) {
+            store.done(taskID: task.id)
+        }
     }
 }

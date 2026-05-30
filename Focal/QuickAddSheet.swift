@@ -10,15 +10,23 @@ struct QuickAddSheet: View {
     @State private var selectedDueDate = Calendar.current.startOfDay(for: Date())
     @State private var selectedEstimate: Int? = nil
     @State private var selectedRecurrence: RecurrenceRule? = nil
+    @State private var subtaskDrafts: [SubtaskDraft] = []
+    @State private var newSubtaskTitle = ""
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @FocusState private var titleFocused: Bool
     @State private var showingDiscardConfirm = false
     @State private var addedTrigger = 0
 
+    private struct SubtaskDraft: Identifiable, Equatable {
+        let id = UUID()
+        var title: String
+    }
+
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
     private var hasChanges: Bool {
         !title.trimmed.isEmpty || !note.trimmed.isEmpty
             || hasDueDate || selectedEstimate != nil || selectedRecurrence != nil
+            || !subtaskDrafts.isEmpty || !newSubtaskTitle.trimmed.isEmpty
     }
 
     var body: some View {
@@ -37,12 +45,24 @@ struct QuickAddSheet: View {
                             DatePicker(
                                 "Due date",
                                 selection: $selectedDueDate,
+                                in: Calendar.current.startOfDay(for: Date())...,
                                 displayedComponents: .date
                             )
                         }
                         EstimatePicker(selection: $selectedEstimate)
                         RecurrencePicker(selection: $selectedRecurrence)
                     }
+                }
+
+                Section("Subtasks") {
+                    ForEach($subtaskDrafts) { $draft in
+                        TextField("Subtask", text: $draft.title)
+                    }
+                    .onDelete { offsets in
+                        subtaskDrafts.remove(atOffsets: offsets)
+                    }
+
+                    SubtaskInputField(text: $newSubtaskTitle, onCommit: commitNewSubtask)
                 }
             }
             .frame(maxWidth: isRegularWidth ? 600 : .infinity)
@@ -61,13 +81,15 @@ struct QuickAddSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
+                        commitNewSubtask()
                         addedTrigger += 1
                         store.addTask(
                             title: title.trimmed,
                             note: note.trimmed,
                             dueDate: hasDueDate ? selectedDueDate : nil,
                             estimatedMinutes: selectedEstimate,
-                            recurrence: selectedRecurrence
+                            recurrence: selectedRecurrence,
+                            subtaskTitles: subtaskDrafts.compactMap { $0.title.trimmed.nilIfEmpty }
                         )
                         Task { @MainActor in dismiss() }
                     }
@@ -87,6 +109,15 @@ struct QuickAddSheet: View {
         .presentationBackground(.regularMaterial)
         .onAppear { titleFocused = true }
         .sensoryFeedback(.success, trigger: addedTrigger)
+    }
+
+    private func commitNewSubtask() {
+        let trimmed = newSubtaskTitle.trimmed
+        guard !trimmed.isEmpty else {
+            return
+        }
+        subtaskDrafts.append(SubtaskDraft(title: trimmed))
+        newSubtaskTitle = ""
     }
 
 }

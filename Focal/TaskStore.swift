@@ -37,13 +37,17 @@ final class TaskStore {
     }
 
     func done() {
-        guard let id = currentTaskID else { return }
+        guard let id = currentTaskID else {
+            return
+        }
         done(taskID: id)
     }
 
     func done(taskID: UUID) {
         let incomplete = fetchIncomplete()
-        guard let task = incomplete.first(where: { $0.id == taskID }) else { return }
+        guard let task = incomplete.first(where: { $0.id == taskID }) else {
+            return
+        }
 
         if let rule = task.recurrence {
             let base = task.dueDate ?? Date()
@@ -76,7 +80,9 @@ final class TaskStore {
     func notNow() {
         let incomplete = fetchIncomplete()
         guard let id = currentTaskID,
-              incomplete.contains(where: { $0.id == id }) else { return }
+              incomplete.contains(where: { $0.id == id }) else {
+            return
+        }
         notNowStreak += 1
         if let i = sessionQueue.firstIndex(of: id) {
             sessionQueue.remove(at: i)
@@ -155,7 +161,9 @@ final class TaskStore {
     func undoDelete() {
         undoTask?.cancel()
         undoTask = nil
-        guard let undo = pendingUndo else { return }
+        guard let undo = pendingUndo else {
+            return
+        }
         pendingUndo = nil
 
         let task = FocalTask(
@@ -195,7 +203,9 @@ final class TaskStore {
             task.subtasks.forEach { $0.isCompleted = false }
         }
         try? modelContext.save()
-        guard !sessionQueue.contains(task.id) else { return }
+        guard !sessionQueue.contains(task.id) else {
+            return
+        }
         let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
         sessionQueue.insert(task.id, at: insertIndex)
         notNowStreak = 0
@@ -206,7 +216,9 @@ final class TaskStore {
     }
 
     func prioritizeTask(_ task: FocalTask) {
-        guard task.completedAt == nil else { return }
+        guard task.completedAt == nil else {
+            return
+        }
         if let i = sessionQueue.firstIndex(of: task.id) {
             sessionQueue.remove(at: i)
         }
@@ -232,10 +244,16 @@ final class TaskStore {
     func toggleSubtask(_ subtask: SubTask, in task: FocalTask) {
         subtask.isCompleted.toggle()
         try? modelContext.save()
-        let allDone = !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted)
-        if allDone {
-            done(taskID: task.id)
+        completeIfAllSubtasksDone(task)
+    }
+
+    func completeIfAllSubtasksDone(_ task: FocalTask) {
+        guard task.completedAt == nil,
+              !task.subtasks.isEmpty,
+              task.subtasks.allSatisfy(\.isCompleted) else {
+            return
         }
+        done(taskID: task.id)
     }
 
     private func refreshIfNeeded() {
@@ -252,11 +270,15 @@ final class TaskStore {
             let cal = Calendar.current
             let now = Date()
             let urgent = incomplete.filter { task in
-                guard let due = task.dueDate else { return false }
+                guard let due = task.dueDate else {
+                    return false
+                }
                 return cal.isDateInToday(due) || due < now
             }
             let normal = incomplete.filter { task in
-                guard let due = task.dueDate else { return true }
+                guard let due = task.dueDate else {
+                    return true
+                }
                 return !cal.isDateInToday(due) && due >= now
             }
             sessionQueue = urgent.map(\.id).shuffled() + normal.map(\.id).shuffled()

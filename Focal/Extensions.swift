@@ -66,6 +66,27 @@ struct RecurrencePicker: View {
     }
 }
 
+struct SubtaskInputField: View {
+    @Binding var text: String
+    let onCommit: () -> Void
+
+    var body: some View {
+        HStack {
+            TextField("New subtask", text: $text)
+                .onSubmit(onCommit)
+            if !text.trimmed.isEmpty {
+                Button(action: onCommit) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(.secondary)
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Add subtask")
+            }
+        }
+    }
+}
+
 struct UndoBanner: View {
     let undo: TaskStore.PendingUndo
     let onUndo: () -> Void

@@ -82,25 +82,33 @@ struct AllTasksView: View {
                 if !groups.completed.isEmpty {
                     Section("Completed") {
                         ForEach(groups.completed) { task in
-                            Text(task.title)
-                                .strikethrough()
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(rowInsets)
-                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                    Button {
-                                        successTrigger += 1
-                                        store.restoreTask(task)
-                                    } label: {
-                                        Label("Restore", systemImage: "arrow.uturn.backward")
-                                    }
-                                    .tint(.green)
+                            Button {
+                                editingTask = task
+                            } label: {
+                                Text(task.title)
+                                    .strikethrough()
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 10)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .accessibilityLabel(task.title)
+                            .accessibilityHint("Opens task editor")
+                            .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(rowInsets)
+                            .contextMenu {
+                                Button { restore(task) } label: {
+                                    Label("Restore", systemImage: "arrow.uturn.backward")
                                 }
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                Button { restore(task) } label: {
+                                    Label("Restore", systemImage: "arrow.uturn.backward")
+                                }
+                                .tint(.green)
+                            }
                         }
                         .onDelete { offsets in
                             let tasks = offsets.map { groups.completed[$0] }
@@ -177,6 +185,11 @@ struct AllTasksView: View {
             parts.append(rule.stringValue)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    private func restore(_ task: FocalTask) {
+        successTrigger += 1
+        store.restoreTask(task)
     }
 
 }

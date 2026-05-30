@@ -113,7 +113,9 @@ struct QuickAddSheet: View {
 
     private func commitNewSubtask() {
         let trimmed = newSubtaskTitle.trimmed
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty else {
+            return
+        }
         subtaskDrafts.append(SubtaskDraft(title: trimmed))
         newSubtaskTitle = ""
     }

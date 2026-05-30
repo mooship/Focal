@@ -54,13 +54,23 @@ struct EditTaskSheet: View {
     private var subtaskDraftsChanged: Bool {
         let originalIDs = Set(task.subtasks.map(\.id))
         let draftExistingIDs = Set(subtaskDrafts.filter { !$0.isNew }.map(\.id))
-        if originalIDs != draftExistingIDs { return true }
-        if subtaskDrafts.contains(where: \.isNew) { return true }
+        if originalIDs != draftExistingIDs {
+            return true
+        }
+        if subtaskDrafts.contains(where: \.isNew) {
+            return true
+        }
         let originalByID = Dictionary(uniqueKeysWithValues: task.subtasks.map { ($0.id, $0) })
         for draft in subtaskDrafts where !draft.isNew {
-            guard let original = originalByID[draft.id] else { continue }
-            if original.isCompleted != draft.isCompleted { return true }
-            if original.title != draft.title.trimmed { return true }
+            guard let original = originalByID[draft.id] else {
+                continue
+            }
+            if original.isCompleted != draft.isCompleted {
+                return true
+            }
+            if original.title != draft.title.trimmed {
+                return true
+            }
         }
         return false
     }
@@ -107,7 +117,11 @@ struct EditTaskSheet: View {
                             Button {
                                 let wasCompleted = draft.isCompleted
                                 draft.isCompleted.toggle()
-                                if wasCompleted { subtaskUncompleteTrigger += 1 } else { subtaskCompleteTrigger += 1 }
+                                if wasCompleted {
+                                    subtaskUncompleteTrigger += 1
+                                } else {
+                                    subtaskCompleteTrigger += 1
+                                }
                             } label: {
                                 Image(systemName: draft.isCompleted ? "checkmark.circle.fill" : "circle")
                                     .foregroundStyle(draft.isCompleted ? .secondary : .primary)
@@ -185,7 +199,9 @@ struct EditTaskSheet: View {
 
     private func commitNewSubtask() {
         let trimmed = newSubtaskTitle.trimmed
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty else {
+            return
+        }
         subtaskDrafts.append(SubtaskDraft(id: UUID(), title: trimmed, isCompleted: false, isNew: true))
         newSubtaskTitle = ""
     }
@@ -206,7 +222,9 @@ struct EditTaskSheet: View {
                     modelContext.delete(existing)
                 } else {
                     existing.isCompleted = draft.isCompleted
-                    if existing.title != trimmed { existing.title = trimmed }
+                    if existing.title != trimmed {
+                        existing.title = trimmed
+                    }
                 }
             } else {
                 modelContext.delete(existing)
@@ -214,7 +232,9 @@ struct EditTaskSheet: View {
         }
         for draft in subtaskDrafts where draft.isNew {
             let trimmed = draft.title.trimmed
-            guard !trimmed.isEmpty else { continue }
+            guard !trimmed.isEmpty else {
+                continue
+            }
             let sub = SubTask(title: trimmed)
             sub.task = task
             modelContext.insert(sub)

@@ -5,6 +5,7 @@ struct MainView: View {
     @Environment(TaskStore.self) private var store
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
@@ -173,39 +174,52 @@ struct MainView: View {
                 .font(.caption)
                 .foregroundStyle(.tertiary)
 
-                HStack(alignment: .bottom) {
-                    Button {
-                        selectionTrigger += 1
-                        store.notNow()
-                    } label: {
-                        Text("Not now")
-                            .font(.body)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 12)
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: 12) {
+                        doneButton(for: task)
+                        notNowButton
                     }
-                    .glassEffect(in: Capsule())
-                    .accessibilityHint("Skips to the next task")
-
-                    Spacer()
-
-                    Button {
-                        successTrigger += 1
-                        store.done()
-                    } label: {
-                        Text("Done")
-                            .font(.headline)
-                            .padding(.horizontal, 32)
-                            .padding(.vertical, 16)
+                } else {
+                    HStack(alignment: .bottom) {
+                        notNowButton
+                        Spacer()
+                        doneButton(for: task)
                     }
-                    .glassEffect(in: Capsule())
-                    .accessibilityLabel(Text(String(localized: "Mark \(task.title) as done")))
-                    .accessibilityHint("Marks task as complete")
                 }
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
         .frame(maxWidth: isRegularWidth ? 600 : .infinity)
+    }
+
+    private var notNowButton: some View {
+        Button {
+            selectionTrigger += 1
+            store.notNow()
+        } label: {
+            Text("Not now")
+                .font(.body)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+        }
+        .glassEffect(in: Capsule())
+        .accessibilityHint("Skips to the next task")
+    }
+
+    private func doneButton(for task: FocalTask) -> some View {
+        Button {
+            successTrigger += 1
+            store.done()
+        } label: {
+            Text("Done")
+                .font(.headline)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 16)
+        }
+        .glassEffect(in: Capsule())
+        .accessibilityLabel(Text(String(localized: "Mark \(task.title) as done")))
+        .accessibilityHint("Marks task as complete")
     }
 
     @ViewBuilder
@@ -223,6 +237,7 @@ struct MainView: View {
             }
             Spacer()
         }
+        .accessibilityElement(children: .combine)
     }
 
     private func metaBadge(_ text: String, color: Color) -> some View {
@@ -236,6 +251,11 @@ struct MainView: View {
 
     private var emptyStateView: some View {
         VStack(spacing: 12) {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 52))
+                .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
+                .padding(.bottom, 4)
             Text("Nice, nothing left.")
                 .font(.title2.weight(.medium))
             Text("Add something when you're ready.")
@@ -244,6 +264,7 @@ struct MainView: View {
         }
         .multilineTextAlignment(.center)
         .padding()
+        .accessibilityElement(children: .combine)
     }
 
 }

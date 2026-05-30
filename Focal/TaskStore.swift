@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import UIKit
 
 @Observable
 final class TaskStore {
@@ -150,9 +151,10 @@ final class TaskStore {
 
         undoTask?.cancel()
         pendingUndo = snapshot
+        let undoWindow: Double = UIAccessibility.isVoiceOverRunning || UIAccessibility.isSwitchControlRunning ? 10 : 5
         undoTask = Task { @MainActor [weak self] in
             do {
-                try await Task.sleep(for: .seconds(5))
+                try await Task.sleep(for: .seconds(undoWindow))
                 self?.pendingUndo = nil
             } catch {}
         }

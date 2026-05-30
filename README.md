@@ -8,6 +8,12 @@ No lists. No prioritising. Just the next thing.
 
 - One task at a time — no overwhelming backlogs
 - Randomised queue that cycles through all your tasks fairly
+- Subtasks with a checklist — a task auto-completes when its last subtask is ticked off
+- Due dates with at-a-glance badges (Overdue, Due today, Tomorrow)
+- Time estimates (5 min up to 2 hr)
+- Recurring tasks (daily, weekdays, weekly, monthly)
+- "Focus now" to jump any task to the front of the queue
+- Undo for accidental deletes
 - Optional inactivity reminders (2 h / 4 h / 8 h)
 - Light, Dark, and System appearance
 - Task transition animations with Reduce Motion support

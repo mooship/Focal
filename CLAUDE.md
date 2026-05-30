@@ -33,26 +33,27 @@ Focal is an iOS 26 SwiftUI app that shows one task at a time to reduce ADHD deci
 
 ### Data layer
 
-- `FocalTask.swift` — `@Model` type. `TaskLimit` enum lives here (titleMax: 80, noteMax: 300).
+- `FocalTask.swift` — `@Model` type. Also holds `note`, `dueDate`, `estimatedMinutes`, `recurrence`, and a cascade-delete `subtasks` relationship. `TaskLimit` enum (titleMax: 80, noteMax: 300) and the `RecurrenceRule` enum (daily/weekdays/weekly/monthly, with `nextDate(from:)`) live here.
+- `SubTask.swift` — `@Model` type for a task's checklist items (`title`, `isCompleted`, `createdAt`, inverse `task` relationship).
 
 ### State layer
 
-- `TaskStore.swift` — `@Observable` class. Owns the session queue: a randomised, non-repeating cycle of incomplete tasks. Key methods: `done()`, `notNow()`, `addTask(title:note:)`, `deleteTask(_:)`. `advance(using:)` accepts a pre-fetched list to avoid redundant DB round-trips.
+- `TaskStore.swift` — `@Observable` class. Owns the session queue: a randomised, non-repeating cycle of incomplete tasks (due-today/overdue tasks are seeded first). Key methods: `done()`, `notNow()`, `addTask(title:note:dueDate:estimatedMinutes:recurrence:subtaskTitles:)`, `deleteTask(_:)` / `undoDelete()` (5s window, extended to 10s under VoiceOver/Switch Control), `prioritizeTask(_:)` ("Focus now"), `restoreTask(_:)`, `toggleSubtask(_:in:)`, and `completeIfAllSubtasksDone(_:)`. Completing a recurring task spawns its next occurrence. `advance(with:)` accepts a pre-fetched list to avoid redundant DB round-trips. `pendingUndo` backs the undo banner.
 - `NotificationManager.swift` — singleton for inactivity notification scheduling. `NotificationManager.Key` is the single source of truth for all `UserDefaults`/`AppStorage` key strings and color scheme value constants.
 
 ### UI layer
 
 - `FocalApp.swift` — creates `ModelContainer` and `TaskStore` in `init()`, injects both into the environment. Owns `preferredColorScheme` from `@AppStorage`.
-- `MainView.swift` — root view. Shows the current task card with Done / Not now buttons; animates task transitions (respects Reduce Motion and the in-app toggle).
-- `QuickAddSheet.swift` — sheet for adding a new task.
-- `EditTaskSheet.swift` — sheet for editing or deleting an existing task; saves via `@Environment(\.modelContext)`, deletes via `store.deleteTask(_:)`.
+- `MainView.swift` — root view. Shows the current task card (title, note, subtask checklist, and estimate/due/recurrence meta badges) with Done / Not now buttons; animates task transitions (respects Reduce Motion and the in-app toggle). Hosts the undo banner. Done / Not now stack vertically at accessibility Dynamic Type sizes.
+- `QuickAddSheet.swift` — sheet for adding a new task. A "More options" disclosure exposes due date, estimate, recurrence; a Subtasks section adds checklist items.
+- `EditTaskSheet.swift` — sheet for editing or deleting an existing task, including its scheduling fields and subtasks; saves via `@Environment(\.modelContext)`, deletes via `store.deleteTask(_:)`. Guards unsaved changes with a discard confirmation.
 - `AllTasksView.swift` — sheet listing all incomplete and completed tasks. Incomplete rows: tap to edit, long-press context menu for "Focus Now" / "Edit", swipe-right for "Focus now", swipe-left to delete. Completed rows: swipe-right to restore, swipe-left to delete. Opens Settings via gear icon.
 - `SettingsView.swift` — notifications (inactivity threshold), color scheme, animations toggle.
 - `LimitedTextField.swift` — reusable `TextField` with live character counter (shown in last 20 chars, red at limit) and hard clamp via `onChange`.
 
 ### Extensions
 
-- `Extensions.swift` — `String.nilIfEmpty: String?` (empty string → nil). `String.trimmed: String` (strips leading/trailing whitespace only — does not coerce to nil).
+- `Extensions.swift` — `String.nilIfEmpty: String?` (empty string → nil) and `String.trimmed: String` (strips leading/trailing whitespace only — does not coerce to nil). Also holds shared formatting helpers (`formatEstimateMinutes`, `formatDueDate` → `DueDateDisplay`) and reusable views: `EstimatePicker`, `RecurrencePicker`, `SubtaskInputField`, and `UndoBanner` (posts a VoiceOver announcement on appear).
 
 ### Testing
 

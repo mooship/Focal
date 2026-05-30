@@ -22,7 +22,6 @@ struct EditTaskSheet: View {
     @State private var savedTrigger = 0
     @State private var subtaskCompleteTrigger = 0
     @State private var subtaskUncompleteTrigger = 0
-    @FocusState private var subtaskFieldFocused: Bool
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
@@ -124,22 +123,7 @@ struct EditTaskSheet: View {
                         subtaskDrafts.remove(atOffsets: offsets)
                     }
 
-                    HStack {
-                        TextField("New subtask", text: $newSubtaskTitle)
-                            .focused($subtaskFieldFocused)
-                            .onSubmit { commitNewSubtask() }
-                        if !newSubtaskTitle.trimmed.isEmpty {
-                            Button {
-                                commitNewSubtask()
-                            } label: {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundStyle(.secondary)
-                                    .frame(minWidth: 44, minHeight: 44)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Add subtask")
-                        }
-                    }
+                    SubtaskInputField(text: $newSubtaskTitle, onCommit: commitNewSubtask)
                 }
 
                 Section {
@@ -238,10 +222,6 @@ struct EditTaskSheet: View {
 
         try? modelContext.save()
 
-        if task.completedAt == nil,
-           !task.subtasks.isEmpty,
-           task.subtasks.allSatisfy(\.isCompleted) {
-            store.done(taskID: task.id)
-        }
+        store.completeIfAllSubtasksDone(task)
     }
 }

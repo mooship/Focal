@@ -14,7 +14,6 @@ struct QuickAddSheet: View {
     @State private var newSubtaskTitle = ""
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @FocusState private var titleFocused: Bool
-    @FocusState private var subtaskFieldFocused: Bool
     @State private var showingDiscardConfirm = false
     @State private var addedTrigger = 0
 
@@ -63,22 +62,7 @@ struct QuickAddSheet: View {
                         subtaskDrafts.remove(atOffsets: offsets)
                     }
 
-                    HStack {
-                        TextField("New subtask", text: $newSubtaskTitle)
-                            .focused($subtaskFieldFocused)
-                            .onSubmit { commitNewSubtask() }
-                        if !newSubtaskTitle.trimmed.isEmpty {
-                            Button {
-                                commitNewSubtask()
-                            } label: {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundStyle(.secondary)
-                                    .frame(minWidth: 44, minHeight: 44)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Add subtask")
-                        }
-                    }
+                    SubtaskInputField(text: $newSubtaskTitle, onCommit: commitNewSubtask)
                 }
             }
             .frame(maxWidth: isRegularWidth ? 600 : .infinity)
@@ -105,7 +89,7 @@ struct QuickAddSheet: View {
                             dueDate: hasDueDate ? selectedDueDate : nil,
                             estimatedMinutes: selectedEstimate,
                             recurrence: selectedRecurrence,
-                            subtaskTitles: subtaskDrafts.map { $0.title.trimmed }.filter { !$0.isEmpty }
+                            subtaskTitles: subtaskDrafts.compactMap { $0.title.trimmed.nilIfEmpty }
                         )
                         Task { @MainActor in dismiss() }
                     }

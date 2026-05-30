@@ -232,10 +232,14 @@ final class TaskStore {
     func toggleSubtask(_ subtask: SubTask, in task: FocalTask) {
         subtask.isCompleted.toggle()
         try? modelContext.save()
-        let allDone = !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted)
-        if allDone {
-            done(taskID: task.id)
-        }
+        completeIfAllSubtasksDone(task)
+    }
+
+    func completeIfAllSubtasksDone(_ task: FocalTask) {
+        guard task.completedAt == nil,
+              !task.subtasks.isEmpty,
+              task.subtasks.allSatisfy(\.isCompleted) else { return }
+        done(taskID: task.id)
     }
 
     private func refreshIfNeeded() {

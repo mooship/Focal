@@ -99,18 +99,12 @@ struct AllTasksView: View {
                             .listRowSeparator(.hidden)
                             .listRowInsets(rowInsets)
                             .contextMenu {
-                                Button {
-                                    successTrigger += 1
-                                    store.restoreTask(task)
-                                } label: {
+                                Button { restore(task) } label: {
                                     Label("Restore", systemImage: "arrow.uturn.backward")
                                 }
                             }
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                Button {
-                                    successTrigger += 1
-                                    store.restoreTask(task)
-                                } label: {
+                                Button { restore(task) } label: {
                                     Label("Restore", systemImage: "arrow.uturn.backward")
                                 }
                                 .tint(.green)
@@ -191,6 +185,11 @@ struct AllTasksView: View {
             parts.append(rule.stringValue)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    private func restore(_ task: FocalTask) {
+        successTrigger += 1
+        store.restoreTask(task)
     }
 
 }

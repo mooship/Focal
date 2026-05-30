@@ -126,7 +126,7 @@ struct EditTaskSheet: View {
                                 Image(systemName: draft.isCompleted ? "checkmark.circle.fill" : "circle")
                                     .foregroundStyle(draft.isCompleted ? .secondary : .primary)
                                     .imageScale(.large)
-                                    .frame(width: 44, height: 44)
+                                    .frame(minWidth: 44, minHeight: 44)
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)

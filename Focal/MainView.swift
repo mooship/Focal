@@ -115,7 +115,11 @@ struct MainView: View {
                             Button {
                                 let wasCompleted = subtask.isCompleted
                                 store.toggleSubtask(subtask, in: task)
-                                if wasCompleted { lightImpactTrigger += 1 } else { successTrigger += 1 }
+                                if wasCompleted {
+                                    lightImpactTrigger += 1
+                                } else {
+                                    successTrigger += 1
+                                }
                             } label: {
                                 HStack(spacing: 12) {
                                     Image(systemName: subtask.isCompleted ? "checkmark.circle.fill" : "circle")

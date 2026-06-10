@@ -5,8 +5,6 @@ updates:
     schedule:
       interval: weekly
       day: saturday
-    labels:
-      - dependencies
     groups:
       github-actions:
         patterns:

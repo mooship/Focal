@@ -1015,22 +1015,6 @@
         }
       }
     },
-    "Date" : {
-      "localizations" : {
-        "af" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datum"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fecha"
-          }
-        }
-      }
-    },
     "Due today" : {
       "localizations" : {
         "af" : {
@@ -1415,22 +1399,6 @@
         }
       }
     },
-    "%lldd" : {
-      "localizations" : {
-        "af" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld d"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld d"
-          }
-        }
-      }
-    },
     "%@, completed" : {
       "localizations" : {
         "af" : {
@@ -1463,6 +1431,38 @@
         }
       }
     },
+    "Welcome to Focal." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welkom by Focal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te damos la bienvenida a Focal."
+          }
+        }
+      }
+    },
+    "Add your first task to get started." : {
+      "localizations" : {
+        "af" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg jou eerste taak by om te begin."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade tu primera tarea para empezar."
+          }
+        }
+      }
+    }
   },
   "version" : "1.1"
 }

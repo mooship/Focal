@@ -14,6 +14,7 @@ struct MainView: View {
     @State private var lightImpactTrigger = 0
     @State private var successTrigger = 0
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
+    @Query(filter: #Predicate<FocalTask> { $0.completedAt != nil }) private var completedTasks: [FocalTask]
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
@@ -133,6 +134,8 @@ struct MainView: View {
                                 .font(.subheadline)
                                 .padding(.vertical, 8)
                                 .padding(.horizontal, 24)
+                                .frame(minHeight: 44)
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .accessibilityAddTraits(.isToggle)
@@ -250,17 +253,26 @@ struct MainView: View {
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "checkmark.circle")
+        let isFirstRun = completedTasks.isEmpty
+        return VStack(spacing: 12) {
+            Image(systemName: isFirstRun ? "sparkles" : "checkmark.circle")
                 .font(.system(size: 52))
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
                 .padding(.bottom, 4)
-            Text("Nice, nothing left.")
-                .font(.title2.weight(.medium))
-            Text("Add something when you're ready.")
-                .font(.body)
-                .foregroundStyle(.secondary)
+            if isFirstRun {
+                Text("Welcome to Focal.")
+                    .font(.title2.weight(.medium))
+                Text("Add your first task to get started.")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Nice, nothing left.")
+                    .font(.title2.weight(.medium))
+                Text("Add something when you're ready.")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
         }
         .multilineTextAlignment(.center)
         .padding()

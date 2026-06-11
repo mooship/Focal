@@ -347,6 +347,32 @@ struct TaskStoreTests {
         #expect(next?.dueDate == expectedDue)
     }
 
+    @Test func doneOnOverdueRecurringTaskRollsNextOccurrenceForward() throws {
+        let cal = Calendar.current
+        let todayStart = cal.startOfDay(for: Date())
+        let overdue = cal.date(byAdding: .day, value: -5, to: todayStart)!
+        let task = FocalTask(title: "Standup", dueDate: overdue, recurrence: .daily)
+        let (store, context) = try makeStore(tasks: [task])
+        store.done()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        let next = all.first { $0.completedAt == nil && $0.title == "Standup" }
+        #expect(next != nil)
+        #expect(next?.dueDate == todayStart)
+    }
+
+    @Test func doneOnOverdueWeeklyRecurringTaskKeepsCadenceAnchor() throws {
+        let cal = Calendar.current
+        let todayStart = cal.startOfDay(for: Date())
+        let overdue = cal.date(byAdding: .day, value: -10, to: todayStart)!
+        let task = FocalTask(title: "Review", dueDate: overdue, recurrence: .weekly)
+        let (store, context) = try makeStore(tasks: [task])
+        store.done()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        let next = all.first { $0.completedAt == nil && $0.title == "Review" }
+        let expectedDue = cal.date(byAdding: .day, value: 4, to: todayStart)!
+        #expect(next?.dueDate == expectedDue)
+    }
+
     @Test func addSubtaskCreatesLinkedSubTask() throws {
         let task = FocalTask(title: "Project")
         let (store, context) = try makeStore(tasks: [task])

@@ -19,7 +19,9 @@ struct AllTasksView: View {
     private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {
         (
             incomplete: allTasks.filter { $0.completedAt == nil },
-            completed: allTasks.filter { $0.completedAt != nil }
+            completed: allTasks
+                .filter { $0.completedAt != nil }
+                .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
         )
     }
 
@@ -54,6 +56,11 @@ struct AllTasksView: View {
                                 Task { @MainActor in editingTask = task }
                             } label: {
                                 Label("Edit", systemImage: "pencil")
+                            }
+                            Button(role: .destructive) {
+                                store.deleteTask(task)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         } preview: {
                             Text(task.title)
@@ -101,6 +108,11 @@ struct AllTasksView: View {
                             .contextMenu {
                                 Button { restore(task) } label: {
                                     Label("Restore", systemImage: "arrow.uturn.backward")
+                                }
+                                Button(role: .destructive) {
+                                    store.deleteTask(task)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {

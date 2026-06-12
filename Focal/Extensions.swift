@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import UIKit
 
 extension String {
     var nilIfEmpty: String? { isEmpty ? nil : self }
@@ -105,7 +104,7 @@ struct UndoBanner: View {
         .padding(.vertical, 12)
         .glassEffect(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .onAppear {
-            UIAccessibility.post(notification: .announcement, argument: label)
+            AccessibilityNotification.Announcement(label).post()
         }
     }
 }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(TaskStore.self) private var store
     @AppStorage(NotificationManager.Key.notificationsEnabled) private var notificationsEnabled = false
     @AppStorage(NotificationManager.Key.inactivityThreshold) private var inactivityThreshold =
         InactivityThreshold.twoHours.rawValue
@@ -21,7 +22,7 @@ struct SettingsView: View {
                                 if !granted {
                                     notificationsEnabled = false
                                 } else {
-                                    NotificationManager.shared.reschedule()
+                                    store.updateInactivityNotification()
                                 }
                             }
                         } else {
@@ -36,7 +37,7 @@ struct SettingsView: View {
                         }
                     }
                     .onChange(of: inactivityThreshold) { _, _ in
-                        NotificationManager.shared.reschedule()
+                        store.updateInactivityNotification()
                     }
                 }
             } footer: {

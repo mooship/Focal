@@ -21,6 +21,14 @@ enum RecurrenceRule: String, Codable, CaseIterable {
         }
     }
 
+    func nextDate(from date: Date, notBefore minimum: Date) -> Date {
+        var next = nextDate(from: date)
+        while next < minimum {
+            next = nextDate(from: next)
+        }
+        return next
+    }
+
     func nextDate(from date: Date) -> Date {
         let cal = Calendar.current
         switch self {

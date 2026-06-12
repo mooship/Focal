@@ -254,25 +254,21 @@ struct MainView: View {
 
     private var emptyStateView: some View {
         let isFirstRun = completedTasks.isEmpty
+        let title: LocalizedStringKey = isFirstRun ? "Welcome to Focal." : "Nice, nothing left."
+        let subtitle: LocalizedStringKey = isFirstRun
+            ? "Add your first task to get started."
+            : "Add something when you're ready."
         return VStack(spacing: 12) {
             Image(systemName: isFirstRun ? "sparkles" : "checkmark.circle")
                 .font(.system(size: 52))
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
                 .padding(.bottom, 4)
-            if isFirstRun {
-                Text("Welcome to Focal.")
-                    .font(.title2.weight(.medium))
-                Text("Add your first task to get started.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("Nice, nothing left.")
-                    .font(.title2.weight(.medium))
-                Text("Add something when you're ready.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-            }
+            Text(title)
+                .font(.title2.weight(.medium))
+            Text(subtitle)
+                .font(.body)
+                .foregroundStyle(.secondary)
         }
         .multilineTextAlignment(.center)
         .padding()

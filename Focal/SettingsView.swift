@@ -21,8 +21,8 @@ struct SettingsView: View {
                                 let granted = await NotificationManager.shared.requestPermission()
                                 if !granted {
                                     notificationsEnabled = false
-                                } else if store.currentTask != nil {
-                                    NotificationManager.shared.reschedule()
+                                } else {
+                                    store.updateInactivityNotification()
                                 }
                             }
                         } else {
@@ -37,9 +37,7 @@ struct SettingsView: View {
                         }
                     }
                     .onChange(of: inactivityThreshold) { _, _ in
-                        if store.currentTask != nil {
-                            NotificationManager.shared.reschedule()
-                        }
+                        store.updateInactivityNotification()
                     }
                 }
             } footer: {

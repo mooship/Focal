@@ -33,7 +33,7 @@ Focal is an iOS 26 SwiftUI app that shows one task at a time to reduce ADHD deci
 
 ### Data layer
 
-- `FocalTask.swift` — `@Model` type. Also holds `note`, `dueDate`, `estimatedMinutes`, `recurrence`, and a cascade-delete `subtasks` relationship. `TaskLimit` enum (titleMax: 80, noteMax: 300) and the `RecurrenceRule` enum (daily/weekdays/weekly/monthly, with `nextDate(from:)`) live here.
+- `FocalTask.swift` — `@Model` type. Also holds `note`, `dueDate`, `estimatedMinutes`, `recurrence`, and a cascade-delete `subtasks` relationship. `TaskLimit` enum (titleMax: 80, noteMax: 300) and the `RecurrenceRule` enum (daily/weekdays/weekly/monthly, with `nextDate(from:)` and `nextDate(from:notBefore:)`) live here.
 - `SubTask.swift` — `@Model` type for a task's checklist items (`title`, `isCompleted`, `createdAt`, inverse `task` relationship).
 
 ### State layer

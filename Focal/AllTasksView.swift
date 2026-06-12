@@ -4,7 +4,10 @@ import SwiftData
 struct AllTasksView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(TaskStore.self) private var store
-    @Query(sort: \FocalTask.createdAt) private var allTasks: [FocalTask]
+    @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }, sort: \FocalTask.createdAt)
+    private var incompleteTasks: [FocalTask]
+    @Query(filter: #Predicate<FocalTask> { $0.completedAt != nil }, sort: [SortDescriptor(\FocalTask.completedAt, order: .reverse)])
+    private var completedTasks: [FocalTask]
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -16,21 +19,13 @@ struct AllTasksView: View {
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
-    private var taskGroups: (incomplete: [FocalTask], completed: [FocalTask]) {
-        (
-            incomplete: allTasks.filter { $0.completedAt == nil },
-            completed: allTasks.filter { $0.completedAt != nil }
-        )
-    }
-
     private let rowInsets = EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16)
 
     var body: some View {
-        let groups = taskGroups
         NavigationStack {
             List {
                 Section {
-                    ForEach(groups.incomplete) { task in
+                    ForEach(incompleteTasks) { task in
                         Button {
                             editingTask = task
                         } label: {
@@ -55,6 +50,7 @@ struct AllTasksView: View {
                             } label: {
                                 Label("Edit", systemImage: "pencil")
                             }
+                            deleteButton(for: task)
                         } preview: {
                             Text(task.title)
                                 .font(.headline)
@@ -74,14 +70,14 @@ struct AllTasksView: View {
                         }
                     }
                     .onDelete { offsets in
-                        let tasks = offsets.map { groups.incomplete[$0] }
+                        let tasks = offsets.map { incompleteTasks[$0] }
                         tasks.forEach { store.deleteTask($0) }
                     }
                 }
 
-                if !groups.completed.isEmpty {
+                if !completedTasks.isEmpty {
                     Section("Completed") {
-                        ForEach(groups.completed) { task in
+                        ForEach(completedTasks) { task in
                             Button {
                                 editingTask = task
                             } label: {
@@ -102,6 +98,7 @@ struct AllTasksView: View {
                                 Button { restore(task) } label: {
                                     Label("Restore", systemImage: "arrow.uturn.backward")
                                 }
+                                deleteButton(for: task)
                             }
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                 Button { restore(task) } label: {
@@ -111,7 +108,7 @@ struct AllTasksView: View {
                             }
                         }
                         .onDelete { offsets in
-                            let tasks = offsets.map { groups.completed[$0] }
+                            let tasks = offsets.map { completedTasks[$0] }
                             tasks.forEach { store.deleteTask($0) }
                         }
                     }
@@ -185,6 +182,14 @@ struct AllTasksView: View {
             parts.append(rule.stringValue)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    private func deleteButton(for task: FocalTask) -> some View {
+        Button(role: .destructive) {
+            store.deleteTask(task)
+        } label: {
+            Label("Delete", systemImage: "trash")
+        }
     }
 
     private func restore(_ task: FocalTask) {

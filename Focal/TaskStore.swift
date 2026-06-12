@@ -52,11 +52,7 @@ final class TaskStore {
 
         if let rule = task.recurrence {
             let base = task.dueDate ?? Date()
-            var nextDue = rule.nextDate(from: base)
-            let todayStart = Calendar.current.startOfDay(for: Date())
-            while nextDue < todayStart {
-                nextDue = rule.nextDate(from: nextDue)
-            }
+            let nextDue = rule.nextDate(from: base, notBefore: Calendar.current.startOfDay(for: Date()))
             let subtaskTitles = task.subtasks.sorted { $0.createdAt < $1.createdAt }.map(\.title)
             addTask(
                 title: task.title,
@@ -264,7 +260,7 @@ final class TaskStore {
         done(taskID: task.id)
     }
 
-    private func updateInactivityNotification() {
+    func updateInactivityNotification() {
         if currentTaskID == nil {
             NotificationManager.shared.cancelAll()
         } else {

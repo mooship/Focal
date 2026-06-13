@@ -41,11 +41,7 @@ struct AllTasksView: View {
                         .listRowSeparator(.hidden)
                         .listRowInsets(rowInsets)
                         .contextMenu {
-                            Button {
-                                complete(task)
-                            } label: {
-                                Label("Done", systemImage: "checkmark")
-                            }
+                            completeButton(for: task)
                             Button {
                                 selectionTrigger += 1
                                 store.prioritizeTask(task)
@@ -77,12 +73,8 @@ struct AllTasksView: View {
                             .tint(.blue)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button {
-                                complete(task)
-                            } label: {
-                                Label("Done", systemImage: "checkmark")
-                            }
-                            .tint(.green)
+                            completeButton(for: task)
+                                .tint(.green)
                             deleteButton(for: task)
                         }
                     }
@@ -175,12 +167,7 @@ struct AllTasksView: View {
                 Text(task.title)
                     .foregroundStyle(.primary)
                 if isCurrent {
-                    Text("Now")
-                        .font(.caption)
-                        .foregroundStyle(Color.accentColor)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.accentColor.opacity(0.12), in: Capsule())
+                    metaBadge(String(localized: "Now"), color: .accentColor)
                 }
             }
             if let meta = metaLine(for: task) {
@@ -213,6 +200,14 @@ struct AllTasksView: View {
             store.deleteTask(task)
         } label: {
             Label("Delete", systemImage: "trash")
+        }
+    }
+
+    private func completeButton(for task: FocalTask) -> some View {
+        Button {
+            complete(task)
+        } label: {
+            Label("Done", systemImage: "checkmark")
         }
     }
 

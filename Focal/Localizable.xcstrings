@@ -491,7 +491,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Voeg By"
+            "value" : "Voeg by"
           }
         },
         "es" : {
@@ -525,7 +525,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajoutez quelque chose quand vous êtes prêt."
+            "value" : "Ajoute quelque chose quand tu es prêt."
           }
         }
       }
@@ -557,7 +557,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Voeg Taak By"
+            "value" : "Voeg taak by"
           }
         },
         "es" : {
@@ -591,7 +591,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajoutez votre première tâche pour commencer."
+            "value" : "Ajoute ta première tâche pour commencer."
           }
         }
       }
@@ -601,7 +601,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle Take"
+            "value" : "Alle take"
           }
         },
         "es" : {
@@ -755,7 +755,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vee Uit"
+            "value" : "Vee uit"
           }
         },
         "es" : {
@@ -777,7 +777,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vee Taak Uit"
+            "value" : "Vee taak uit"
           }
         },
         "es" : {
@@ -997,7 +997,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wysig Taak"
+            "value" : "Wysig taak"
           }
         },
         "es" : {
@@ -1075,7 +1075,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se concentrer maintenant"
+            "value" : "Se concentrer"
           }
         }
       }
@@ -1107,7 +1107,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hou Aan Wysig"
+            "value" : "Hou aan wysig"
           }
         },
         "es" : {
@@ -1157,7 +1157,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Marcar %@ como hecho"
+            "value" : "Marcar %@ como hecha"
           }
         },
         "fr" : {
@@ -1179,7 +1179,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Marcar como completo"
+            "value" : "Marcar como completada"
           }
         },
         "fr" : {
@@ -1201,7 +1201,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Marcar como incompleto"
+            "value" : "Marcar como incompleta"
           }
         },
         "fr" : {
@@ -1223,7 +1223,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Marcar como completo"
+            "value" : "Marcar como completada"
           }
         },
         "fr" : {
@@ -1245,7 +1245,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Marcar como incompleto"
+            "value" : "Marcar como incompleta"
           }
         },
         "fr" : {
@@ -1425,7 +1425,7 @@
         "af" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nuwe Taak"
+            "value" : "Nuwe taak"
           }
         },
         "es" : {
@@ -1525,7 +1525,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Note (facultatif)"
+            "value" : "Note (facultative)"
           }
         }
       }
@@ -2009,7 +2009,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Des tâches vous attendent."
+            "value" : "Des tâches t'attendent."
           }
         }
       }
@@ -2025,13 +2025,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ya los has visto todos."
+            "value" : "Ya las has visto todas."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vous les avez toutes vues."
+            "value" : "Tu les as toutes vues."
           }
         }
       }

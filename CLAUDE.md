@@ -73,5 +73,6 @@ The app is localised into **English, Afrikaans (af), and Spanish (es)** using a 
 ## Known platform quirks
 
 - iOS 26 uses `.glassEffect()` (Liquid Glass) — requires the iOS 26 SDK; no fallback.
+- iOS 27 ready while keeping the iOS 26 deployment target: the app already satisfies the iOS 27 SDK's mandatory scene-based lifecycle (SwiftUI `App` lifecycle + `UIApplicationSceneManifest_Generation`, no `AppDelegate`), never sets the deprecated `UIDesignRequiresCompatibility` Liquid Glass opt-out, and does no networking (so the stricter iOS 27 ATS/TLS 1.2+ enforcement does not apply).
 - Inject `@Observable` stores with `.environment(store)`, access with `@Environment(TaskStore.self)`. Do not use `ObservableObject`/`@StateObject`.
 - `PBXFileSystemSynchronizedRootGroup` in Xcode 26: files added or deleted from `Focal/` are auto-included without editing `.pbxproj`.

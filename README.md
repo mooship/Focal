@@ -22,8 +22,8 @@ No lists. No prioritising. Just the next thing.
 
 ## Requirements
 
-- iOS 26+ / iPadOS 26+
-- Xcode 26+
+- iOS 26+ / iPadOS 26+ (compatible with iOS 27 / iPadOS 27)
+- Xcode 26+ (builds against the Xcode 27 SDK)
 
 ## Building
 

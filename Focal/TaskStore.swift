@@ -27,6 +27,7 @@ final class TaskStore {
 
     private(set) var currentTask: FocalTask?
     private(set) var notNowStreak: Int = 0
+    private(set) var queueCleared: Int = 0
 
     var hasCompletedCycle: Bool {
         !sessionQueue.isEmpty && notNowStreak >= sessionQueue.count
@@ -74,6 +75,9 @@ final class TaskStore {
             advance(with: fetchIncomplete())
         } else {
             advance(with: incomplete.filter { $0.id != taskID })
+        }
+        if currentTaskID == nil {
+            queueCleared += 1
         }
         updateInactivityNotification()
     }

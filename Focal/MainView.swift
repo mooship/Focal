@@ -76,6 +76,7 @@ struct MainView: View {
         .sensoryFeedback(.selection, trigger: selectionTrigger)
         .sensoryFeedback(.impact(weight: .light), trigger: lightImpactTrigger)
         .sensoryFeedback(.success, trigger: successTrigger)
+        .sensoryFeedback(.success, trigger: store.queueCleared)
     }
 
     @ViewBuilder
@@ -112,6 +113,23 @@ struct MainView: View {
                 if hasSubtasks {
                     Divider()
                         .padding(.horizontal, 24)
+                    let completedCount = sortedSubtasks.filter(\.isCompleted).count
+                    let total = sortedSubtasks.count
+                    VStack(spacing: 6) {
+                        HStack {
+                            Spacer()
+                            Text("\(completedCount) of \(total) done")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        ProgressView(value: Double(completedCount), total: Double(total))
+                            .progressViewStyle(.linear)
+                            .tint(.accentColor)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 12)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Text("\(completedCount) of \(total) done"))
                     VStack(spacing: 2) {
                         ForEach(sortedSubtasks) { subtask in
                             Button {
@@ -243,15 +261,6 @@ struct MainView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func metaBadge(_ text: String, color: Color) -> some View {
-        Text(text)
-            .font(.caption)
-            .foregroundStyle(color)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.12), in: Capsule())
-    }
-
     private var emptyStateView: some View {
         let isFirstRun = completedTasks.isEmpty
         let title: LocalizedStringKey = isFirstRun ? "Welcome to Focal." : "Nice, nothing left."
@@ -259,9 +268,10 @@ struct MainView: View {
             ? "Add your first task to get started."
             : "Add something when you're ready."
         return VStack(spacing: 12) {
-            Image(systemName: isFirstRun ? "sparkles" : "checkmark.circle")
+            Image(systemName: isFirstRun ? "sparkles" : "checkmark.circle.fill")
                 .font(.system(size: 52))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(isFirstRun ? AnyShapeStyle(HierarchicalShapeStyle.tertiary) : AnyShapeStyle(Color.accentColor))
+                .symbolEffect(.bounce, value: shouldAnimate ? store.queueCleared : 0)
                 .accessibilityHidden(true)
                 .padding(.bottom, 4)
             Text(title)

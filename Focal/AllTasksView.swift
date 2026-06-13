@@ -31,13 +31,21 @@ struct AllTasksView: View {
                         } label: {
                             incompleteRow(for: task)
                         }
-                        .accessibilityLabel(task.title)
+                        .accessibilityLabel(task.id == store.currentTaskID
+                            ? Text("\(task.title), current focus")
+                            : Text(task.title)
+                        )
                         .accessibilityHint("Opens task editor")
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .listRowInsets(rowInsets)
                         .contextMenu {
+                            Button {
+                                complete(task)
+                            } label: {
+                                Label("Done", systemImage: "checkmark")
+                            }
                             Button {
                                 selectionTrigger += 1
                                 store.prioritizeTask(task)
@@ -68,10 +76,15 @@ struct AllTasksView: View {
                             }
                             .tint(.blue)
                         }
-                    }
-                    .onDelete { offsets in
-                        let tasks = offsets.map { incompleteTasks[$0] }
-                        tasks.forEach { store.deleteTask($0) }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button {
+                                complete(task)
+                            } label: {
+                                Label("Done", systemImage: "checkmark")
+                            }
+                            .tint(.green)
+                            deleteButton(for: task)
+                        }
                     }
                 }
 
@@ -156,9 +169,20 @@ struct AllTasksView: View {
 
     @ViewBuilder
     private func incompleteRow(for task: FocalTask) -> some View {
+        let isCurrent = task.id == store.currentTaskID
         VStack(alignment: .leading, spacing: 3) {
-            Text(task.title)
-                .foregroundStyle(.primary)
+            HStack(spacing: 8) {
+                Text(task.title)
+                    .foregroundStyle(.primary)
+                if isCurrent {
+                    Text("Now")
+                        .font(.caption)
+                        .foregroundStyle(Color.accentColor)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.accentColor.opacity(0.12), in: Capsule())
+                }
+            }
             if let meta = metaLine(for: task) {
                 Text(meta)
                     .font(.caption)
@@ -195,6 +219,11 @@ struct AllTasksView: View {
     private func restore(_ task: FocalTask) {
         successTrigger += 1
         store.restoreTask(task)
+    }
+
+    private func complete(_ task: FocalTask) {
+        successTrigger += 1
+        store.done(taskID: task.id)
     }
 
 }

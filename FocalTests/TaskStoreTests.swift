@@ -49,6 +49,21 @@ struct TaskStoreTests {
         #expect(store.currentTaskID != firstID)
     }
 
+    @Test func completingFinalTaskIncrementsQueueCleared() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "Only task")])
+        #expect(store.queueCleared == 0)
+        store.done()
+        #expect(store.queueCleared == 1)
+    }
+
+    @Test func completingNonFinalTaskDoesNotIncrementQueueCleared() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "A"), FocalTask(title: "B")])
+        store.done()
+        #expect(store.queueCleared == 0)
+        store.done()
+        #expect(store.queueCleared == 1)
+    }
+
     @Test func notNowChangesCurrentTaskWhenMultipleExist() throws {
         let (store, _) = try makeStore(tasks: [FocalTask(title: "A"), FocalTask(title: "B")])
         let firstID = store.currentTaskID

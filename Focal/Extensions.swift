@@ -34,6 +34,15 @@ func formatDueDate(_ due: Date) -> DueDateDisplay {
     return DueDateDisplay(text: due.formatted(.dateTime.month(.abbreviated).day()), color: .secondary)
 }
 
+func metaBadge(_ text: String, color: Color) -> some View {
+    Text(text)
+        .font(.caption)
+        .foregroundStyle(color)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(color.opacity(0.12), in: Capsule())
+}
+
 struct EstimatePicker: View {
     @Binding var selection: Int?
     var body: some View {

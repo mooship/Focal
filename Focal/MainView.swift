@@ -261,15 +261,6 @@ struct MainView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func metaBadge(_ text: String, color: Color) -> some View {
-        Text(text)
-            .font(.caption)
-            .foregroundStyle(color)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.12), in: Capsule())
-    }
-
     private var emptyStateView: some View {
         let isFirstRun = completedTasks.isEmpty
         let title: LocalizedStringKey = isFirstRun ? "Welcome to Focal." : "Nice, nothing left."

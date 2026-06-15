@@ -54,7 +54,7 @@ final class TaskStore {
         if let rule = task.recurrence {
             let base = task.dueDate ?? Date()
             let nextDue = rule.nextDate(from: base, notBefore: Calendar.current.startOfDay(for: Date()))
-            let subtaskTitles = task.subtasks.sorted { $0.createdAt < $1.createdAt }.map(\.title)
+            let subtaskTitles = task.sortedSubtasks.map(\.title)
             addTask(
                 title: task.title,
                 note: task.note,
@@ -122,9 +122,7 @@ final class TaskStore {
         if currentTaskID == nil {
             advance()
         } else {
-            let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
-            sessionQueue.insert(task.id, at: insertIndex)
-            notNowStreak = 0
+            enqueueRandomly(task.id)
         }
         updateInactivityNotification()
     }
@@ -138,7 +136,7 @@ final class TaskStore {
             dueDate: task.dueDate,
             estimatedMinutes: task.estimatedMinutes,
             recurrence: task.recurrence,
-            subtasks: task.subtasks.sorted { $0.createdAt < $1.createdAt }.map {
+            subtasks: task.sortedSubtasks.map {
                 SubtaskSnapshot(title: $0.title, isCompleted: $0.isCompleted)
             }
         )
@@ -197,9 +195,7 @@ final class TaskStore {
             if currentTaskID == nil {
                 advance()
             } else {
-                let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
-                sessionQueue.insert(task.id, at: insertIndex)
-                notNowStreak = 0
+                enqueueRandomly(task.id)
             }
         }
         updateInactivityNotification()
@@ -214,9 +210,7 @@ final class TaskStore {
         guard !sessionQueue.contains(task.id) else {
             return
         }
-        let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
-        sessionQueue.insert(task.id, at: insertIndex)
-        notNowStreak = 0
+        enqueueRandomly(task.id)
         if currentTaskID == nil {
             advance()
         }
@@ -249,6 +243,12 @@ final class TaskStore {
         try? modelContext.save()
     }
 
+    func updateSubtask(_ subtask: SubTask, title: String, isCompleted: Bool) {
+        subtask.title = title
+        subtask.isCompleted = isCompleted
+        try? modelContext.save()
+    }
+
     func toggleSubtask(_ subtask: SubTask, in task: FocalTask) {
         subtask.isCompleted.toggle()
         try? modelContext.save()
@@ -276,6 +276,12 @@ final class TaskStore {
         if currentTaskID == nil {
             advance()
         }
+    }
+
+    private func enqueueRandomly(_ id: UUID) {
+        let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
+        sessionQueue.insert(id, at: insertIndex)
+        notNowStreak = 0
     }
 
     private func advance(with preloaded: [FocalTask]? = nil) {

@@ -39,7 +39,8 @@ Focal is an iOS 26 SwiftUI app that shows one task at a time to reduce ADHD deci
 ### State layer
 
 - `TaskStore.swift` — `@Observable` class. Owns the session queue: a randomised, non-repeating cycle of incomplete tasks (due-today/overdue tasks are seeded first). Key methods: `done()`, `notNow()`, `addTask(title:note:dueDate:estimatedMinutes:recurrence:subtaskTitles:)`, `deleteTask(_:)` / `undoDelete()` (5s window, extended to 10s under VoiceOver/Switch Control), `prioritizeTask(_:)` ("Focus now"), `restoreTask(_:)`, `toggleSubtask(_:in:)`, and `completeIfAllSubtasksDone(_:)`. Completing a recurring task spawns its next occurrence. `advance(with:)` accepts a pre-fetched list to avoid redundant DB round-trips. `pendingUndo` backs the undo banner.
-- `NotificationManager.swift` — singleton for inactivity notification scheduling. `NotificationManager.Key` is the single source of truth for all `UserDefaults`/`AppStorage` key strings and color scheme value constants.
+- `NotificationManager.swift` — singleton for inactivity notification scheduling.
+- `DefaultsKey.swift` — `DefaultsKey` enum: the single source of truth for all `UserDefaults`/`AppStorage` key strings and color scheme value constants.
 
 ### UI layer
 

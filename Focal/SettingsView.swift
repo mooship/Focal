@@ -2,11 +2,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(TaskStore.self) private var store
-    @AppStorage(NotificationManager.Key.notificationsEnabled) private var notificationsEnabled = false
-    @AppStorage(NotificationManager.Key.inactivityThreshold) private var inactivityThreshold =
+    @AppStorage(DefaultsKey.notificationsEnabled) private var notificationsEnabled = false
+    @AppStorage(DefaultsKey.inactivityThreshold) private var inactivityThreshold =
         InactivityThreshold.twoHours.rawValue
-    @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
-    @AppStorage(NotificationManager.Key.colorScheme) private var colorSchemeRaw = NotificationManager.Key.colorSchemeSystem
+    @AppStorage(DefaultsKey.animationsEnabled) private var animationsEnabled = true
+    @AppStorage(DefaultsKey.colorScheme) private var colorSchemeRaw = DefaultsKey.colorSchemeSystem
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
@@ -46,9 +46,9 @@ struct SettingsView: View {
 
             Section {
                 Picker("Appearance", selection: $colorSchemeRaw) {
-                    Text("System").tag(NotificationManager.Key.colorSchemeSystem)
-                    Text("Light").tag(NotificationManager.Key.colorSchemeLight)
-                    Text("Dark").tag(NotificationManager.Key.colorSchemeDark)
+                    Text("System").tag(DefaultsKey.colorSchemeSystem)
+                    Text("Light").tag(DefaultsKey.colorSchemeLight)
+                    Text("Dark").tag(DefaultsKey.colorSchemeDark)
                 }
                 Toggle("Animations", isOn: $animationsEnabled)
             }

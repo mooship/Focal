@@ -20,16 +20,6 @@ enum InactivityThreshold: String, CaseIterable, Identifiable {
 }
 
 final class NotificationManager {
-    enum Key {
-        static let notificationsEnabled = "notificationsEnabled"
-        static let inactivityThreshold = "inactivityThreshold"
-        static let animationsEnabled = "animationsEnabled"
-        static let colorScheme = "colorScheme"
-        static let colorSchemeLight = "light"
-        static let colorSchemeDark = "dark"
-        static let colorSchemeSystem = "system"
-    }
-
     static let shared = NotificationManager()
     private let center = UNUserNotificationCenter.current()
     private init() {}
@@ -39,10 +29,10 @@ final class NotificationManager {
     }
 
     func reschedule() {
-        guard UserDefaults.standard.bool(forKey: Key.notificationsEnabled) else {
+        guard UserDefaults.standard.bool(forKey: DefaultsKey.notificationsEnabled) else {
             return
         }
-        let raw = UserDefaults.standard.string(forKey: Key.inactivityThreshold)
+        let raw = UserDefaults.standard.string(forKey: DefaultsKey.inactivityThreshold)
             ?? InactivityThreshold.twoHours.rawValue
         let threshold = InactivityThreshold(rawValue: raw) ?? .twoHours
         cancelAll()
@@ -57,7 +47,7 @@ final class NotificationManager {
         center.add(UNNotificationRequest(identifier: "inactivity", content: content, trigger: trigger)) { error in
             guard error == nil else {
                 DispatchQueue.main.async {
-                    UserDefaults.standard.set(false, forKey: Key.notificationsEnabled)
+                    UserDefaults.standard.set(false, forKey: DefaultsKey.notificationsEnabled)
                 }
                 return
             }

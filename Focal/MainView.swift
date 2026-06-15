@@ -6,7 +6,7 @@ struct MainView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
+    @AppStorage(DefaultsKey.animationsEnabled) private var animationsEnabled = true
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
@@ -52,18 +52,10 @@ struct MainView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            if let undo = store.pendingUndo {
-                UndoBanner(undo: undo) {
-                    successTrigger += 1
-                    store.undoDelete()
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+        .undoBanner(store.pendingUndo, animate: shouldAnimate) {
+            successTrigger += 1
+            store.undoDelete()
         }
-        .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.pendingUndo)
         .sheet(isPresented: $showingQuickAdd) {
             QuickAddSheet()
         }
@@ -81,7 +73,7 @@ struct MainView: View {
 
     @ViewBuilder
     private func taskView(_ task: FocalTask) -> some View {
-        let sortedSubtasks = task.subtasks.sorted { $0.createdAt < $1.createdAt }
+        let sortedSubtasks = task.sortedSubtasks
         let hasSubtasks = !sortedSubtasks.isEmpty
         let hasMeta = task.estimatedMinutes != nil || task.dueDate != nil || task.recurrence != nil
 

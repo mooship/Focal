@@ -61,6 +61,10 @@ final class FocalTask {
     @Relationship(deleteRule: .cascade, inverse: \SubTask.task)
     var subtasks: [SubTask] = []
 
+    var sortedSubtasks: [SubTask] {
+        subtasks.sorted { $0.createdAt < $1.createdAt }
+    }
+
     init(title: String, note: String? = nil, dueDate: Date? = nil, estimatedMinutes: Int? = nil, recurrence: RecurrenceRule? = nil) {
         self.id = UUID()
         self.title = title

@@ -95,6 +95,20 @@ struct SubtaskInputField: View {
     }
 }
 
+extension View {
+    func undoBanner(_ undo: TaskStore.PendingUndo?, animate: Bool, onUndo: @escaping () -> Void) -> some View {
+        safeAreaInset(edge: .bottom) {
+            if let undo {
+                UndoBanner(undo: undo, onUndo: onUndo)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(animate ? .spring(duration: 0.3) : nil, value: undo)
+    }
+}
+
 struct UndoBanner: View {
     let undo: TaskStore.PendingUndo
     let onUndo: () -> Void

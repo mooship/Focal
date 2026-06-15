@@ -9,7 +9,7 @@ struct AllTasksView: View {
     @Query(filter: #Predicate<FocalTask> { $0.completedAt != nil }, sort: [SortDescriptor(\FocalTask.completedAt, order: .reverse)])
     private var completedTasks: [FocalTask]
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @AppStorage(NotificationManager.Key.animationsEnabled) private var animationsEnabled = true
+    @AppStorage(DefaultsKey.animationsEnabled) private var animationsEnabled = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingSettings = false
     @State private var editingTask: FocalTask?
@@ -140,18 +140,10 @@ struct AllTasksView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            if let undo = store.pendingUndo {
-                UndoBanner(undo: undo) {
-                    successTrigger += 1
-                    store.undoDelete()
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+        .undoBanner(store.pendingUndo, animate: shouldAnimate) {
+            successTrigger += 1
+            store.undoDelete()
         }
-        .animation(shouldAnimate ? .spring(duration: 0.3) : nil, value: store.pendingUndo)
         .sheet(item: $editingTask) { task in
             EditTaskSheet(task: task)
         }

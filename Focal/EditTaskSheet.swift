@@ -83,8 +83,7 @@ struct EditTaskSheet: View {
         _selectedDueDate = State(initialValue: task.dueDate ?? Calendar.current.startOfDay(for: Date()))
         _selectedEstimate = State(initialValue: task.estimatedMinutes)
         _selectedRecurrence = State(initialValue: task.recurrence)
-        _subtaskDrafts = State(initialValue: task.subtasks
-            .sorted { $0.createdAt < $1.createdAt }
+        _subtaskDrafts = State(initialValue: task.sortedSubtasks
             .map { SubtaskDraft(id: $0.id, title: $0.title, isCompleted: $0.isCompleted, isNew: false) }
         )
     }
@@ -215,21 +214,14 @@ struct EditTaskSheet: View {
         task.dueDate = hasDueDate ? selectedDueDate : nil
         task.estimatedMinutes = selectedEstimate
         task.recurrence = selectedRecurrence
+        try? modelContext.save()
 
         let draftByID = Dictionary(uniqueKeysWithValues: subtaskDrafts.filter { !$0.isNew }.map { ($0.id, $0) })
         for existing in Array(task.subtasks) {
-            if let draft = draftByID[existing.id] {
-                let trimmed = draft.title.trimmed
-                if trimmed.isEmpty {
-                    modelContext.delete(existing)
-                } else {
-                    existing.isCompleted = draft.isCompleted
-                    if existing.title != trimmed {
-                        existing.title = trimmed
-                    }
-                }
+            if let draft = draftByID[existing.id], !draft.title.trimmed.isEmpty {
+                store.updateSubtask(existing, title: draft.title.trimmed, isCompleted: draft.isCompleted)
             } else {
-                modelContext.delete(existing)
+                store.deleteSubtask(existing)
             }
         }
         for draft in subtaskDrafts where draft.isNew {
@@ -237,12 +229,8 @@ struct EditTaskSheet: View {
             guard !trimmed.isEmpty else {
                 continue
             }
-            let sub = SubTask(title: trimmed)
-            sub.task = task
-            modelContext.insert(sub)
+            store.addSubtask(to: task, title: trimmed)
         }
-
-        try? modelContext.save()
 
         store.completeIfAllSubtasksDone(task)
     }

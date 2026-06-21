@@ -137,9 +137,6 @@
     "Not now" : {},
     "Note (optional)" : {},
     "Now" : {},
-    "Off" : {
-      "extractionState" : "stale"
-    },
     "One gentle nudge if no task is completed within the chosen period." : {},
     "Opens task editor" : {},
     "Overdue" : {},

@@ -91,6 +91,23 @@ struct EditTaskSheet: View {
     var body: some View {
         NavigationStack {
             Form {
+                if task.completedAt != nil {
+                    Section {
+                        HStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            Text("Completed")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Button("Restore") {
+                                store.restoreTask(task)
+                                dismiss()
+                            }
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+
                 Section {
                     LimitedTextField(label: "Task", text: $title, limit: TaskLimit.titleMax)
                     LimitedTextField(label: "Note (optional)", text: $note, limit: TaskLimit.noteMax, axis: .vertical)

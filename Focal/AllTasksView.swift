@@ -31,10 +31,7 @@ struct AllTasksView: View {
                         } label: {
                             incompleteRow(for: task)
                         }
-                        .accessibilityLabel(task.id == store.currentTaskID
-                            ? Text("\(task.title), current focus")
-                            : Text(task.title)
-                        )
+                        .accessibilityLabel(accessibilityLabel(for: task))
                         .accessibilityHint("Opens task editor")
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .listRowBackground(Color.clear)
@@ -171,6 +168,17 @@ struct AllTasksView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 10)
         .padding(.horizontal, 12)
+    }
+
+    private func accessibilityLabel(for task: FocalTask) -> Text {
+        var label = task.title
+        if task.id == store.currentTaskID {
+            label = String(localized: "\(label), current focus")
+        }
+        if let meta = metaLine(for: task) {
+            label += ", " + meta
+        }
+        return Text(label)
     }
 
     private func metaLine(for task: FocalTask) -> String? {

@@ -2,7 +2,6 @@ import Foundation
 import UserNotifications
 
 enum InactivityThreshold: String, CaseIterable, Identifiable {
-    case off = "Off"
     case twoHours = "2 hours"
     case fourHours = "4 hours"
     case eightHours = "8 hours"
@@ -11,7 +10,6 @@ enum InactivityThreshold: String, CaseIterable, Identifiable {
 
     var seconds: TimeInterval {
         switch self {
-        case .off: return 0
         case .twoHours: return 2 * 3600
         case .fourHours: return 4 * 3600
         case .eightHours: return 8 * 3600
@@ -36,9 +34,6 @@ final class NotificationManager {
             ?? InactivityThreshold.twoHours.rawValue
         let threshold = InactivityThreshold(rawValue: raw) ?? .twoHours
         cancelAll()
-        guard threshold != .off else {
-            return
-        }
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Time to focus")
         content.body = String(localized: "You've got tasks waiting.")

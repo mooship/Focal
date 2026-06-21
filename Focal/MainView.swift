@@ -68,7 +68,6 @@ struct MainView: View {
         .sensoryFeedback(.selection, trigger: selectionTrigger)
         .sensoryFeedback(.impact(weight: .light), trigger: lightImpactTrigger)
         .sensoryFeedback(.success, trigger: successTrigger)
-        .sensoryFeedback(.success, trigger: store.queueCleared)
     }
 
     @ViewBuilder

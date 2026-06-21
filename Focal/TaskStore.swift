@@ -52,8 +52,9 @@ final class TaskStore {
         }
 
         if let rule = task.recurrence {
-            let base = task.dueDate ?? Calendar.current.startOfDay(for: Date())
-            let nextDue = rule.nextDate(from: base, notBefore: Calendar.current.startOfDay(for: Date()))
+            let today = Calendar.current.startOfDay(for: Date())
+            let base = task.dueDate ?? today
+            let nextDue = rule.nextDate(from: base, notBefore: today)
             let subtaskTitles = task.sortedSubtasks.map(\.title)
             addTask(
                 title: task.title,

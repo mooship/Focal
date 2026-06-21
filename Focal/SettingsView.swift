@@ -32,7 +32,7 @@ struct SettingsView: View {
 
                 if notificationsEnabled {
                     Picker("Remind after", selection: $inactivityThreshold) {
-                        ForEach(InactivityThreshold.allCases.filter { $0 != .off }) { t in
+                        ForEach(InactivityThreshold.allCases) { t in
                             Text(LocalizedStringKey(t.rawValue)).tag(t.rawValue)
                         }
                     }

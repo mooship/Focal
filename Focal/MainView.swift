@@ -7,6 +7,7 @@ struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage(DefaultsKey.animationsEnabled) private var animationsEnabled = true
+    @AppStorage(DefaultsKey.hasCompletedTask) private var hasCompletedTask = false
     @State private var showingQuickAdd = false
     @State private var showingAllTasks = false
     @State private var editingTask: FocalTask?
@@ -14,7 +15,6 @@ struct MainView: View {
     @State private var lightImpactTrigger = 0
     @State private var successTrigger = 0
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }) private var incompleteTasks: [FocalTask]
-    @Query(filter: #Predicate<FocalTask> { $0.completedAt != nil }) private var completedTasks: [FocalTask]
 
     private var shouldAnimate: Bool { animationsEnabled && !reduceMotion }
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
@@ -253,7 +253,7 @@ struct MainView: View {
     }
 
     private var emptyStateView: some View {
-        let isFirstRun = completedTasks.isEmpty
+        let isFirstRun = !hasCompletedTask
         let title: LocalizedStringKey = isFirstRun ? "Welcome to Focal." : "Nice, nothing left."
         let subtitle: LocalizedStringKey = isFirstRun
             ? "Add your first task to get started."

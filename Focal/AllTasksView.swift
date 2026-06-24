@@ -108,10 +108,9 @@ struct AllTasksView: View {
                                 }
                                 .tint(.green)
                             }
-                        }
-                        .onDelete { offsets in
-                            let tasks = offsets.map { completedTasks[$0] }
-                            tasks.forEach { store.deleteTask($0) }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                deleteButton(for: task)
+                            }
                         }
                     }
                 }

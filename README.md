@@ -18,7 +18,6 @@ No lists. No prioritising. Just the next thing.
 - Light, Dark, and System appearance
 - Task transition animations with Reduce Motion support
 - Title limit: 80 characters · Note limit: 300 characters
-- Localised in English, Afrikaans, and Spanish
 
 ## Requirements
 

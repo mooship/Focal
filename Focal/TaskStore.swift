@@ -36,6 +36,7 @@ final class TaskStore {
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         advance()
+        seedHasCompletedTaskIfNeeded()
     }
 
     func done() {
@@ -68,6 +69,7 @@ final class TaskStore {
 
         task.completedAt = Date()
         notNowStreak = 0
+        UserDefaults.standard.set(true, forKey: DefaultsKey.hasCompletedTask)
         try? modelContext.save()
         if let i = sessionQueue.firstIndex(of: taskID) {
             sessionQueue.remove(at: i)
@@ -309,6 +311,20 @@ final class TaskStore {
         }
         currentTaskID = sessionQueue.first
         currentTask = currentTaskID.flatMap { id in incomplete.first { $0.id == id } }
+    }
+
+    private func seedHasCompletedTaskIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: DefaultsKey.hasCompletedTask) else {
+            return
+        }
+        var descriptor = FetchDescriptor<FocalTask>(
+            predicate: #Predicate { $0.completedAt != nil }
+        )
+        descriptor.fetchLimit = 1
+        let count = (try? modelContext.fetchCount(descriptor)) ?? 0
+        if count > 0 {
+            UserDefaults.standard.set(true, forKey: DefaultsKey.hasCompletedTask)
+        }
     }
 
     private func fetchIncomplete() -> [FocalTask] {

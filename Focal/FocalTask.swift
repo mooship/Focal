@@ -35,21 +35,23 @@ enum RecurrenceRule: String, Codable, CaseIterable {
     }
 
     /// The single next occurrence after `date` according to this rule (weekdays skips weekends).
+    /// Falls back to a fixed-interval offset on the (practically unreachable) case that `Calendar`
+    /// can't add the component, rather than crashing.
     func nextDate(from date: Date) -> Date {
         let cal = Calendar.current
         switch self {
         case .daily:
-            return cal.date(byAdding: .day, value: 1, to: date)!
+            return cal.date(byAdding: .day, value: 1, to: date) ?? date.addingTimeInterval(86400)
         case .weekdays:
-            var next = cal.date(byAdding: .day, value: 1, to: date)!
+            var next = cal.date(byAdding: .day, value: 1, to: date) ?? date.addingTimeInterval(86400)
             while cal.isDateInWeekend(next) {
-                next = cal.date(byAdding: .day, value: 1, to: next)!
+                next = cal.date(byAdding: .day, value: 1, to: next) ?? next.addingTimeInterval(86400)
             }
             return next
         case .weekly:
-            return cal.date(byAdding: .weekOfYear, value: 1, to: date)!
+            return cal.date(byAdding: .weekOfYear, value: 1, to: date) ?? date.addingTimeInterval(7 * 86400)
         case .monthly:
-            return cal.date(byAdding: .month, value: 1, to: date)!
+            return cal.date(byAdding: .month, value: 1, to: date) ?? date.addingTimeInterval(30 * 86400)
         }
     }
 }

@@ -74,6 +74,11 @@ final class FocalTask {
         subtasks.sorted { $0.createdAt < $1.createdAt }
     }
 
+    /// Whether this task has at least one subtask and every one of them is checked off.
+    var allSubtasksCompleted: Bool {
+        !subtasks.isEmpty && subtasks.allSatisfy(\.isCompleted)
+    }
+
     init(title: String, note: String? = nil, dueDate: Date? = nil, estimatedMinutes: Int? = nil, recurrence: RecurrenceRule? = nil) {
         self.id = UUID()
         self.title = title

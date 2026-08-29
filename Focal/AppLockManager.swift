@@ -1,12 +1,23 @@
 import Foundation
 import LocalAuthentication
+import SwiftUI
 
 /// Gates app content behind Face ID/Touch ID/passcode when App Lock is enabled in Settings.
-/// `FocalApp` locks on `scenePhase` becoming inactive and re-authenticates on becoming active.
 @Observable
 final class AppLockManager {
     private(set) var isUnlocked = false
     private(set) var isAuthenticating = false
+
+    /// Applies lock policy for a `scenePhase` transition: re-authenticates on becoming active,
+    /// otherwise locks immediately (including on `.inactive`, so a backgrounding app switcher
+    /// snapshot never shows task content). `FocalApp` forwards every change here unconditionally.
+    func handle(scenePhase: ScenePhase) {
+        if scenePhase == .active {
+            Task { await authenticate() }
+        } else {
+            lock()
+        }
+    }
 
     /// Immediately hides app content behind the lock screen.
     func lock() {

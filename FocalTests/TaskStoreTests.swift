@@ -5,6 +5,7 @@ import Foundation
 
 struct TaskStoreTests {
 
+    /// Builds a `TaskStore` backed by an in-memory `ModelContext` pre-populated with `tasks`.
     private func makeStore(tasks: [FocalTask] = []) throws -> (TaskStore, ModelContext) {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: FocalTask.self, SubTask.self, configurations: config)

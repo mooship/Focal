@@ -7,7 +7,10 @@ import SwiftData
 struct FocalApp: App {
     let modelContainer: ModelContainer
     let taskStore: TaskStore
+    @State private var appLock = AppLockManager()
     @AppStorage(DefaultsKey.colorScheme) private var colorSchemeRaw = DefaultsKey.colorSchemeSystem
+    @AppStorage(DefaultsKey.appLockEnabled) private var appLockEnabled = false
+    @Environment(\.scenePhase) private var scenePhase
 
     /// The user's chosen appearance from Settings; `nil` follows the system setting.
     var preferredScheme: ColorScheme? {
@@ -25,6 +28,7 @@ struct FocalApp: App {
             let container = try ModelContainer(for: schema, configurations: [config])
             modelContainer = container
             taskStore = TaskStore(modelContext: container.mainContext)
+            config.hardenFileProtection()
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
@@ -32,10 +36,21 @@ struct FocalApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainView()
-                .environment(taskStore)
-                .preferredColorScheme(preferredScheme)
+            ZStack {
+                MainView()
+                    .environment(taskStore)
+                    .preferredColorScheme(preferredScheme)
+                if appLockEnabled && !appLock.isUnlocked {
+                    LockScreenView(appLock: appLock)
+                }
+            }
         }
         .modelContainer(modelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            guard appLockEnabled else {
+                return
+            }
+            appLock.handle(scenePhase: newPhase)
+        }
     }
 }

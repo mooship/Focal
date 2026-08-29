@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// Settings screen: inactivity reminder toggle and threshold, appearance (color scheme), and an
+/// animations toggle.
 struct SettingsView: View {
     @Environment(TaskStore.self) private var store
     @AppStorage(DefaultsKey.notificationsEnabled) private var notificationsEnabled = false

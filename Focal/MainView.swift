@@ -57,7 +57,7 @@ struct MainView: View {
         }
         .undoBanner(store.pendingUndo, animate: shouldAnimate) {
             successTrigger += 1
-            store.undoDelete()
+            store.undo()
         }
         .sheet(isPresented: $showingQuickAdd) {
             QuickAddSheet()
@@ -85,23 +85,21 @@ struct MainView: View {
             Spacer()
 
             VStack(spacing: 0) {
-                Button { editingTask = task } label: {
-                    VStack(spacing: 12) {
-                        Text(task.title)
-                            .font(.largeTitle.weight(.semibold))
+                VStack(spacing: 12) {
+                    Text(task.title)
+                        .font(.largeTitle.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                    if let note = task.note, !note.isEmpty {
+                        Text(note)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
-                        if let note = task.note, !note.isEmpty {
-                            Text(note)
-                                .font(.body)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
                     }
-                    .padding(.horizontal, 8)
-                    .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.plain)
-                .accessibilityHint("Opens task editor")
+                .padding(.horizontal, 8)
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .combine)
+                .opensEditorAccessibility()
                 .padding(.top, 24)
                 .padding(.horizontal, 24)
                 .padding(.bottom, hasSubtasks || hasMeta ? 16 : 24)
@@ -174,6 +172,8 @@ struct MainView: View {
                         .padding(.bottom, 20)
                 }
             }
+            .contentShape(Rectangle())
+            .onTapGesture { editingTask = task }
             .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .padding(.horizontal, 24)
 
@@ -194,11 +194,11 @@ struct MainView: View {
                 if dynamicTypeSize.isAccessibilitySize {
                     VStack(spacing: 12) {
                         doneButton(for: task)
-                        notNowButton
+                        notNowButton(for: task)
                     }
                 } else {
                     HStack(alignment: .bottom) {
-                        notNowButton
+                        notNowButton(for: task)
                         Spacer()
                         doneButton(for: task)
                     }
@@ -210,7 +210,7 @@ struct MainView: View {
         .frame(maxWidth: isRegularWidth ? 600 : .infinity)
     }
 
-    private var notNowButton: some View {
+    private func notNowButton(for task: FocalTask) -> some View {
         Button {
             selectionTrigger += 1
             store.notNow()
@@ -221,6 +221,7 @@ struct MainView: View {
                 .padding(.vertical, 12)
         }
         .glassEffect(in: Capsule())
+        .accessibilityLabel(Text(String(localized: "Skip \(task.title) for now")))
         .accessibilityHint("Skips to the next task")
     }
 
@@ -235,8 +236,7 @@ struct MainView: View {
                 .padding(.vertical, 16)
         }
         .glassEffect(in: Capsule())
-        .accessibilityLabel(Text(String(localized: "Mark \(task.title) as done")))
-        .accessibilityHint("Marks task as complete")
+        .markDoneAccessibility(for: task)
     }
 
     @ViewBuilder
@@ -261,26 +261,13 @@ struct MainView: View {
     /// been completed, or a "nothing left" message once the queue has been cleared before.
     private var emptyStateView: some View {
         let isFirstRun = !hasCompletedTask
-        let title: LocalizedStringKey = isFirstRun ? "Welcome to Focal." : "Nice, nothing left."
-        let subtitle: LocalizedStringKey = isFirstRun
-            ? "Add your first task to get started."
-            : "Add something when you're ready."
-        return VStack(spacing: 12) {
-            Image(systemName: isFirstRun ? "sparkles" : "checkmark.circle.fill")
-                .font(.system(size: 52))
-                .foregroundStyle(isFirstRun ? AnyShapeStyle(HierarchicalShapeStyle.tertiary) : AnyShapeStyle(Color.accentColor))
-                .symbolEffect(.bounce, value: shouldAnimate ? store.queueCleared : 0)
-                .accessibilityHidden(true)
-                .padding(.bottom, 4)
-            Text(title)
-                .font(.title2.weight(.medium))
-            Text(subtitle)
-                .font(.body)
-                .foregroundStyle(.secondary)
-        }
-        .multilineTextAlignment(.center)
-        .padding()
-        .accessibilityElement(children: .combine)
+        return EmptyStateView(
+            systemImage: isFirstRun ? "sparkles" : "checkmark.circle.fill",
+            iconStyle: isFirstRun ? AnyShapeStyle(HierarchicalShapeStyle.tertiary) : AnyShapeStyle(Color.accentColor),
+            title: isFirstRun ? "Welcome to Focal." : "Nice, nothing left.",
+            subtitle: isFirstRun ? "Add your first task to get started." : "Add something when you're ready.",
+            bounceValue: shouldAnimate ? store.queueCleared : 0
+        )
     }
 
 }

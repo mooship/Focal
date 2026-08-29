@@ -34,19 +34,19 @@ final class NotificationManager {
     }
 
     /// Debounces briefly, then cancels any pending inactivity notification and, if notifications
-    /// are enabled in Settings, schedules a new one to fire after the configured threshold. Turns
-    /// notifications off in Settings if scheduling fails.
-    func reschedule() {
+    /// are enabled in Settings, schedules a new one to fire after the configured threshold, naming
+    /// `taskTitle` in the body if given. Turns notifications off in Settings if scheduling fails.
+    func reschedule(taskTitle: String? = nil) {
         rescheduleTask?.cancel()
         rescheduleTask = Task { @MainActor in
             do {
                 try await Task.sleep(for: .milliseconds(300))
-                self.performReschedule()
+                self.performReschedule(taskTitle: taskTitle)
             } catch {}
         }
     }
 
-    private func performReschedule() {
+    private func performReschedule(taskTitle: String?) {
         guard UserDefaults.standard.bool(forKey: DefaultsKey.notificationsEnabled) else {
             return
         }
@@ -56,7 +56,9 @@ final class NotificationManager {
         cancelAll()
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Time to focus")
-        content.body = String(localized: "You've got tasks waiting.")
+        content.body = taskTitle.flatMap { $0.trimmed.nilIfEmpty }.map {
+            String(localized: "\($0) is still waiting.")
+        } ?? String(localized: "You've got tasks waiting.")
         content.interruptionLevel = .active
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: threshold.seconds, repeats: false)
         center.add(UNNotificationRequest(identifier: "inactivity", content: content, trigger: trigger)) { error in

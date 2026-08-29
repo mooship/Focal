@@ -41,16 +41,49 @@ struct AllTasksView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    ForEach(incompleteTasks) { task in
-                        Button {
-                            editingTask = task
-                        } label: {
-                            incompleteRow(for: task)
-                        }
-                        .accessibilityLabel(accessibilityLabel(for: task))
-                        .accessibilityHint("Opens task editor")
+            Group {
+                if incompleteTasks.isEmpty && completedTasks.isEmpty {
+                    emptyStateView
+                } else {
+                    taskList
+                }
+            }
+            .frame(maxWidth: isRegularWidth ? 600 : .infinity)
+            .navigationTitle("All Tasks")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .presentationBackground(.regularMaterial)
+            .navigationDestination(isPresented: $showingSettings) {
+                SettingsView()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showingSettings = true } label: {
+                        Image(systemName: "gear")
+                    }
+                    .accessibilityLabel("Settings")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .undoBanner(store.pendingUndo, animate: shouldAnimate) {
+            successTrigger += 1
+            store.undo()
+        }
+        .sheet(item: $editingTask) { task in
+            EditTaskSheet(task: task)
+        }
+        .sensoryFeedback(.selection, trigger: selectionTrigger)
+        .sensoryFeedback(.success, trigger: successTrigger)
+    }
+
+    private var taskList: some View {
+        List {
+            Section {
+                ForEach(sortedIncompleteTasks) { task in
+                    incompleteRow(for: task)
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -92,97 +125,114 @@ struct AllTasksView: View {
                                 .tint(.green)
                             deleteButton(for: task)
                         }
-                    }
                 }
+            }
 
-                if !completedTasks.isEmpty {
-                    Section("Completed") {
-                        ForEach(completedTasks) { task in
-                            Button {
-                                editingTask = task
-                            } label: {
-                                Text(task.title)
-                                    .strikethrough()
-                                    .foregroundStyle(.secondary)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 10)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+            if !completedTasks.isEmpty {
+                Section("Completed") {
+                    ForEach(completedTasks) { task in
+                        Button {
+                            editingTask = task
+                        } label: {
+                            Text(task.title)
+                                .strikethrough()
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .accessibilityLabel(task.title)
+                        .accessibilityHint("Opens task editor")
+                        .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(rowInsets)
+                        .contextMenu {
+                            Button { restore(task) } label: {
+                                Label("Restore", systemImage: "arrow.uturn.backward")
                             }
-                            .accessibilityLabel(task.title)
-                            .accessibilityHint("Opens task editor")
-                            .glassEffect(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(rowInsets)
-                            .contextMenu {
-                                Button { restore(task) } label: {
-                                    Label("Restore", systemImage: "arrow.uturn.backward")
-                                }
-                                deleteButton(for: task)
+                            deleteButton(for: task)
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button { restore(task) } label: {
+                                Label("Restore", systemImage: "arrow.uturn.backward")
                             }
-                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                Button { restore(task) } label: {
-                                    Label("Restore", systemImage: "arrow.uturn.backward")
-                                }
-                                .tint(.green)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                deleteButton(for: task)
-                            }
+                            .tint(.green)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            deleteButton(for: task)
                         }
                     }
                 }
             }
-            .listStyle(.plain)
-            .frame(maxWidth: isRegularWidth ? 600 : .infinity)
-            .navigationTitle("All Tasks")
-            .navigationBarTitleDisplayMode(.inline)
-            .presentationDragIndicator(.visible)
-            .presentationBackground(.regularMaterial)
-            .navigationDestination(isPresented: $showingSettings) {
-                SettingsView()
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { showingSettings = true } label: {
-                        Image(systemName: "gear")
-                    }
-                    .accessibilityLabel("Settings")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .undoBanner(store.pendingUndo, animate: shouldAnimate) {
-            successTrigger += 1
-            store.undoDelete()
-        }
-        .sheet(item: $editingTask) { task in
-            EditTaskSheet(task: task)
-        }
-        .sensoryFeedback(.selection, trigger: selectionTrigger)
-        .sensoryFeedback(.success, trigger: successTrigger)
+        .listStyle(.plain)
     }
 
+    /// `incompleteTasks` ordered by due-date urgency (overdue/soonest first), then tasks without a
+    /// due date, oldest-created first — so the list surfaces what's due soon instead of just
+    /// insertion order.
+    private var sortedIncompleteTasks: [FocalTask] {
+        incompleteTasks.sorted { lhs, rhs in
+            switch (lhs.dueDate, rhs.dueDate) {
+            case let (l?, r?):
+                return l != r ? l < r : lhs.createdAt < rhs.createdAt
+            case (nil, nil):
+                return lhs.createdAt < rhs.createdAt
+            case (nil, _):
+                return false
+            case (_, nil):
+                return true
+            }
+        }
+    }
+
+    /// Shown when there are no tasks at all, incomplete or completed.
+    private var emptyStateView: some View {
+        EmptyStateView(
+            systemImage: "tray",
+            iconStyle: AnyShapeStyle(HierarchicalShapeStyle.tertiary),
+            title: "No tasks yet.",
+            subtitle: "Tasks you add will show up here."
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// A row for an incomplete task: a leading checkbox that completes it directly, and a tappable
+    /// title/meta area that opens the editor.
     @ViewBuilder
     private func incompleteRow(for task: FocalTask) -> some View {
         let isCurrent = task.id == store.currentTaskID
-        VStack(alignment: .leading, spacing: 3) {
-            HStack(spacing: 8) {
-                Text(task.title)
-                    .foregroundStyle(.primary)
-                if isCurrent {
-                    metaBadge(String(localized: "Now"), color: .accentColor)
+        HStack(spacing: 12) {
+            Button {
+                complete(task)
+            } label: {
+                CheckboxIcon(isCompleted: false)
+            }
+            .buttonStyle(.plain)
+            .markDoneAccessibility(for: task)
+
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 8) {
+                    Text(task.title)
+                        .foregroundStyle(.primary)
+                    if isCurrent {
+                        metaBadge(String(localized: "Now"), color: .accentColor)
+                    }
+                }
+                if let meta = metaLine(for: task) {
+                    Text(meta)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
-            if let meta = metaLine(for: task) {
-                Text(meta)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture { editingTask = task }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(accessibilityLabel(for: task))
+            .opensEditorAccessibility()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 10)
         .padding(.horizontal, 12)
     }

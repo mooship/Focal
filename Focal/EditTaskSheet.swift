@@ -148,11 +148,7 @@ struct EditTaskSheet: View {
                                     subtaskCompleteTrigger += 1
                                 }
                             } label: {
-                                Image(systemName: draft.isCompleted ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(draft.isCompleted ? .secondary : .primary)
-                                    .imageScale(.large)
-                                    .frame(minWidth: 44, minHeight: 44)
-                                    .contentShape(Rectangle())
+                                CheckboxIcon(isCompleted: draft.isCompleted)
                             }
                             .buttonStyle(.plain)
                             .accessibilityAddTraits(.isToggle)

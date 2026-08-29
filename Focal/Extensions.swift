@@ -50,6 +50,66 @@ func metaBadge(_ text: String, color: Color) -> some View {
         .background(color.opacity(0.12), in: Capsule())
 }
 
+extension View {
+    /// The standard accessibility label/hint for a button that marks `task` done directly.
+    func markDoneAccessibility(for task: FocalTask) -> some View {
+        self
+            .accessibilityLabel(Text(String(localized: "Mark \(task.title) as done")))
+            .accessibilityHint("Marks task as complete")
+    }
+
+    /// Marks this view as behaving like a button that opens the task editor, for VoiceOver users
+    /// who navigate to it directly. The tappable region itself may extend beyond this view.
+    func opensEditorAccessibility() -> some View {
+        self
+            .accessibilityAddTraits(.isButton)
+            .accessibilityHint("Opens task editor")
+    }
+}
+
+/// A checkbox-style icon (filled when completed) sized to the minimum 44×44 tap target, used by
+/// task/subtask completion toggle buttons.
+struct CheckboxIcon: View {
+    let isCompleted: Bool
+
+    var body: some View {
+        Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+            .foregroundStyle(isCompleted ? .secondary : .primary)
+            .imageScale(.large)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+    }
+}
+
+/// A centered icon + title + subtitle layout for empty states. `bounceValue` optionally drives a
+/// bounce animation on the icon when it changes (pass `nil` for a static icon).
+struct EmptyStateView: View {
+    let systemImage: String
+    let iconStyle: AnyShapeStyle
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    var bounceValue: Int? = nil
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.system(size: 52))
+                .foregroundStyle(iconStyle)
+                .symbolEffect(.bounce, value: bounceValue ?? 0)
+                .accessibilityHidden(true)
+                .padding(.bottom, 4)
+            Text(title)
+                .font(.title2.weight(.medium))
+            Text(subtitle)
+                .font(.body)
+                .foregroundStyle(.secondary)
+        }
+        .multilineTextAlignment(.center)
+        .padding()
+        .accessibilityElement(children: .combine)
+    }
+}
+
 /// Menu picker for a task's estimated duration, from a fixed set of preset minute values.
 struct EstimatePicker: View {
     @Binding var selection: Int?

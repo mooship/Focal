@@ -99,8 +99,7 @@ struct MainView: View {
                 .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .combine)
-                .accessibilityAddTraits(.isButton)
-                .accessibilityHint("Opens task editor")
+                .opensEditorAccessibility()
                 .padding(.top, 24)
                 .padding(.horizontal, 24)
                 .padding(.bottom, hasSubtasks || hasMeta ? 16 : 24)
@@ -237,8 +236,7 @@ struct MainView: View {
                 .padding(.vertical, 16)
         }
         .glassEffect(in: Capsule())
-        .accessibilityLabel(Text(String(localized: "Mark \(task.title) as done")))
-        .accessibilityHint("Marks task as complete")
+        .markDoneAccessibility(for: task)
     }
 
     @ViewBuilder
@@ -263,26 +261,13 @@ struct MainView: View {
     /// been completed, or a "nothing left" message once the queue has been cleared before.
     private var emptyStateView: some View {
         let isFirstRun = !hasCompletedTask
-        let title: LocalizedStringKey = isFirstRun ? "Welcome to Focal." : "Nice, nothing left."
-        let subtitle: LocalizedStringKey = isFirstRun
-            ? "Add your first task to get started."
-            : "Add something when you're ready."
-        return VStack(spacing: 12) {
-            Image(systemName: isFirstRun ? "sparkles" : "checkmark.circle.fill")
-                .font(.system(size: 52))
-                .foregroundStyle(isFirstRun ? AnyShapeStyle(HierarchicalShapeStyle.tertiary) : AnyShapeStyle(Color.accentColor))
-                .symbolEffect(.bounce, value: shouldAnimate ? store.queueCleared : 0)
-                .accessibilityHidden(true)
-                .padding(.bottom, 4)
-            Text(title)
-                .font(.title2.weight(.medium))
-            Text(subtitle)
-                .font(.body)
-                .foregroundStyle(.secondary)
-        }
-        .multilineTextAlignment(.center)
-        .padding()
-        .accessibilityElement(children: .combine)
+        return EmptyStateView(
+            systemImage: isFirstRun ? "sparkles" : "checkmark.circle.fill",
+            iconStyle: isFirstRun ? AnyShapeStyle(HierarchicalShapeStyle.tertiary) : AnyShapeStyle(Color.accentColor),
+            title: isFirstRun ? "Welcome to Focal." : "Nice, nothing left.",
+            subtitle: isFirstRun ? "Add your first task to get started." : "Add something when you're ready.",
+            bounceValue: shouldAnimate ? store.queueCleared : 0
+        )
     }
 
 }

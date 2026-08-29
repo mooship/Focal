@@ -45,19 +45,19 @@ final class TaskStore {
         case delete(DeletedTaskSnapshot)
         case complete(CompletedTaskInfo)
 
-        /// The undo banner's message, naming the action taken.
-        var bannerTitle: String {
-            switch self {
-            case .delete(let snapshot): return String(localized: "Deleted \"\(snapshot.title)\"")
-            case .complete(let info): return String(localized: "Completed \"\(info.title)\"")
-            }
-        }
-
         /// The title of the task this pending action concerns, regardless of kind.
         var title: String {
             switch self {
             case .delete(let snapshot): return snapshot.title
             case .complete(let info): return info.title
+            }
+        }
+
+        /// The undo banner's message, naming the action taken.
+        var bannerTitle: String {
+            switch self {
+            case .delete: return String(localized: "Deleted \"\(title)\"")
+            case .complete: return String(localized: "Completed \"\(title)\"")
             }
         }
     }
@@ -188,7 +188,6 @@ final class TaskStore {
     /// Deletes the task, snapshotting it to `pendingUndo` so `undo()` can recreate it within the
     /// undo window.
     func deleteTask(_ task: FocalTask) {
-        let id = task.id
         let snapshot = DeletedTaskSnapshot(
             title: task.title,
             note: task.note,
@@ -200,17 +199,8 @@ final class TaskStore {
                 SubtaskSnapshot(title: $0.title, isCompleted: $0.isCompleted)
             }
         )
-        modelContext.delete(task)
-        try? modelContext.save()
-        if let i = sessionQueue.firstIndex(of: id) {
-            sessionQueue.remove(at: i)
-        }
+        removeTask(task)
         notNowStreak = 0
-        if currentTaskID == id {
-            advance()
-        } else {
-            refreshIfNeeded()
-        }
         updateInactivityNotification()
 
         pendingUndo = .delete(snapshot)
@@ -269,20 +259,16 @@ final class TaskStore {
     /// Un-completes the task that was just marked done, deleting the occurrence `done(taskID:)`
     /// spawned for it (if it was recurring) so the undo doesn't leave a duplicate behind.
     private func undoCompleteTask(_ info: CompletedTaskInfo) {
-        if let spawnedID = info.spawnedTaskID, let spawned = fetchTask(id: spawnedID) {
-            if let i = sessionQueue.firstIndex(of: spawnedID) {
-                sessionQueue.remove(at: i)
-            }
-            modelContext.delete(spawned)
-            try? modelContext.save()
-            // The spawned occurrence may have been the task on screen; clear the now-dangling
-            // pointer so restoreTask(_:) below advances the queue instead of leaving it stale.
-            if currentTaskID == spawnedID {
-                currentTaskID = nil
-                currentTask = nil
-            }
+        var ids: Set<UUID> = [info.taskID]
+        if let spawnedID = info.spawnedTaskID {
+            ids.insert(spawnedID)
         }
-        guard let task = fetchTask(id: info.taskID) else {
+        let tasks = fetchTasks(ids: ids)
+
+        if let spawnedID = info.spawnedTaskID, let spawned = tasks.first(where: { $0.id == spawnedID }) {
+            removeTask(spawned)
+        }
+        guard let task = tasks.first(where: { $0.id == info.taskID }) else {
             return
         }
         restoreTask(task)
@@ -389,10 +375,26 @@ final class TaskStore {
         }
     }
 
-    private func fetchTask(id: UUID) -> FocalTask? {
-        var descriptor = FetchDescriptor<FocalTask>(predicate: #Predicate { $0.id == id })
-        descriptor.fetchLimit = 1
-        return (try? modelContext.fetch(descriptor))?.first
+    private func fetchTasks(ids: Set<UUID>) -> [FocalTask] {
+        let descriptor = FetchDescriptor<FocalTask>(predicate: #Predicate { ids.contains($0.id) })
+        return (try? modelContext.fetch(descriptor)) ?? []
+    }
+
+    /// Removes `task` from the session queue and the store, then reconciles `currentTaskID`/
+    /// `currentTask` if it was the task on screen. Leaves `pendingUndo`, `notNowStreak`, and
+    /// `updateInactivityNotification()` to the caller.
+    private func removeTask(_ task: FocalTask) {
+        let id = task.id
+        if let i = sessionQueue.firstIndex(of: id) {
+            sessionQueue.remove(at: i)
+        }
+        modelContext.delete(task)
+        try? modelContext.save()
+        if currentTaskID == id {
+            advance()
+        } else {
+            refreshIfNeeded()
+        }
     }
 
     /// Inserts `id` at a random position in the queue, never at index 0 so it doesn't preempt the

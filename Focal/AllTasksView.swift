@@ -10,7 +10,10 @@ struct AllTasksView: View {
     @Environment(TaskStore.self) private var store
     @Query(filter: #Predicate<FocalTask> { $0.completedAt == nil }, sort: \FocalTask.createdAt)
     private var incompleteTasks: [FocalTask]
-    @Query(filter: #Predicate<FocalTask> { $0.completedAt != nil }, sort: [SortDescriptor(\FocalTask.completedAt, order: .reverse)])
+    /// Most-recently-completed tasks, newest first, capped at `completedTaskDisplayLimit` so a long
+    /// history (e.g. years of a daily recurring task) doesn't hydrate an ever-growing list into
+    /// memory every time this sheet opens. Older completions remain in the store, just unlisted.
+    @Query(Self.completedTasksDescriptor)
     private var completedTasks: [FocalTask]
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(DefaultsKey.animationsEnabled) private var animationsEnabled = true
@@ -24,6 +27,17 @@ struct AllTasksView: View {
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
     private let rowInsets = EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16)
+
+    private static let completedTaskDisplayLimit = 200
+
+    private static var completedTasksDescriptor: FetchDescriptor<FocalTask> {
+        var descriptor = FetchDescriptor<FocalTask>(
+            predicate: #Predicate<FocalTask> { $0.completedAt != nil },
+            sortBy: [SortDescriptor(\FocalTask.completedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = completedTaskDisplayLimit
+        return descriptor
+    }
 
     var body: some View {
         NavigationStack {

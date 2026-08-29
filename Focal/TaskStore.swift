@@ -11,7 +11,7 @@ final class TaskStore {
     /// IDs of incomplete tasks in the order they'll be shown, most-recent-`notNow` last.
     private var sessionQueue: [UUID] = []
     private(set) var currentTaskID: UUID?
-    private(set) var pendingUndo: PendingUndo? = nil
+    private(set) var pendingUndo: PendingUndoAction? = nil
     private var undoTask: Task<Void, Never>?
 
     /// A subtask's title and completion state, captured for undo after its parent task is deleted.
@@ -20,8 +20,8 @@ final class TaskStore {
         let isCompleted: Bool
     }
 
-    /// A snapshot of a deleted `FocalTask`, held for the undo window and used to recreate it in `undoDelete()`.
-    struct PendingUndo: Equatable {
+    /// A snapshot of a deleted `FocalTask`, held for the undo window and used to recreate it in `undo()`.
+    struct DeletedTaskSnapshot: Equatable {
         let title: String
         let note: String?
         let completedAt: Date?
@@ -29,6 +29,37 @@ final class TaskStore {
         let estimatedMinutes: Int?
         let recurrence: RecurrenceRule?
         let subtasks: [SubtaskSnapshot]
+    }
+
+    /// A just-completed `FocalTask`, held for the undo window. `taskID` still exists in the store
+    /// (just marked complete); `spawnedTaskID` is the next occurrence `done(taskID:)` spawned for a
+    /// recurring task, if any, which `undo()` deletes so undoing doesn't leave a duplicate behind.
+    struct CompletedTaskInfo: Equatable {
+        let taskID: UUID
+        let title: String
+        let spawnedTaskID: UUID?
+    }
+
+    /// A pending delete or complete action, held for the undo window and shown in the undo banner.
+    enum PendingUndoAction: Equatable {
+        case delete(DeletedTaskSnapshot)
+        case complete(CompletedTaskInfo)
+
+        /// The undo banner's message, naming the action taken.
+        var bannerTitle: String {
+            switch self {
+            case .delete(let snapshot): return String(localized: "Deleted \"\(snapshot.title)\"")
+            case .complete(let info): return String(localized: "Completed \"\(info.title)\"")
+            }
+        }
+
+        /// The title of the task this pending action concerns, regardless of kind.
+        var title: String {
+            switch self {
+            case .delete(let snapshot): return snapshot.title
+            case .complete(let info): return info.title
+            }
+        }
     }
 
     private(set) var currentTask: FocalTask?
@@ -57,19 +88,21 @@ final class TaskStore {
     }
 
     /// Marks the given incomplete task as completed, spawning its next occurrence first if it
-    /// recurs, then advances the queue to the next task.
+    /// recurs, then advances the queue to the next task. Records a `pendingUndo` so `undo()` can
+    /// reverse this within the undo window, deleting the spawned occurrence if there was one.
     func done(taskID: UUID) {
         let incomplete = fetchIncomplete()
         guard let task = incomplete.first(where: { $0.id == taskID }) else {
             return
         }
 
+        var spawnedTask: FocalTask?
         if let rule = task.recurrence {
             let today = Calendar.current.startOfDay(for: Date())
             let base = task.dueDate ?? today
             let nextDue = rule.nextDate(from: base, notBefore: today)
             let subtaskTitles = task.sortedSubtasks.map(\.title)
-            addTask(
+            spawnedTask = addTask(
                 title: task.title,
                 note: task.note,
                 dueDate: nextDue,
@@ -79,6 +112,7 @@ final class TaskStore {
             )
         }
 
+        let title = task.title
         task.completedAt = Date()
         notNowStreak = 0
         UserDefaults.standard.set(true, forKey: DefaultsKey.hasCompletedTask)
@@ -95,6 +129,9 @@ final class TaskStore {
             queueCleared += 1
         }
         updateInactivityNotification()
+
+        pendingUndo = .complete(CompletedTaskInfo(taskID: taskID, title: title, spawnedTaskID: spawnedTask?.id))
+        scheduleUndoExpiry()
     }
 
     /// Defers the currently displayed task to the end of the queue and shows the next one.
@@ -114,7 +151,9 @@ final class TaskStore {
     }
 
     /// Creates a new task (and any subtasks) and inserts it into the queue: shown immediately if
-    /// nothing is currently displayed, otherwise slotted in at a random position.
+    /// nothing is currently displayed, otherwise slotted in at a random position. Returns the
+    /// created task.
+    @discardableResult
     func addTask(
         title: String,
         note: String?,
@@ -122,7 +161,7 @@ final class TaskStore {
         estimatedMinutes: Int? = nil,
         recurrence: RecurrenceRule? = nil,
         subtaskTitles: [String] = []
-    ) {
+    ) -> FocalTask {
         let task = FocalTask(
             title: title,
             note: note.flatMap { $0.trimmed.nilIfEmpty },
@@ -143,13 +182,14 @@ final class TaskStore {
             enqueueRandomly(task.id)
         }
         updateInactivityNotification()
+        return task
     }
 
-    /// Deletes the task, snapshotting it to `pendingUndo` so `undoDelete()` can recreate it within
-    /// the undo window (5s, or 10s while VoiceOver/Switch Control is running).
+    /// Deletes the task, snapshotting it to `pendingUndo` so `undo()` can recreate it within the
+    /// undo window.
     func deleteTask(_ task: FocalTask) {
         let id = task.id
-        let snapshot = PendingUndo(
+        let snapshot = DeletedTaskSnapshot(
             title: task.title,
             note: task.note,
             completedAt: task.completedAt,
@@ -173,47 +213,50 @@ final class TaskStore {
         }
         updateInactivityNotification()
 
+        pendingUndo = .delete(snapshot)
+        scheduleUndoExpiry()
+    }
+
+    /// Reverses the most recent delete or complete action, if the undo window hasn't expired.
+    func undo() {
+        guard let pending = pendingUndo else {
+            return
+        }
         undoTask?.cancel()
-        pendingUndo = snapshot
-        let undoWindow: Double = UIAccessibility.isVoiceOverRunning || UIAccessibility.isSwitchControlRunning ? 10 : 5
-        undoTask = Task { @MainActor [weak self] in
-            do {
-                try await Task.sleep(for: .seconds(undoWindow))
-                self?.pendingUndo = nil
-            } catch {}
+        undoTask = nil
+        pendingUndo = nil
+
+        switch pending {
+        case .delete(let snapshot):
+            undoDeleteTask(snapshot)
+        case .complete(let info):
+            undoCompleteTask(info)
         }
     }
 
-    /// Recreates the most recently deleted task (and its subtasks) from `pendingUndo`, if the undo
-    /// window hasn't expired. Recreated completed tasks are not re-added to the queue.
-    func undoDelete() {
-        undoTask?.cancel()
-        undoTask = nil
-        guard let undo = pendingUndo else {
-            return
-        }
-        pendingUndo = nil
-
+    /// Recreates a deleted task (and its subtasks) from its snapshot. Recreated completed tasks
+    /// are not re-added to the queue.
+    private func undoDeleteTask(_ snapshot: DeletedTaskSnapshot) {
         let task = FocalTask(
-            title: undo.title,
-            note: undo.note.flatMap { $0.trimmed.nilIfEmpty },
-            dueDate: undo.dueDate,
-            estimatedMinutes: undo.estimatedMinutes,
-            recurrence: undo.recurrence
+            title: snapshot.title,
+            note: snapshot.note.flatMap { $0.trimmed.nilIfEmpty },
+            dueDate: snapshot.dueDate,
+            estimatedMinutes: snapshot.estimatedMinutes,
+            recurrence: snapshot.recurrence
         )
-        if let completedAt = undo.completedAt {
+        if let completedAt = snapshot.completedAt {
             task.completedAt = completedAt
         }
         modelContext.insert(task)
-        for snapshot in undo.subtasks {
-            let sub = SubTask(title: snapshot.title)
-            sub.isCompleted = snapshot.isCompleted
+        for subtask in snapshot.subtasks {
+            let sub = SubTask(title: subtask.title)
+            sub.isCompleted = subtask.isCompleted
             sub.task = task
             modelContext.insert(sub)
         }
         try? modelContext.save()
 
-        if undo.completedAt == nil {
+        if snapshot.completedAt == nil {
             if currentTaskID == nil {
                 advance()
             } else {
@@ -221,6 +264,28 @@ final class TaskStore {
             }
         }
         updateInactivityNotification()
+    }
+
+    /// Un-completes the task that was just marked done, deleting the occurrence `done(taskID:)`
+    /// spawned for it (if it was recurring) so the undo doesn't leave a duplicate behind.
+    private func undoCompleteTask(_ info: CompletedTaskInfo) {
+        if let spawnedID = info.spawnedTaskID, let spawned = fetchTask(id: spawnedID) {
+            if let i = sessionQueue.firstIndex(of: spawnedID) {
+                sessionQueue.remove(at: i)
+            }
+            modelContext.delete(spawned)
+            try? modelContext.save()
+            // The spawned occurrence may have been the task on screen; clear the now-dangling
+            // pointer so restoreTask(_:) below advances the queue instead of leaving it stale.
+            if currentTaskID == spawnedID {
+                currentTaskID = nil
+                currentTask = nil
+            }
+        }
+        guard let task = fetchTask(id: info.taskID) else {
+            return
+        }
+        restoreTask(task)
     }
 
     /// Un-completes a previously completed task, resetting its subtasks if all were checked off,
@@ -296,7 +361,7 @@ final class TaskStore {
         if currentTaskID == nil {
             NotificationManager.shared.cancelAll()
         } else {
-            NotificationManager.shared.reschedule()
+            NotificationManager.shared.reschedule(taskTitle: currentTask?.title)
         }
     }
 
@@ -304,6 +369,30 @@ final class TaskStore {
         if currentTaskID == nil {
             advance()
         }
+    }
+
+    /// How long `pendingUndo` stays available before it expires: longer while VoiceOver or Switch
+    /// Control is running, since dismissing/reaching the undo banner takes more time.
+    private var undoWindowSeconds: Double {
+        UIAccessibility.isVoiceOverRunning || UIAccessibility.isSwitchControlRunning ? 12 : 6
+    }
+
+    /// Cancels any in-flight undo expiry and starts a fresh one for the current `pendingUndo`.
+    private func scheduleUndoExpiry() {
+        undoTask?.cancel()
+        let window = undoWindowSeconds
+        undoTask = Task { @MainActor [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(window))
+                self?.pendingUndo = nil
+            } catch {}
+        }
+    }
+
+    private func fetchTask(id: UUID) -> FocalTask? {
+        var descriptor = FetchDescriptor<FocalTask>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return (try? modelContext.fetch(descriptor))?.first
     }
 
     /// Inserts `id` at a random position in the queue, never at index 0 so it doesn't preempt the

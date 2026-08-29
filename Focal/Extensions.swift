@@ -109,10 +109,10 @@ struct SubtaskInputField: View {
 extension View {
     /// Attaches an `UndoBanner` as a bottom safe-area inset whenever `undo` is non-nil, animating
     /// its appearance/disappearance when `animate` is true.
-    func undoBanner(_ undo: TaskStore.PendingUndo?, animate: Bool, onUndo: @escaping () -> Void) -> some View {
+    func undoBanner(_ undo: TaskStore.PendingUndoAction?, animate: Bool, onUndo: @escaping () -> Void) -> some View {
         safeAreaInset(edge: .bottom) {
             if let undo {
-                UndoBanner(undo: undo, onUndo: onUndo)
+                UndoBanner(label: undo.bannerTitle, onUndo: onUndo)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -122,14 +122,13 @@ extension View {
     }
 }
 
-/// Banner shown after deleting a task, offering to undo it before `TaskStore`'s undo window
-/// expires. Posts a VoiceOver announcement of the deletion on appear.
+/// Banner shown after deleting or completing a task, offering to undo it before `TaskStore`'s
+/// undo window expires. Posts a VoiceOver announcement of `label` on appear.
 struct UndoBanner: View {
-    let undo: TaskStore.PendingUndo
+    let label: String
     let onUndo: () -> Void
 
     var body: some View {
-        let label = String(localized: "Deleted \"\(undo.title)\"")
         HStack {
             Text(label)
                 .lineLimit(1)

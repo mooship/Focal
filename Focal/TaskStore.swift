@@ -2,19 +2,25 @@ import Foundation
 import SwiftData
 import UIKit
 
+/// Owns the session queue — a randomised, non-repeating cycle of incomplete tasks — and all
+/// mutations to `FocalTask`/`SubTask` data. `MainView` reads `currentTask` and drives the queue
+/// via `done()`/`notNow()`.
 @Observable
 final class TaskStore {
     private let modelContext: ModelContext
+    /// IDs of incomplete tasks in the order they'll be shown, most-recent-`notNow` last.
     private var sessionQueue: [UUID] = []
     private(set) var currentTaskID: UUID?
     private(set) var pendingUndo: PendingUndo? = nil
     private var undoTask: Task<Void, Never>?
 
+    /// A subtask's title and completion state, captured for undo after its parent task is deleted.
     struct SubtaskSnapshot: Equatable {
         let title: String
         let isCompleted: Bool
     }
 
+    /// A snapshot of a deleted `FocalTask`, held for the undo window and used to recreate it in `undoDelete()`.
     struct PendingUndo: Equatable {
         let title: String
         let note: String?
@@ -26,9 +32,12 @@ final class TaskStore {
     }
 
     private(set) var currentTask: FocalTask?
+    /// Consecutive `notNow()` calls since the last `done()`, reset on completion or reordering.
     private(set) var notNowStreak: Int = 0
+    /// Number of times the queue has been fully worked through to empty.
     private(set) var queueCleared: Int = 0
 
+    /// True once every task currently in the queue has been passed over at least once this cycle.
     var hasCompletedCycle: Bool {
         !sessionQueue.isEmpty && notNowStreak >= sessionQueue.count
     }
@@ -39,6 +48,7 @@ final class TaskStore {
         seedHasCompletedTaskIfNeeded()
     }
 
+    /// Completes the currently displayed task. No-op if there is none.
     func done() {
         guard let id = currentTaskID else {
             return
@@ -46,6 +56,8 @@ final class TaskStore {
         done(taskID: id)
     }
 
+    /// Marks the given incomplete task as completed, spawning its next occurrence first if it
+    /// recurs, then advances the queue to the next task.
     func done(taskID: UUID) {
         let incomplete = fetchIncomplete()
         guard let task = incomplete.first(where: { $0.id == taskID }) else {
@@ -85,6 +97,7 @@ final class TaskStore {
         updateInactivityNotification()
     }
 
+    /// Defers the currently displayed task to the end of the queue and shows the next one.
     func notNow() {
         let incomplete = fetchIncomplete()
         guard let id = currentTaskID,
@@ -100,6 +113,8 @@ final class TaskStore {
         updateInactivityNotification()
     }
 
+    /// Creates a new task (and any subtasks) and inserts it into the queue: shown immediately if
+    /// nothing is currently displayed, otherwise slotted in at a random position.
     func addTask(
         title: String,
         note: String?,
@@ -130,6 +145,8 @@ final class TaskStore {
         updateInactivityNotification()
     }
 
+    /// Deletes the task, snapshotting it to `pendingUndo` so `undoDelete()` can recreate it within
+    /// the undo window (5s, or 10s while VoiceOver/Switch Control is running).
     func deleteTask(_ task: FocalTask) {
         let id = task.id
         let snapshot = PendingUndo(
@@ -167,6 +184,8 @@ final class TaskStore {
         }
     }
 
+    /// Recreates the most recently deleted task (and its subtasks) from `pendingUndo`, if the undo
+    /// window hasn't expired. Recreated completed tasks are not re-added to the queue.
     func undoDelete() {
         undoTask?.cancel()
         undoTask = nil
@@ -204,6 +223,8 @@ final class TaskStore {
         updateInactivityNotification()
     }
 
+    /// Un-completes a previously completed task, resetting its subtasks if all were checked off,
+    /// and re-inserts it into the queue at a random position.
     func restoreTask(_ task: FocalTask) {
         task.completedAt = nil
         if !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted) {
@@ -220,6 +241,7 @@ final class TaskStore {
         updateInactivityNotification()
     }
 
+    /// Moves an incomplete task to the front of the queue and displays it immediately ("Focus now").
     func prioritizeTask(_ task: FocalTask) {
         guard task.completedAt == nil else {
             return
@@ -252,12 +274,14 @@ final class TaskStore {
         try? modelContext.save()
     }
 
+    /// Flips a subtask's completion state, then completes the parent task if this made every subtask done.
     func toggleSubtask(_ subtask: SubTask, in task: FocalTask) {
         subtask.isCompleted.toggle()
         try? modelContext.save()
         completeIfAllSubtasksDone(task)
     }
 
+    /// Completes `task` via `done(taskID:)` if it's still incomplete, has subtasks, and all of them are checked off.
     func completeIfAllSubtasksDone(_ task: FocalTask) {
         guard task.completedAt == nil,
               !task.subtasks.isEmpty,
@@ -267,6 +291,7 @@ final class TaskStore {
         done(taskID: task.id)
     }
 
+    /// Cancels inactivity notifications while no task is displayed, otherwise reschedules them.
     func updateInactivityNotification() {
         if currentTaskID == nil {
             NotificationManager.shared.cancelAll()
@@ -281,12 +306,17 @@ final class TaskStore {
         }
     }
 
+    /// Inserts `id` at a random position in the queue, never at index 0 so it doesn't preempt the
+    /// task currently on screen.
     private func enqueueRandomly(_ id: UUID) {
         let insertIndex = sessionQueue.isEmpty ? 0 : Int.random(in: 1...sessionQueue.count)
         sessionQueue.insert(id, at: insertIndex)
         notNowStreak = 0
     }
 
+    /// Recomputes `currentTaskID`/`currentTask` from the queue, reshuffling a fresh cycle when the
+    /// queue has run dry: due-today/overdue tasks first (shuffled among themselves), then the rest
+    /// (also shuffled). Pass `preloaded` to reuse an already-fetched list instead of hitting the store again.
     private func advance(with preloaded: [FocalTask]? = nil) {
         let incomplete = preloaded ?? fetchIncomplete()
         let incompleteIDs = Set(incomplete.map(\.id))
@@ -313,6 +343,8 @@ final class TaskStore {
         currentTask = currentTaskID.flatMap { id in incomplete.first { $0.id == id } }
     }
 
+    /// One-time migration: if a task was already completed before `DefaultsKey.hasCompletedTask`
+    /// existed, sets the flag retroactively instead of re-showing onboarding.
     private func seedHasCompletedTaskIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: DefaultsKey.hasCompletedTask) else {
             return

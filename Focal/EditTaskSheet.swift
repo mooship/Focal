@@ -1,6 +1,9 @@
 import SwiftUI
 import SwiftData
 
+/// Sheet for editing or deleting an existing task, including its scheduling fields and subtasks.
+/// Saves via `@Environment(\.modelContext)` for task fields and `TaskStore` for subtask mutations;
+/// guards unsaved changes with a discard confirmation.
 struct EditTaskSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -25,6 +28,8 @@ struct EditTaskSheet: View {
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
 
+    /// The earliest selectable due date: today, unless the task already has a past due date, in
+    /// which case that date's day-start so the existing overdue value stays selectable.
     private var dueDateLowerBound: Date {
         let todayStart = Calendar.current.startOfDay(for: Date())
         if let existing = task.dueDate, existing < todayStart {
@@ -40,6 +45,8 @@ struct EditTaskSheet: View {
         var isNew: Bool
     }
 
+    /// Whether any field differs from the task's saved state; gates the discard confirmation and
+    /// disables interactive (swipe-down) dismissal while true.
     private var hasChanges: Bool {
         let currentDue: Date? = hasDueDate ? selectedDueDate : nil
         return title.trimmed != task.title
@@ -51,6 +58,8 @@ struct EditTaskSheet: View {
             || subtaskDraftsChanged
     }
 
+    /// Whether the subtask drafts differ from `task.subtasks`: added, removed, retitled, or
+    /// toggled completion.
     private var subtaskDraftsChanged: Bool {
         let originalIDs = Set(task.subtasks.map(\.id))
         let draftExistingIDs = Set(subtaskDrafts.filter { !$0.isNew }.map(\.id))
@@ -215,6 +224,8 @@ struct EditTaskSheet: View {
         .sensoryFeedback(.impact(weight: .light), trigger: subtaskUncompleteTrigger)
     }
 
+    /// Appends the in-progress subtask title as a new draft row, if non-empty, then clears the input.
+    /// Also called on "Save" so a typed-but-uncommitted subtask isn't lost.
     private func commitNewSubtask() {
         let trimmed = newSubtaskTitle.trimmed
         guard !trimmed.isEmpty else {
@@ -224,6 +235,9 @@ struct EditTaskSheet: View {
         newSubtaskTitle = ""
     }
 
+    /// Writes the edited fields back to `task`, reconciles the subtask drafts against
+    /// `task.subtasks` (update, delete, or insert as needed), then auto-completes the task if that
+    /// reconciliation left every subtask checked off.
     private func saveChanges() {
         commitNewSubtask()
         task.title = title.trimmed

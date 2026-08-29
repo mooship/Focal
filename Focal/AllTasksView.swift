@@ -1,6 +1,10 @@
 import SwiftUI
 import SwiftData
 
+/// Sheet listing all incomplete and completed tasks. Incomplete rows: tap to edit, long-press
+/// context menu for Done / "Focus Now" / Edit / Delete, swipe-right for "Focus now", swipe-left
+/// for Done / Delete. Completed rows: swipe-right to restore, swipe-left to delete. Opens
+/// Settings via the gear icon.
 struct AllTasksView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(TaskStore.self) private var store
@@ -169,6 +173,8 @@ struct AllTasksView: View {
         .padding(.horizontal, 12)
     }
 
+    /// The task's title plus a "current focus" suffix (if it's the task on `MainView`) and its
+    /// meta line, combined into a single accessibility label for the row.
     private func accessibilityLabel(for task: FocalTask) -> Text {
         var label = task.title
         if task.id == store.currentTaskID {
@@ -180,6 +186,7 @@ struct AllTasksView: View {
         return Text(label)
     }
 
+    /// Estimate, due date, and recurrence joined with " · ", or `nil` if the task has none of those set.
     private func metaLine(for task: FocalTask) -> String? {
         var parts: [String] = []
         if let mins = task.estimatedMinutes {

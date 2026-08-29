@@ -1,6 +1,9 @@
 import SwiftUI
 import SwiftData
 
+/// Root view: shows the current task card (title, note, subtask checklist, and meta badges) with
+/// Done / Not now actions, or an empty-state view when the queue is empty. Hosts the quick-add,
+/// all-tasks, and edit-task sheets, and the undo banner.
 struct MainView: View {
     @Environment(TaskStore.self) private var store
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -70,6 +73,8 @@ struct MainView: View {
         .sensoryFeedback(.success, trigger: successTrigger)
     }
 
+    /// The glass card for the current task: title/note, subtask checklist (if any), meta badges
+    /// (if any), and the Done / Not now buttons, which stack vertically at accessibility Dynamic Type sizes.
     @ViewBuilder
     private func taskView(_ task: FocalTask) -> some View {
         let sortedSubtasks = task.sortedSubtasks
@@ -252,6 +257,8 @@ struct MainView: View {
         .accessibilityElement(children: .combine)
     }
 
+    /// Shown when there's no current task: a first-run welcome message before any task has ever
+    /// been completed, or a "nothing left" message once the queue has been cleared before.
     private var emptyStateView: some View {
         let isFirstRun = !hasCompletedTask
         let title: LocalizedStringKey = isFirstRun ? "Welcome to Focal." : "Nice, nothing left."

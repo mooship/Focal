@@ -175,22 +175,13 @@ struct AllTasksView: View {
 
     /// Shown when there are no tasks at all, incomplete or completed.
     private var emptyStateView: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "tray")
-                .font(.system(size: 52))
-                .foregroundStyle(.tertiary)
-                .accessibilityHidden(true)
-                .padding(.bottom, 4)
-            Text("No tasks yet.")
-                .font(.title2.weight(.medium))
-            Text("Tasks you add will show up here.")
-                .font(.body)
-                .foregroundStyle(.secondary)
-        }
-        .multilineTextAlignment(.center)
-        .padding()
+        EmptyStateView(
+            systemImage: "tray",
+            iconStyle: AnyShapeStyle(HierarchicalShapeStyle.tertiary),
+            title: "No tasks yet.",
+            subtitle: "Tasks you add will show up here."
+        )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityElement(children: .combine)
     }
 
     /// A row for an incomplete task: a leading checkbox that completes it directly, and a tappable
@@ -202,15 +193,10 @@ struct AllTasksView: View {
             Button {
                 complete(task)
             } label: {
-                Image(systemName: "circle")
-                    .foregroundStyle(.primary)
-                    .imageScale(.large)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
+                CheckboxIcon(isCompleted: false)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Text(String(localized: "Mark \(task.title) as done")))
-            .accessibilityHint("Marks task as complete")
+            .markDoneAccessibility(for: task)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 8) {
@@ -230,9 +216,8 @@ struct AllTasksView: View {
             .contentShape(Rectangle())
             .onTapGesture { editingTask = task }
             .accessibilityElement(children: .combine)
-            .accessibilityAddTraits(.isButton)
             .accessibilityLabel(accessibilityLabel(for: task))
-            .accessibilityHint("Opens task editor")
+            .opensEditorAccessibility()
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 12)

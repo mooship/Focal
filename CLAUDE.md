@@ -131,14 +131,22 @@ Focal shows one task at a time to reduce ADHD decision paralysis. It uses
   shuffled and placed first, everything else shuffled after. `advance(with:)`
   accepts a pre-fetched list to skip a redundant SwiftData fetch.
   - Mutating API: `done()` / `done(taskID:)`, `notNow()`,
-    `addTask(title:note:dueDate:estimatedMinutes:recurrence:subtaskTitles:)`,
-    `deleteTask(_:)` / `undoDelete()` (5s undo window, 10s while VoiceOver
-    or Switch Control is running — `UIAccessibility.isVoiceOverRunning` /
-    `.isSwitchControlRunning`), `prioritizeTask(_:)` ("Focus now"),
-    `restoreTask(_:)`, `addSubtask(to:title:)`, `deleteSubtask(_:)`,
+    `addTask(title:note:dueDate:estimatedMinutes:recurrence:subtaskTitles:)`
+    (`@discardableResult`, returns the created `FocalTask`), `deleteTask(_:)`,
+    `prioritizeTask(_:)` ("Focus now"), `restoreTask(_:)`,
+    `addSubtask(to:title:)`, `deleteSubtask(_:)`,
     `updateSubtask(_:title:isCompleted:)`, `toggleSubtask(_:in:)`, and
     `completeIfAllSubtasksDone(_:)` (auto-completes a task once every
     subtask is checked off).
+  - `deleteTask(_:)` and `done`/`done(taskID:)` both record a `pendingUndo`
+    (`TaskStore.PendingUndoAction`, `.delete`/`.complete`) that a single
+    `undo()` reverses within the undo window (6s, 12s while VoiceOver or
+    Switch Control is running — `UIAccessibility.isVoiceOverRunning` /
+    `.isSwitchControlRunning`). Undoing a completed recurring task deletes
+    the next occurrence `done(taskID:)` spawned for it, so undo never leaves
+    a duplicate behind — this also clears a stale `currentTaskID` if that
+    spawned occurrence was the task on screen, so the queue re-advances
+    instead of pointing at a deleted object.
   - Completing a recurring task (`done`/`done(taskID:)`) spawns its next
     occurrence via `RecurrenceRule.nextDate(from:notBefore:)` **before**
     marking the original complete — the rollover preserves the rule's
@@ -160,7 +168,8 @@ Focal shows one task at a time to reduce ADHD decision paralysis. It uses
 - `Focal/NotificationManager.swift` — singleton wrapping
   `UNUserNotificationCenter` for the single inactivity-reminder
   notification. `TaskStore.updateInactivityNotification()` calls
-  `reschedule()`/`cancelAll()` on every queue-changing action.
+  `reschedule(taskTitle:)`/`cancelAll()` on every queue-changing action,
+  passing `currentTask?.title` so the notification body names the task.
 - `Focal/DefaultsKey.swift` — `DefaultsKey` enum: the single source of truth
   for all `UserDefaults`/`@AppStorage` key strings and color-scheme value
   constants. Add new persisted settings here, not as inline string literals.
@@ -186,13 +195,18 @@ Focal shows one task at a time to reduce ADHD decision paralysis. It uses
   delete through `TaskStore` (`addSubtask`/`updateSubtask`/`deleteSubtask`).
   Guards unsaved changes with a discard confirmation.
 - `Focal/AllTasksView.swift` — sheet listing all incomplete and completed
-  tasks. Incomplete rows: tap to edit, long-press context menu for Done /
-  "Focus Now" / Edit / Delete, swipe-right for "Focus now", swipe-left for
-  Done / Delete. Completed rows: swipe-right to restore, swipe-left to
-  delete. Opens Settings via the gear icon (pushed via
-  `navigationDestination`, not a sheet).
+  tasks, ordered by due-date urgency (overdue/soonest first, then no-due-date
+  tasks by creation order) rather than raw insertion order. Shows a friendly
+  empty state when there are no tasks at all. Incomplete rows: a leading
+  checkbox completes the task directly, tap the rest of the row to edit,
+  long-press context menu for Done / "Focus Now" / Edit / Delete,
+  swipe-right for "Focus now", swipe-left for Done / Delete. Completed rows:
+  swipe-right to restore, swipe-left to delete. Opens Settings via the gear
+  icon (pushed via `navigationDestination`, not a sheet).
 - `Focal/SettingsView.swift` — notifications (inactivity threshold), color
-  scheme, animations toggle.
+  scheme, animations toggle. If notification permission is denied,
+  reverts the toggle and shows an alert with an "Open Settings" action
+  (`UIApplication.openSettingsURLString`).
 - `Focal/LimitedTextField.swift` — reusable `TextField` with a live
   character counter (shown once within 20 characters of the limit, red at
   the limit) and a hard clamp via `onChange`. This — not SwiftData — is
@@ -212,7 +226,7 @@ Focal shows one task at a time to reduce ADHD decision paralysis. It uses
 ### Testing
 
 - **Unit tests** (`FocalTests/TaskStoreTests.swift`) use **Swift Testing**
-  (`import Testing`, `@Test`, `#expect`), not XCTest. All 46 tests live in
+  (`import Testing`, `@Test`, `#expect`), not XCTest. All 49 tests live in
   one `TaskStoreTests` struct, each building an isolated in-memory
   `TaskStore` via the private `makeStore(tasks:)` helper
   (`ModelConfiguration(isStoredInMemoryOnly: true)`).
@@ -228,7 +242,7 @@ removed Afrikaans/Spanish and fixed a README that still claimed
 multilingual support — don't reintroduce that claim without also
 reintroducing the localizations). The localisation infrastructure is kept
 in place so languages can be added again later. Strings live in a single
-`Focal/Localizable.xcstrings` file (Xcode String Catalog format), 86 keys,
+`Focal/Localizable.xcstrings` file (Xcode String Catalog format), 92 keys,
 `sourceLanguage` and only locale present is `en`.
 
 - All user-facing strings — including UI labels, accessibility labels, and

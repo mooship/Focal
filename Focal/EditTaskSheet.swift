@@ -155,9 +155,24 @@ struct EditTaskSheet: View {
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(draft.isCompleted ? "Mark incomplete" : "Mark complete")
-                            TextField("Subtask", text: $draft.title)
-                                .foregroundStyle(draft.isCompleted ? .secondary : .primary)
+                            .accessibilityAddTraits(.isToggle)
+                            .accessibilityLabel(draft.isCompleted
+                                ? Text(String(localized: "\(draft.title), completed"))
+                                : Text(draft.title)
+                            )
+                            .accessibilityHint(draft.isCompleted
+                                ? "Mark as incomplete"
+                                : "Mark as complete"
+                            )
+
+                            if draft.isCompleted {
+                                Text(draft.title)
+                                    .strikethrough()
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            } else {
+                                TextField("Subtask", text: $draft.title)
+                            }
                         }
                     }
                     .onDelete { offsets in

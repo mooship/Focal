@@ -57,7 +57,7 @@ struct MainView: View {
         }
         .undoBanner(store.pendingUndo, animate: shouldAnimate) {
             successTrigger += 1
-            store.undoDelete()
+            store.undo()
         }
         .sheet(isPresented: $showingQuickAdd) {
             QuickAddSheet()
@@ -85,22 +85,21 @@ struct MainView: View {
             Spacer()
 
             VStack(spacing: 0) {
-                Button { editingTask = task } label: {
-                    VStack(spacing: 12) {
-                        Text(task.title)
-                            .font(.largeTitle.weight(.semibold))
+                VStack(spacing: 12) {
+                    Text(task.title)
+                        .font(.largeTitle.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                    if let note = task.note, !note.isEmpty {
+                        Text(note)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
-                        if let note = task.note, !note.isEmpty {
-                            Text(note)
-                                .font(.body)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
                     }
-                    .padding(.horizontal, 8)
-                    .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.plain)
+                .padding(.horizontal, 8)
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isButton)
                 .accessibilityHint("Opens task editor")
                 .padding(.top, 24)
                 .padding(.horizontal, 24)
@@ -174,6 +173,8 @@ struct MainView: View {
                         .padding(.bottom, 20)
                 }
             }
+            .contentShape(Rectangle())
+            .onTapGesture { editingTask = task }
             .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .padding(.horizontal, 24)
 
@@ -194,11 +195,11 @@ struct MainView: View {
                 if dynamicTypeSize.isAccessibilitySize {
                     VStack(spacing: 12) {
                         doneButton(for: task)
-                        notNowButton
+                        notNowButton(for: task)
                     }
                 } else {
                     HStack(alignment: .bottom) {
-                        notNowButton
+                        notNowButton(for: task)
                         Spacer()
                         doneButton(for: task)
                     }
@@ -210,7 +211,7 @@ struct MainView: View {
         .frame(maxWidth: isRegularWidth ? 600 : .infinity)
     }
 
-    private var notNowButton: some View {
+    private func notNowButton(for task: FocalTask) -> some View {
         Button {
             selectionTrigger += 1
             store.notNow()
@@ -221,6 +222,7 @@ struct MainView: View {
                 .padding(.vertical, 12)
         }
         .glassEffect(in: Capsule())
+        .accessibilityLabel(Text(String(localized: "Skip \(task.title) for now")))
         .accessibilityHint("Skips to the next task")
     }
 

@@ -157,7 +157,11 @@ struct TaskStoreTests {
         let task = FocalTask(title: "Read book", note: "Chapter 3")
         let (store, _) = try makeStore(tasks: [task])
         store.deleteTask(task)
-        #expect(store.pendingUndo?.note == "Chapter 3")
+        guard case .delete(let snapshot) = store.pendingUndo else {
+            Issue.record("Expected a delete undo action")
+            return
+        }
+        #expect(snapshot.note == "Chapter 3")
     }
 
     @Test func undoDeleteRestoresIncompleteTask() throws {
@@ -167,7 +171,7 @@ struct TaskStoreTests {
             return
         }
         store.deleteTask(task)
-        store.undoDelete()
+        store.undo()
         let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
         #expect(all.contains { $0.title == "Walk dog" })
         #expect(store.currentTask?.title == "Walk dog")
@@ -180,7 +184,7 @@ struct TaskStoreTests {
             return
         }
         store.deleteTask(task)
-        store.undoDelete()
+        store.undo()
         let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
         #expect(all.first { $0.title == "Call mum" }?.completedAt == nil)
     }
@@ -191,14 +195,14 @@ struct TaskStoreTests {
         task.completedAt = completedDate
         let (store, context) = try makeStore(tasks: [task])
         store.deleteTask(task)
-        store.undoDelete()
+        store.undo()
         let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
         #expect(all.first { $0.title == "Done task" }?.completedAt == completedDate)
     }
 
-    @Test func undoDeleteWhenNoPendingUndoIsNoOp() throws {
+    @Test func undoWhenNoPendingUndoIsNoOp() throws {
         let (store, context) = try makeStore(tasks: [FocalTask(title: "Existing")])
-        store.undoDelete()
+        store.undo()
         let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
         #expect(all.count == 1)
     }
@@ -210,8 +214,46 @@ struct TaskStoreTests {
             return
         }
         store.deleteTask(task)
-        store.undoDelete()
+        store.undo()
         #expect(store.pendingUndo == nil)
+    }
+
+    @Test func doneSetsPendingUndoToComplete() throws {
+        let (store, _) = try makeStore(tasks: [FocalTask(title: "Water plants")])
+        store.done()
+        guard case .complete(let info) = store.pendingUndo else {
+            Issue.record("Expected a complete undo action")
+            return
+        }
+        #expect(info.title == "Water plants")
+        #expect(info.spawnedTaskID == nil)
+    }
+
+    @Test func undoCompleteRestoresTaskAsCurrent() throws {
+        let (store, context) = try makeStore(tasks: [FocalTask(title: "Water plants")])
+        store.done()
+        store.undo()
+        let all = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(all.first { $0.title == "Water plants" }?.completedAt == nil)
+        #expect(store.currentTask?.title == "Water plants")
+        #expect(store.pendingUndo == nil)
+    }
+
+    @Test func undoCompleteOnRecurringTaskRemovesSpawnedDuplicate() throws {
+        let due = Calendar.current.startOfDay(for: Date())
+        let task = FocalTask(title: "Standup", dueDate: due, recurrence: .daily)
+        let (store, context) = try makeStore(tasks: [task])
+        store.done()
+        let afterDone = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(afterDone.count == 2)
+
+        store.undo()
+        let afterUndo = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
+        #expect(afterUndo.count == 1)
+        #expect(afterUndo.first?.title == "Standup")
+        #expect(afterUndo.first?.completedAt == nil)
+        #expect(store.currentTask?.title == "Standup")
+        #expect(store.currentTaskID == afterUndo.first?.id)
     }
 
     @Test func restoreTaskMakesItIncomplete() throws {
@@ -464,7 +506,7 @@ struct TaskStoreTests {
         store.addSubtask(to: task, title: "Research")
         store.addSubtask(to: task, title: "Write")
         store.deleteTask(task)
-        store.undoDelete()
+        store.undo()
         let allTasks = (try? context.fetch(FetchDescriptor<FocalTask>())) ?? []
         let restored = allTasks.first { $0.title == "Project" && $0.completedAt == nil }
         #expect(restored != nil)

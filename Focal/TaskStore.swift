@@ -13,9 +13,6 @@ final class TaskStore {
     private(set) var currentTaskID: UUID?
     private(set) var pendingUndo: PendingUndo? = nil
     private var undoTask: Task<Void, Never>?
-    /// Coalesces bursts of `updateInactivityNotification()` calls (e.g. rapid "Not now" taps) into
-    /// a single notification-center round trip.
-    private var notificationRescheduleTask: Task<Void, Never>?
 
     /// A subtask's title and completion state, captured for undo after its parent task is deleted.
     struct SubtaskSnapshot: Equatable {
@@ -233,7 +230,7 @@ final class TaskStore {
     /// and re-inserts it into the queue at a random position.
     func restoreTask(_ task: FocalTask) {
         task.completedAt = nil
-        if !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted) {
+        if task.allSubtasksCompleted {
             task.subtasks.forEach { $0.isCompleted = false }
         }
         try? modelContext.save()
@@ -285,7 +282,7 @@ final class TaskStore {
     /// subtask toggle and the completion together in one round trip.
     func toggleSubtask(_ subtask: SubTask, in task: FocalTask) {
         subtask.isCompleted.toggle()
-        if allSubtasksDone(task) {
+        if task.completedAt == nil && task.allSubtasksCompleted {
             done(taskID: task.id)
         } else {
             try? modelContext.save()
@@ -294,35 +291,17 @@ final class TaskStore {
 
     /// Completes `task` via `done(taskID:)` if it's still incomplete, has subtasks, and all of them are checked off.
     func completeIfAllSubtasksDone(_ task: FocalTask) {
-        guard allSubtasksDone(task) else {
+        guard task.completedAt == nil && task.allSubtasksCompleted else {
             return
         }
         done(taskID: task.id)
     }
 
-    private func allSubtasksDone(_ task: FocalTask) -> Bool {
-        task.completedAt == nil && !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted)
-    }
-
     /// Cancels inactivity notifications while no task is displayed, otherwise reschedules them.
-    /// Rescheduling is debounced so a burst of queue-changing actions (e.g. rapid "Not now" taps)
-    /// results in one notification-center round trip instead of one per action.
     func updateInactivityNotification() {
-        notificationRescheduleTask?.cancel()
-        guard currentTaskID != nil else {
-            notificationRescheduleTask = nil
+        if currentTaskID == nil {
             NotificationManager.shared.cancelAll()
-            return
-        }
-        notificationRescheduleTask = Task { @MainActor [weak self] in
-            do {
-                try await Task.sleep(for: .milliseconds(300))
-            } catch {
-                return
-            }
-            guard let self, !Task.isCancelled else {
-                return
-            }
+        } else {
             NotificationManager.shared.reschedule()
         }
     }

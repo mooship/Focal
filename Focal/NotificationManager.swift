@@ -23,6 +23,9 @@ enum InactivityThreshold: String, CaseIterable, Identifiable {
 final class NotificationManager {
     static let shared = NotificationManager()
     private let center = UNUserNotificationCenter.current()
+    /// Coalesces bursts of `reschedule()` calls (e.g. rapid queue-changing actions in `TaskStore`)
+    /// into a single notification-center round trip.
+    private var rescheduleTask: Task<Void, Never>?
     private init() {}
 
     /// Requests permission to show alerts; returns whether it was granted.
@@ -30,10 +33,20 @@ final class NotificationManager {
         (try? await center.requestAuthorization(options: [.alert])) ?? false
     }
 
-    /// Cancels any pending inactivity notification and, if notifications are enabled in Settings,
-    /// schedules a new one to fire after the configured threshold. Turns notifications off in
-    /// Settings if scheduling fails.
+    /// Debounces briefly, then cancels any pending inactivity notification and, if notifications
+    /// are enabled in Settings, schedules a new one to fire after the configured threshold. Turns
+    /// notifications off in Settings if scheduling fails.
     func reschedule() {
+        rescheduleTask?.cancel()
+        rescheduleTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+                self.performReschedule()
+            } catch {}
+        }
+    }
+
+    private func performReschedule() {
         guard UserDefaults.standard.bool(forKey: DefaultsKey.notificationsEnabled) else {
             return
         }
@@ -56,8 +69,11 @@ final class NotificationManager {
         }
     }
 
-    /// Removes all pending (not yet delivered) inactivity notifications.
+    /// Removes all pending (not yet delivered) inactivity notifications, including any debounced
+    /// `reschedule()` that hasn't fired yet.
     func cancelAll() {
+        rescheduleTask?.cancel()
+        rescheduleTask = nil
         center.removeAllPendingNotificationRequests()
     }
 }

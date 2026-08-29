@@ -64,12 +64,14 @@ final class TaskStore {
             return
         }
 
+        var updatedIncomplete = incomplete.filter { $0.id != taskID }
+
         if let rule = task.recurrence {
             let today = Calendar.current.startOfDay(for: Date())
             let base = task.dueDate ?? today
             let nextDue = rule.nextDate(from: base, notBefore: today)
             let subtaskTitles = task.sortedSubtasks.map(\.title)
-            addTask(
+            let nextTask = addTask(
                 title: task.title,
                 note: task.note,
                 dueDate: nextDue,
@@ -77,6 +79,7 @@ final class TaskStore {
                 recurrence: rule,
                 subtaskTitles: subtaskTitles
             )
+            updatedIncomplete.append(nextTask)
         }
 
         task.completedAt = Date()
@@ -86,11 +89,7 @@ final class TaskStore {
         if let i = sessionQueue.firstIndex(of: taskID) {
             sessionQueue.remove(at: i)
         }
-        if task.recurrence != nil {
-            advance(with: fetchIncomplete())
-        } else {
-            advance(with: incomplete.filter { $0.id != taskID })
-        }
+        advance(with: updatedIncomplete)
         if currentTaskID == nil {
             queueCleared += 1
         }
@@ -114,7 +113,10 @@ final class TaskStore {
     }
 
     /// Creates a new task (and any subtasks) and inserts it into the queue: shown immediately if
-    /// nothing is currently displayed, otherwise slotted in at a random position.
+    /// nothing is currently displayed, otherwise slotted in at a random position. Returns the
+    /// created task so callers that already hold a fetched task list (e.g. `done(taskID:)`
+    /// spawning a recurring task's next occurrence) can update it in place instead of re-fetching.
+    @discardableResult
     func addTask(
         title: String,
         note: String?,
@@ -122,7 +124,7 @@ final class TaskStore {
         estimatedMinutes: Int? = nil,
         recurrence: RecurrenceRule? = nil,
         subtaskTitles: [String] = []
-    ) {
+    ) -> FocalTask {
         let task = FocalTask(
             title: title,
             note: note.flatMap { $0.trimmed.nilIfEmpty },
@@ -143,6 +145,7 @@ final class TaskStore {
             enqueueRandomly(task.id)
         }
         updateInactivityNotification()
+        return task
     }
 
     /// Deletes the task, snapshotting it to `pendingUndo` so `undoDelete()` can recreate it within
@@ -227,7 +230,7 @@ final class TaskStore {
     /// and re-inserts it into the queue at a random position.
     func restoreTask(_ task: FocalTask) {
         task.completedAt = nil
-        if !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted) {
+        if task.allSubtasksCompleted {
             task.subtasks.forEach { $0.isCompleted = false }
         }
         try? modelContext.save()
@@ -274,18 +277,21 @@ final class TaskStore {
         try? modelContext.save()
     }
 
-    /// Flips a subtask's completion state, then completes the parent task if this made every subtask done.
+    /// Flips a subtask's completion state, then completes the parent task if this made every
+    /// subtask done. Skips the intermediate save when completing: `done(taskID:)` saves the
+    /// subtask toggle and the completion together in one round trip.
     func toggleSubtask(_ subtask: SubTask, in task: FocalTask) {
         subtask.isCompleted.toggle()
-        try? modelContext.save()
-        completeIfAllSubtasksDone(task)
+        if task.completedAt == nil && task.allSubtasksCompleted {
+            done(taskID: task.id)
+        } else {
+            try? modelContext.save()
+        }
     }
 
     /// Completes `task` via `done(taskID:)` if it's still incomplete, has subtasks, and all of them are checked off.
     func completeIfAllSubtasksDone(_ task: FocalTask) {
-        guard task.completedAt == nil,
-              !task.subtasks.isEmpty,
-              task.subtasks.allSatisfy(\.isCompleted) else {
+        guard task.completedAt == nil && task.allSubtasksCompleted else {
             return
         }
         done(taskID: task.id)

@@ -59,20 +59,18 @@ struct EditTaskSheet: View {
     }
 
     /// Whether the subtask drafts differ from `task.subtasks`: added, removed, retitled, or
-    /// toggled completion.
+    /// toggled completion. Checks cheap counts before building the ID dictionary needed for a
+    /// full per-draft comparison, so the common no-op case (nothing added or removed) doesn't
+    /// allocate two intermediate `Set`s on every view update.
     private var subtaskDraftsChanged: Bool {
-        let originalIDs = Set(task.subtasks.map(\.id))
-        let draftExistingIDs = Set(subtaskDrafts.filter { !$0.isNew }.map(\.id))
-        if originalIDs != draftExistingIDs {
-            return true
-        }
-        if subtaskDrafts.contains(where: \.isNew) {
+        let existingDrafts = subtaskDrafts.filter { !$0.isNew }
+        if existingDrafts.count != task.subtasks.count || subtaskDrafts.contains(where: \.isNew) {
             return true
         }
         let originalByID = Dictionary(uniqueKeysWithValues: task.subtasks.map { ($0.id, $0) })
-        for draft in subtaskDrafts where !draft.isNew {
+        for draft in existingDrafts {
             guard let original = originalByID[draft.id] else {
-                continue
+                return true
             }
             if original.isCompleted != draft.isCompleted {
                 return true

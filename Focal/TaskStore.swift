@@ -13,6 +13,9 @@ final class TaskStore {
     private(set) var currentTaskID: UUID?
     private(set) var pendingUndo: PendingUndo? = nil
     private var undoTask: Task<Void, Never>?
+    /// Coalesces bursts of `updateInactivityNotification()` calls (e.g. rapid "Not now" taps) into
+    /// a single notification-center round trip.
+    private var notificationRescheduleTask: Task<Void, Never>?
 
     /// A subtask's title and completion state, captured for undo after its parent task is deleted.
     struct SubtaskSnapshot: Equatable {
@@ -64,12 +67,14 @@ final class TaskStore {
             return
         }
 
+        var updatedIncomplete = incomplete.filter { $0.id != taskID }
+
         if let rule = task.recurrence {
             let today = Calendar.current.startOfDay(for: Date())
             let base = task.dueDate ?? today
             let nextDue = rule.nextDate(from: base, notBefore: today)
             let subtaskTitles = task.sortedSubtasks.map(\.title)
-            addTask(
+            let nextTask = addTask(
                 title: task.title,
                 note: task.note,
                 dueDate: nextDue,
@@ -77,6 +82,7 @@ final class TaskStore {
                 recurrence: rule,
                 subtaskTitles: subtaskTitles
             )
+            updatedIncomplete.append(nextTask)
         }
 
         task.completedAt = Date()
@@ -86,11 +92,7 @@ final class TaskStore {
         if let i = sessionQueue.firstIndex(of: taskID) {
             sessionQueue.remove(at: i)
         }
-        if task.recurrence != nil {
-            advance(with: fetchIncomplete())
-        } else {
-            advance(with: incomplete.filter { $0.id != taskID })
-        }
+        advance(with: updatedIncomplete)
         if currentTaskID == nil {
             queueCleared += 1
         }
@@ -114,7 +116,10 @@ final class TaskStore {
     }
 
     /// Creates a new task (and any subtasks) and inserts it into the queue: shown immediately if
-    /// nothing is currently displayed, otherwise slotted in at a random position.
+    /// nothing is currently displayed, otherwise slotted in at a random position. Returns the
+    /// created task so callers that already hold a fetched task list (e.g. `done(taskID:)`
+    /// spawning a recurring task's next occurrence) can update it in place instead of re-fetching.
+    @discardableResult
     func addTask(
         title: String,
         note: String?,
@@ -122,7 +127,7 @@ final class TaskStore {
         estimatedMinutes: Int? = nil,
         recurrence: RecurrenceRule? = nil,
         subtaskTitles: [String] = []
-    ) {
+    ) -> FocalTask {
         let task = FocalTask(
             title: title,
             note: note.flatMap { $0.trimmed.nilIfEmpty },
@@ -143,6 +148,7 @@ final class TaskStore {
             enqueueRandomly(task.id)
         }
         updateInactivityNotification()
+        return task
     }
 
     /// Deletes the task, snapshotting it to `pendingUndo` so `undoDelete()` can recreate it within
@@ -274,28 +280,49 @@ final class TaskStore {
         try? modelContext.save()
     }
 
-    /// Flips a subtask's completion state, then completes the parent task if this made every subtask done.
+    /// Flips a subtask's completion state, then completes the parent task if this made every
+    /// subtask done. Skips the intermediate save when completing: `done(taskID:)` saves the
+    /// subtask toggle and the completion together in one round trip.
     func toggleSubtask(_ subtask: SubTask, in task: FocalTask) {
         subtask.isCompleted.toggle()
-        try? modelContext.save()
-        completeIfAllSubtasksDone(task)
+        if allSubtasksDone(task) {
+            done(taskID: task.id)
+        } else {
+            try? modelContext.save()
+        }
     }
 
     /// Completes `task` via `done(taskID:)` if it's still incomplete, has subtasks, and all of them are checked off.
     func completeIfAllSubtasksDone(_ task: FocalTask) {
-        guard task.completedAt == nil,
-              !task.subtasks.isEmpty,
-              task.subtasks.allSatisfy(\.isCompleted) else {
+        guard allSubtasksDone(task) else {
             return
         }
         done(taskID: task.id)
     }
 
+    private func allSubtasksDone(_ task: FocalTask) -> Bool {
+        task.completedAt == nil && !task.subtasks.isEmpty && task.subtasks.allSatisfy(\.isCompleted)
+    }
+
     /// Cancels inactivity notifications while no task is displayed, otherwise reschedules them.
+    /// Rescheduling is debounced so a burst of queue-changing actions (e.g. rapid "Not now" taps)
+    /// results in one notification-center round trip instead of one per action.
     func updateInactivityNotification() {
-        if currentTaskID == nil {
+        notificationRescheduleTask?.cancel()
+        guard currentTaskID != nil else {
+            notificationRescheduleTask = nil
             NotificationManager.shared.cancelAll()
-        } else {
+            return
+        }
+        notificationRescheduleTask = Task { @MainActor [weak self] in
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+            } catch {
+                return
+            }
+            guard let self, !Task.isCancelled else {
+                return
+            }
             NotificationManager.shared.reschedule()
         }
     }

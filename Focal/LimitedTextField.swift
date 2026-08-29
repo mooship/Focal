@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// A `TextField` with a hard character `limit`: shows a live remaining-character counter once
+/// within 20 characters of the limit (red once at it), and clamps `text` to the limit as the user types.
 struct LimitedTextField: View {
     let label: LocalizedStringKey
     @Binding var text: String

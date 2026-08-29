@@ -1,5 +1,6 @@
 import Foundation
 
+/// Single source of truth for all `UserDefaults`/`@AppStorage` key strings and color scheme value constants.
 enum DefaultsKey {
     static let notificationsEnabled = "notificationsEnabled"
     static let inactivityThreshold = "inactivityThreshold"

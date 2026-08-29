@@ -1,5 +1,8 @@
 import SwiftUI
 
+/// Sheet for adding a new task: title/note, a "More options" disclosure for due date, estimate,
+/// and recurrence, and a Subtasks section for checklist items. Guards accidental dismissal with a
+/// discard confirmation once any field has been touched.
 struct QuickAddSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(TaskStore.self) private var store
@@ -23,6 +26,8 @@ struct QuickAddSheet: View {
     }
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
+    /// Whether any field has been filled in; gates the discard confirmation and disables
+    /// interactive (swipe-down) dismissal while true.
     private var hasChanges: Bool {
         !title.trimmed.isEmpty || !note.trimmed.isEmpty
             || hasDueDate || selectedEstimate != nil || selectedRecurrence != nil
@@ -111,6 +116,8 @@ struct QuickAddSheet: View {
         .sensoryFeedback(.success, trigger: addedTrigger)
     }
 
+    /// Appends the in-progress subtask title as a new draft row, if non-empty, then clears the input.
+    /// Also called on "Add" so a typed-but-uncommitted subtask isn't lost.
     private func commitNewSubtask() {
         let trimmed = newSubtaskTitle.trimmed
         guard !trimmed.isEmpty else {

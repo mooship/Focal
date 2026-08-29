@@ -2,10 +2,13 @@ import Foundation
 import SwiftUI
 
 extension String {
+    /// `nil` if the string is empty, otherwise the string unchanged.
     var nilIfEmpty: String? { isEmpty ? nil : self }
+    /// Leading/trailing whitespace stripped; does not coerce an empty result to `nil` (see `nilIfEmpty`).
     var trimmed: String { trimmingCharacters(in: .whitespaces) }
 }
 
+/// Formats an estimate in minutes for display, using "hr" phrasing for the picker's hour-scale values.
 func formatEstimateMinutes(_ minutes: Int) -> String {
     switch minutes {
     case 60: return String(localized: "1 hr")
@@ -15,11 +18,14 @@ func formatEstimateMinutes(_ minutes: Int) -> String {
     }
 }
 
+/// A due-date badge's text and color, as computed by `formatDueDate(_:)`.
 struct DueDateDisplay {
     let text: String
     let color: Color
 }
 
+/// Renders a due date relative to now: "Overdue" (red) if past and not today, "Due today"
+/// (orange), "Tomorrow" (blue), or the abbreviated month/day (secondary) otherwise.
 func formatDueDate(_ due: Date) -> DueDateDisplay {
     let cal = Calendar.current
     if !cal.isDateInToday(due) && due < Date() {
@@ -34,6 +40,7 @@ func formatDueDate(_ due: Date) -> DueDateDisplay {
     return DueDateDisplay(text: due.formatted(.dateTime.month(.abbreviated).day()), color: .secondary)
 }
 
+/// A small capsule badge used for estimate/due-date/recurrence meta on a task.
 func metaBadge(_ text: String, color: Color) -> some View {
     Text(text)
         .font(.caption)
@@ -43,6 +50,7 @@ func metaBadge(_ text: String, color: Color) -> some View {
         .background(color.opacity(0.12), in: Capsule())
 }
 
+/// Menu picker for a task's estimated duration, from a fixed set of preset minute values.
 struct EstimatePicker: View {
     @Binding var selection: Int?
     var body: some View {
@@ -61,6 +69,7 @@ struct EstimatePicker: View {
     }
 }
 
+/// Menu picker for a task's `RecurrenceRule`.
 struct RecurrencePicker: View {
     @Binding var selection: RecurrenceRule?
     var body: some View {
@@ -74,6 +83,8 @@ struct RecurrencePicker: View {
     }
 }
 
+/// Text field for typing a new subtask title; submitting (return, or the plus button once
+/// non-empty) invokes `onCommit`, which is expected to append the draft and clear `text`.
 struct SubtaskInputField: View {
     @Binding var text: String
     let onCommit: () -> Void
@@ -96,6 +107,8 @@ struct SubtaskInputField: View {
 }
 
 extension View {
+    /// Attaches an `UndoBanner` as a bottom safe-area inset whenever `undo` is non-nil, animating
+    /// its appearance/disappearance when `animate` is true.
     func undoBanner(_ undo: TaskStore.PendingUndo?, animate: Bool, onUndo: @escaping () -> Void) -> some View {
         safeAreaInset(edge: .bottom) {
             if let undo {
@@ -109,6 +122,8 @@ extension View {
     }
 }
 
+/// Banner shown after deleting a task, offering to undo it before `TaskStore`'s undo window
+/// expires. Posts a VoiceOver announcement of the deletion on appear.
 struct UndoBanner: View {
     let undo: TaskStore.PendingUndo
     let onUndo: () -> Void

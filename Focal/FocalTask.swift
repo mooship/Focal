@@ -1,17 +1,20 @@
 import Foundation
 import SwiftData
 
+/// Character limits enforced on `FocalTask` text fields by `LimitedTextField`.
 enum TaskLimit {
     static let titleMax = 80
     static let noteMax = 300
 }
 
+/// How often a completed `FocalTask` recurs. Completing a recurring task spawns its next occurrence via `TaskStore`.
 enum RecurrenceRule: String, Codable, CaseIterable {
     case daily
     case weekdays
     case weekly
     case monthly
 
+    /// Localized display name shown in recurrence pickers.
     var stringValue: String {
         switch self {
         case .daily: return String(localized: "Daily")
@@ -21,6 +24,8 @@ enum RecurrenceRule: String, Codable, CaseIterable {
         }
     }
 
+    /// The next occurrence on or after `minimum`, stepping forward by this rule until the minimum is reached.
+    /// Used when a recurring task's due date has already passed, so the spawned occurrence isn't immediately overdue.
     func nextDate(from date: Date, notBefore minimum: Date) -> Date {
         var next = nextDate(from: date)
         while next < minimum {
@@ -29,6 +34,7 @@ enum RecurrenceRule: String, Codable, CaseIterable {
         return next
     }
 
+    /// The single next occurrence after `date` according to this rule (weekdays skips weekends).
     func nextDate(from date: Date) -> Date {
         let cal = Calendar.current
         switch self {
@@ -48,6 +54,7 @@ enum RecurrenceRule: String, Codable, CaseIterable {
     }
 }
 
+/// A single to-do item. `TaskStore` manages the session queue over incomplete instances of this model.
 @Model
 final class FocalTask {
     var id: UUID
@@ -58,9 +65,11 @@ final class FocalTask {
     var dueDate: Date?
     var estimatedMinutes: Int?
     var recurrence: RecurrenceRule?
+    /// Checklist items belonging to this task; deleted along with it.
     @Relationship(deleteRule: .cascade, inverse: \SubTask.task)
     var subtasks: [SubTask] = []
 
+    /// `subtasks` in the order they were added, for stable display in the checklist UI.
     var sortedSubtasks: [SubTask] {
         subtasks.sorted { $0.createdAt < $1.createdAt }
     }

@@ -1,6 +1,7 @@
 import Foundation
 import UserNotifications
 
+/// How long the app can sit untouched before an inactivity notification fires, as offered in Settings.
 enum InactivityThreshold: String, CaseIterable, Identifiable {
     case twoHours = "2 hours"
     case fourHours = "4 hours"
@@ -17,15 +18,21 @@ enum InactivityThreshold: String, CaseIterable, Identifiable {
     }
 }
 
+/// Singleton that schedules the single "you've got tasks waiting" local notification. `TaskStore`
+/// calls `reschedule()`/`cancelAll()` whenever the current task or queue state changes.
 final class NotificationManager {
     static let shared = NotificationManager()
     private let center = UNUserNotificationCenter.current()
     private init() {}
 
+    /// Requests permission to show alerts; returns whether it was granted.
     func requestPermission() async -> Bool {
         (try? await center.requestAuthorization(options: [.alert])) ?? false
     }
 
+    /// Cancels any pending inactivity notification and, if notifications are enabled in Settings,
+    /// schedules a new one to fire after the configured threshold. Turns notifications off in
+    /// Settings if scheduling fails.
     func reschedule() {
         guard UserDefaults.standard.bool(forKey: DefaultsKey.notificationsEnabled) else {
             return
@@ -49,6 +56,7 @@ final class NotificationManager {
         }
     }
 
+    /// Removes all pending (not yet delivered) inactivity notifications.
     func cancelAll() {
         center.removeAllPendingNotificationRequests()
     }

@@ -9,6 +9,7 @@ struct SettingsView: View {
         InactivityThreshold.twoHours.rawValue
     @AppStorage(DefaultsKey.animationsEnabled) private var animationsEnabled = true
     @AppStorage(DefaultsKey.colorScheme) private var colorSchemeRaw = DefaultsKey.colorSchemeSystem
+    @AppStorage(DefaultsKey.appLockEnabled) private var appLockEnabled = false
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var isRegularWidth: Bool { horizontalSizeClass == .regular }
@@ -53,6 +54,12 @@ struct SettingsView: View {
                     Text("Dark").tag(DefaultsKey.colorSchemeDark)
                 }
                 Toggle("Animations", isOn: $animationsEnabled)
+            }
+
+            Section {
+                Toggle("App Lock", isOn: $appLockEnabled)
+            } footer: {
+                Text("Require Face ID, Touch ID, or your device passcode to open Focal.")
             }
         }
         .frame(maxWidth: isRegularWidth ? 600 : .infinity)

@@ -3,8 +3,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: saturday
+      interval: monthly
     groups:
       github-actions:
         patterns:

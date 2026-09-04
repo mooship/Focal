@@ -4,7 +4,7 @@ Guidance for Claude Code (or any agent) working in this repository. Every claim
 below is grounded in a specific file — check the cited path if you need more
 detail than fits here.
 
-## What this is
+## About
 
 Focal (`Focal.xcodeproj`) is a native iOS/iPadOS SwiftUI app: one `@Model`
 task type (`FocalTask`, plus a `SubTask` checklist-item model), one
@@ -95,6 +95,9 @@ All from `Focal.xcodeproj/project.pbxproj`:
   effects. Skip them where the signature is already self-explanatory. No
   inline `//` implementation comments anywhere; keep code self-explanatory
   instead.
+- **British English spelling** in user-facing copy — UI labels, accessibility
+  labels/hints, and any string added to `Localizable.xcstrings` ("colour",
+  "organise", "favourite") — matching the author's other projects.
 - The `FocalUITests` target exists but contains only Xcode's auto-generated
   stubs (`FocalUITests.swift`, `FocalUITestsLaunchTests.swift` — a launch
   test and a performance measurement, nothing app-specific). No UI tests to
@@ -225,6 +228,9 @@ Focal shows one task at a time to reduce ADHD decision paralysis. It uses
 
 ### Testing
 
+- **TDD.** Write the failing test in `TaskStoreTests` before implementing new
+  `TaskStore` behaviour — every existing test already follows this pattern; a
+  behaviour change with no test exercising it is not finished work.
 - **Unit tests** (`FocalTests/TaskStoreTests.swift`) use **Swift Testing**
   (`import Testing`, `@Test`, `#expect`), not XCTest. All 49 tests live in
   one `TaskStoreTests` struct, each building an isolated in-memory

@@ -13,7 +13,7 @@ No lists. No prioritising. Just the next thing.
 - Time estimates (5 min up to 2 hr)
 - Recurring tasks (daily, weekdays, weekly, monthly)
 - "Focus now" to jump any task to the front of the queue
-- Undo for accidental deletes
+- Undo for accidental deletes or completions
 - Optional inactivity reminders (2 h / 4 h / 8 h)
 - Light, Dark, and System appearance
 - Task transition animations with Reduce Motion support
@@ -40,7 +40,8 @@ xcodebuild build \
 ```bash
 xcodebuild test \
   -scheme Focal \
-  -destination 'platform=iOS Simulator,name=iPhone 17'
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  CODE_SIGNING_ALLOWED=NO
 ```
 
 ## License
